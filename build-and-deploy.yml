@@ -1,0 +1,37 @@
+name: Automate Game Build for cPanel
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'dist/**'
+      - '.cpanel.yml'
+      - 'README.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Production Game Bundle
+        run: npm run build
+
+      - name: Commit and Push Compiled Production Build
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Automated Build: Compile production game bundle for cPanel"
+          branch: main
+          file_pattern: "dist/* Assets/* index.html"
