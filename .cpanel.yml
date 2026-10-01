@@ -1,5 +1,7 @@
----
+-e ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/fairiesd/public_html/arcade/Opossum_Ride_Adventure
-    - /bin/cp -R * $DEPLOYPATH
+    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Opossum_Ride_Adventure
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R dist/* $DEPLOYPATH
+
