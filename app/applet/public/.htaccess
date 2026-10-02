@@ -1,15 +1,33 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /Opossum_Ride_Adventure/
-  RewriteRule ^index\.html$ - [L]
+
+  # Handle directory trailing slash
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^(.*[^/])$ $1/ [L,R=301]
+
+  # Case-insensitive asset mapping
+  RewriteRule ^(?i)assets/js/(.*)$ Assets/JS/$1 [L]
+  RewriteRule ^(?i)assets/css/(.*)$ Assets/CSS/$1 [L]
+  RewriteRule ^(?i)assets/images/(.*)$ Assets/Images/$1 [L]
+  RewriteRule ^(?i)assets/web_assembly/(.*)$ Assets/Web_Assembly/$1 [L]
+
+  # Fallback to index.html for SPA routing
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /Opossum_Ride_Adventure/index.html [L]
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType text/css .css
+  AddType image/svg+xml .svg
+  AddType application/wasm .wasm
+  AddType image/png .png
 </IfModule>
 
 <IfModule mod_headers.c>
-  # Prevent caching of index.html
-  <FilesMatch "index\.html">
+  # Prevent caching of index.html and HTML files
+  <FilesMatch "\.(html|htm|json|txt)$">
     Header set Cache-Control "no-cache, no-store, must-revalidate"
     Header set Pragma "no-cache"
     Header set Expires "0"

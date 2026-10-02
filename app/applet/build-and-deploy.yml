@@ -4,10 +4,7 @@ on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'dist/**'
-      - '.cpanel.yml'
-      - 'README.md'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,6 +12,8 @@ jobs:
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -28,12 +27,9 @@ jobs:
       - name: Build Production Game Bundle
         run: npm run build
 
-      - name: Ensure .htaccess Subdirectory Routing Rule Exists
-        run: cp public/.htaccess dist/.htaccess || true
-
       - name: Commit and Push Compiled Production Build
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Automated Build: Compile production game bundle with .htaccess for cPanel"
+          commit_message: "Automated Build: Compile production game bundle for cPanel"
           branch: main
-          file_pattern: "dist/* Assets/* index.html"
+          file_pattern: "dist/** public/** Public/** .cpanel.yml index.html sync-build-assets.js"

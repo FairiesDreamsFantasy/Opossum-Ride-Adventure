@@ -1,0 +1,4 @@
+v0.1.0.7.4 - Systemic Path Normalization & User-Requested HTML Alignment
+Build Timestamp: 2026-10-02 09:55:00
+Deployment Gate: Verified
+Workspace Sync: Confirmed
