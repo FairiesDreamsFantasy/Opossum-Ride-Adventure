@@ -340,10 +340,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
             </button>
           )}
 
-
+          <button
+            id="Switch_To_Beta_Version_Button"
+            onClick={() => {
+              playProceduralSound("chatter");
+              window.open("https://arcade.fairiesdreamsfantasy.com/Opossum_Ride_Adventure/Beta/", "_blank");
+            }}
+            className="cursor-pointer bg-zinc-900 hover:bg-zinc-800 border border-amber-800 text-amber-400 hover:text-white font-bold uppercase tracking-wider px-6 py-2.5 rounded-md transition-all text-sm font-mono"
+          >
+            Switch To Beta Version
+          </button>
         </div>
-
-
       </main>
 
       {/* Keyboard Commands Modal */}

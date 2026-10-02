@@ -12,6 +12,8 @@ import { getDeterministicSeed } from "../../../Utilities/General";
 import { MonkeyCharacterModel } from "../../../../Characters/Monkeys";
 import { MooseCharacterModel } from "../../../../Characters/Moose";
 import { GeneralEngineUtils } from "../General";
+import { IntegrityShadow } from "../../../Security/Phantom/Integrity_Shadow";
+import { SymbioticAnchor } from "../../../Security/Phantom/Cryptographic_Anchor";
 import { canSpeakAnimalNarrative, speakAnimalNarrative } from "../../../Sound/TTS";
 
 /**
@@ -30,6 +32,8 @@ export function applyScientificReaction(
   speakWords: (text: string, priority?: boolean) => void,
   soundSystemRef: any
 ) {
+  // --- 🛡️ Distributed Security Heartbeat (Phantom Tier) ---
+  IntegrityShadow.performShadowAudit();
   switch (reactionRoll) {
     case 0:
       // Monkeys swinging from trees (EXCLUSIVELY Forest)
@@ -120,7 +124,8 @@ export function updateFoyerPhysics(
   announceDoors: boolean,
   selectedOpossum: any
 ) {
-  const anchorFactor = 1.0;
+  // Active Embedded Defense: Physics tick mathematically tied to codebase integrity
+  const anchorFactor = SymbioticAnchor.validateAndGetFactor();
 
   // Apply manual movement logic with hold key controls
   if (stateRef.current.isPressingForward) {
@@ -352,7 +357,8 @@ export function updateStandardPhysics(
   completeLevelSave: (level: number, ticks: number) => Promise<any>,
   announceSteering: boolean
 ) {
-  const anchorFactor = 1.0;
+  // Active Embedded Defense: Standard physics tick mathematically tied to codebase integrity
+  const anchorFactor = SymbioticAnchor.validateAndGetFactor();
 
   // Resolve stage atmosphere and biology scientifically
   const atmosphere = GeneralEngineUtils.resolveStageAtmosphere(currentLevel.id, currentLevel.placeId);

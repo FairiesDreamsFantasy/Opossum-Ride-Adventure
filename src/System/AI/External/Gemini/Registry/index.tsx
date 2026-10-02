@@ -14,6 +14,7 @@ import { GeminiRegistryVisuals } from "./Visuals";
 import { GeminiRegistryInput } from "./Input";
 import { GeminiRegistryBuildingBlocks } from "./Building_Blocks";
 import { GeminiRegistryUI } from "./UI";
+import { GeminiRegistrySecurity } from "./Security";
 import { RegistryWildcardL1 } from "./_Wildcard_";
 
 export const GeminiRegistry = {
@@ -28,6 +29,7 @@ export const GeminiRegistry = {
   Input: GeminiRegistryInput,
   BuildingBlocks: GeminiRegistryBuildingBlocks,
   UI: GeminiRegistryUI,
+  Security: GeminiRegistrySecurity,
   Wildcard: RegistryWildcardL1,
   systemName: "Gemini AI Registry Subsystem"
 };

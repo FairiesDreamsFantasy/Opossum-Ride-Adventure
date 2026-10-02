@@ -19,6 +19,6 @@ export * from "./AI";
 export * from "./Components";
 export * from "./UI";
 export * from "./DOM";
-export const SystemSecurity = { active: true, status: "STABLE" };
+export * from "./Security";
 export * from "./Accessibility";
 export * from "./Maintenance";

@@ -11,12 +11,14 @@ import { AIRegistry } from "./AI";
 import { DescriptionRegistry } from "./Description";
 import { AnnouncementPreferencesRegistry } from "./Announcement_Preferences";
 import { SoundRegistry } from "./Sound";
+
 import { VersionRegistry } from "./Version";
 import { WorldSystem } from "../Building_Blocks/World";
 import { LandingPageRegistry } from "./Landing_Page";
 import { UIRegistry } from "./UI";
 import { HardwareVirtualizationRegistry } from "./Hardware_Virtualization";
 import { BuildingBlocksRegistry } from "./Building_Blocks";
+import { SecurityRegistry } from "./Security";
 import { AccessibilityRegistry } from "./Accessibility";
 import { MaintenanceRegistry } from "./Maintenance";
 import { EngineRegistry } from "./Engine";
@@ -47,6 +49,7 @@ export const SystemRegistry = {
   Description: DescriptionRegistry,
   AnnouncementPreferences: AnnouncementPreferencesRegistry,
   Sound: SoundRegistry,
+  Security: SecurityRegistry,
   Accessibility: AccessibilityRegistry,
   Maintenance: MaintenanceRegistry,
   Engine: EngineRegistry,
@@ -58,3 +61,4 @@ export const SystemRegistry = {
 };
 
 export { MathematicsRegistry };
+

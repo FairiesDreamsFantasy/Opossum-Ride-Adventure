@@ -58,7 +58,6 @@ export interface RiderCharacter {
   height: string; // e.g., "5 feet and 4 inches"
   heritage?: string;
   category?: string;
-  description?: string;
 }
 
 export enum GameViewMode {

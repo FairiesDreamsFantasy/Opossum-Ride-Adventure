@@ -23,6 +23,7 @@ import { MonkeyCharacterModel } from "../../../../Characters/Monkeys";
 import { MooseCharacterModel } from "../../../../Characters/Moose";
 
 import { drawEdibleItem, getEdibleItemName } from "./Items";
+import { IntegrityShadow } from "../../../Security/Phantom/Integrity_Shadow";
 import { INITIAL_PLACES, PlaceDefinition } from "../../../../Arena";
 export { drawEdibleItem, getEdibleItemName };
 
@@ -51,6 +52,8 @@ export function render2DView(
   defaultRider: RiderCharacter,
   wireframe: boolean
 ) {
+  // --- 🛡️ Distributed Security Heartbeat (Phantom Tier) ---
+  IntegrityShadow.performShadowAudit();
   if (currentLevel.id === 0) {
     // ==================== LEVEL 0 FOYER 2D BLUEPRINT VIEW ====================
     const sideMargin = Math.min(width, height) * 0.08;
