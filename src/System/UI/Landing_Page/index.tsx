@@ -351,6 +351,137 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
             Switch To Beta Version
           </button>
         </div>
+
+        {/* SCIENTIFIC PRODUCTION COMPILATION & OFFLINE HUB */}
+        <section className="bg-zinc-950/80 border border-green-900 rounded-lg p-6 md:p-8 space-y-6 mt-8 shadow-[0_0_25px_rgba(0,0,0,0.6)] text-center">
+          <div>
+            <span className="text-[10px] font-mono tracking-widest text-green-500 uppercase block mb-1">
+              {registry.archiveRegistry.header}
+            </span>
+            <h2 className="text-xl font-bold uppercase tracking-wide text-green-300">
+              {registry.archiveRegistry.title}
+            </h2>
+            <div className="h-0.5 w-16 bg-green-900 mx-auto mt-3" />
+          </div>
+
+          <p className="text-xs text-green-400 font-sans leading-relaxed max-w-lg mx-auto">
+            {registry.archiveRegistry.description}
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <button
+              onClick={async () => {
+                playProceduralSound("chatter");
+                const filenames = [
+                  "Opossum_Ride_Adventure_V0.1.0.7.3.zip",
+                  "Opossum_Ride_Adventure.zip"
+                ];
+
+                const origin = window.location.origin;
+                const pathNoRoute = window.location.pathname.replace(/\/(Play_Area|Opossum_Selection_Screen|Interstitial_Ads|Interstitial_Ad)(\/.*)?$/i, "").replace(/\/index\.html$/i, "");
+                const cleanPath = pathNoRoute.endsWith("/") ? pathNoRoute : pathNoRoute + "/";
+
+                for (const filename of filenames) {
+                  const candidates = [
+                    `${origin}/${filename}`,
+                    `${origin}/Opossum_Ride_Adventure/${filename}`,
+                    `${origin}${cleanPath}${filename}`,
+                    `./${filename}`
+                  ];
+
+                  for (const url of candidates) {
+                    const urlWithBust = `${url}?t=${Date.now()}`;
+                    try {
+                      const res = await fetch(urlWithBust, {
+                        method: "HEAD",
+                        cache: "no-store"
+                      });
+                      if (res.ok) {
+                        const a = document.createElement("a");
+                        a.href = urlWithBust;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        return;
+                      }
+                    } catch (err) {
+                      console.warn(`HEAD check failed for ${url}:`, err);
+                    }
+                  }
+                }
+
+                // Pure relative anchor fallback
+                const a = document.createElement("a");
+                a.href = `./Opossum_Ride_Adventure_V0.1.0.7.3.zip`;
+                a.download = "Opossum_Ride_Adventure_V0.1.0.7.3.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }}
+              className="cursor-pointer bg-green-500 hover:bg-green-400 text-black font-mono font-extrabold uppercase tracking-widest px-8 py-3.5 rounded text-sm transition-all duration-200 active:scale-95 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+              style={{ minHeight: "44px" }}
+            >
+              Download Opossum_Ride_Adventure_V0.1.0.7.3.zip
+            </button>
+            <button
+              onClick={async () => {
+                playProceduralSound("chatter");
+                const filenames = [
+                  "Opossum_Ride_Adventure_Source_V0.1.0.7.3.zip",
+                  "Opossum_Ride_Adventure_Source.zip",
+                  "Opossum_Ride_AdventureV0.1.0.7.3.zip"
+                ];
+
+                const origin = window.location.origin;
+                const pathNoRoute = window.location.pathname.replace(/\/(Play_Area|Opossum_Selection_Screen|Interstitial_Ads|Interstitial_Ad)(\/.*)?$/i, "").replace(/\/index\.html$/i, "");
+                const cleanPath = pathNoRoute.endsWith("/") ? pathNoRoute : pathNoRoute + "/";
+
+                for (const filename of filenames) {
+                  const candidates = [
+                    `${origin}/${filename}`,
+                    `${origin}/Opossum_Ride_Adventure/${filename}`,
+                    `${origin}${cleanPath}${filename}`,
+                    `./${filename}`
+                  ];
+
+                  for (const url of candidates) {
+                    const urlWithBust = `${url}?t=${Date.now()}`;
+                    try {
+                      const res = await fetch(urlWithBust, {
+                        method: "HEAD",
+                        cache: "no-store"
+                      });
+                      if (res.ok) {
+                        const a = document.createElement("a");
+                        a.href = urlWithBust;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        return;
+                      }
+                    } catch (err) {
+                      console.warn(`HEAD check failed for ${url}:`, err);
+                    }
+                  }
+                }
+
+                // Pure relative anchor fallback
+                const a = document.createElement("a");
+                a.href = `./Opossum_Ride_Adventure_Source_V0.1.0.7.3.zip`;
+                a.download = "Opossum_Ride_Adventure_Source_V0.1.0.7.3.zip";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }}
+              className="cursor-pointer bg-zinc-900 hover:bg-zinc-800 text-green-400 hover:text-white border border-green-700 font-mono font-extrabold uppercase tracking-widest px-8 py-3.5 rounded text-sm transition-all duration-200 active:scale-95 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+              style={{ minHeight: "44px" }}
+            >
+              Download Full Source Code ZIP (V0.1.0.7.3)
+            </button>
+          </div>
+        </section>
       </main>
 
       {/* Keyboard Commands Modal */}

@@ -1,3 +1,11 @@
 node_modules/
 .vite/
 .aistudio/
+dist/
+*.log
+.DS_Store
+tmp/
+Dump/
+Good_Code_Memory_Box/
+.integrity.json
+.watermark

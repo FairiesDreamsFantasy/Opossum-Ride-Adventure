@@ -3,13 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const SoundGeneral = {
-  MASTER_GAIN: 0.8
-};
-
 /**
  * Scientific Surface Acoustic Profiles
-
  * Defines the resonant frequencies and coupling coefficients for various environmental terrains.
  */
 export const SURFACE_PROFILES: Record<string, { freq: number; q: number; gain: number; thudFreq: number }> = {

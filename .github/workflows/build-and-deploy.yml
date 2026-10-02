@@ -3,7 +3,6 @@ name: Automate Game Build for cPanel
 on:
   push:
     branches:
-      - Main
       - main
     paths-ignore:
       - 'dist/**'
@@ -13,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
@@ -34,5 +32,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Automated Build: Compile production game bundle for cPanel"
-          branch: ${{ github.ref_name }}
-          file_pattern: "dist/* public/* .cpanel.yml"
+          branch: main
+          file_pattern: "dist/* Assets/* index.html"

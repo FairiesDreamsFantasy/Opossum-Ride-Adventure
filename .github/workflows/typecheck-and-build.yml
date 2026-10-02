@@ -3,26 +3,17 @@ name: Quality Gate - TypeScript TypeCheck & Build Verification
 on:
   push:
     branches:
-      - Main
       - main
-      - Stable
-      - Staging
-      - AI_Dev
       - development
   pull_request:
     branches:
-      - Main
       - main
-      - Stable
-      - Staging
-      - AI_Dev
       - development
 
 jobs:
   quality-gate:
     name: Verify TypeScript & Build
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
