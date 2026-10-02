@@ -1,73 +1,97 @@
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
 function copyFile(src, dest) {
   if (fs.existsSync(src)) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
-    console.log(`Copied: ${src} -> ${dest}`);
+    console.log("Copied: " + src + " -> " + dest);
   } else {
-    console.warn(`Source file missing: ${src}`);
+    console.warn("Source file missing: " + src);
   }
 }
 
-if (fs.existsSync('dist')) {
-  const indexHtml = 'dist/index.html';
-  const jsIndex = 'dist/Assets/index.js';
-  const cssIndex = 'dist/Assets/index.css';
-  const htaccess = 'public/.htaccess';
+function writeHtml(destPath) {
+  fs.mkdirSync(path.dirname(destPath), { recursive: true });
+  let template = "index.html";
+  if (fs.existsSync("dist/index.html") && destPath !== "dist/index.html") {
+    template = "dist/index.html";
+  }
+  let content = fs.readFileSync(template, "utf8");
+  content = content.replace(/\/src\/main\.tsx/g, "Assets/JS/index.js");
+  content = content.replace(/src="\/src\/main\.tsx"/g, "src=\"Assets/JS/index.js\"");
+  fs.writeFileSync(destPath, content);
+  console.log("Generated HTML -> " + destPath);
+}
 
-  // Explicitly ensure dist/Opossum_Ride_Adventure directory exists
-  fs.mkdirSync('dist/Opossum_Ride_Adventure', { recursive: true });
+if (fs.existsSync("dist")) {
+  writeHtml("dist/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/index.html");
+  writeHtml("dist/Assets/index.html");
+  writeHtml("dist/Assets/JS/index.html");
+  writeHtml("dist/Assets/CSS/index.html");
+  writeHtml("dist/Assets/Images/index.html");
+  writeHtml("dist/Assets/Web_Assembly/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/Assets/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/Assets/JS/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/Assets/CSS/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/Assets/Images/index.html");
+  writeHtml("dist/Opossum_Ride_Adventure/Assets/Web_Assembly/index.html");
 
-  // Copy index.html and .htaccess to dist/Opossum_Ride_Adventure
-  copyFile(indexHtml, 'dist/Opossum_Ride_Adventure/index.html');
-  copyFile(htaccess, 'dist/Opossum_Ride_Adventure/.htaccess');
-  copyFile(htaccess, 'dist/.htaccess');
+  const htaccess = "public/.htaccess";
+  copyFile(htaccess, "dist/.htaccess");
+  copyFile(htaccess, "dist/Opossum_Ride_Adventure/.htaccess");
 
-  // Copy assets to dist/Assets/ and dist/Opossum_Ride_Adventure/Assets/
-  const assetBases = ['dist/Assets', 'dist/Opossum_Ride_Adventure/Assets'];
+  const jsIndex = "dist/Assets/index.js";
+  const cssIndex = "dist/Assets/index.css";
 
-  for (const base of assetBases) {
-    // JS variations
-    copyFile(indexHtml, `${base}/index.html`);
-    copyFile(indexHtml, `${base}/JS/index.html`);
-    copyFile(jsIndex, `${base}/index.js`);
-    copyFile(jsIndex, `${base}/JS/index.js`);
-    copyFile(jsIndex, `${base}/JS/style.js`);
-    copyFile(jsIndex, `${base}/JS/app.js`);
-    copyFile(jsIndex, `${base}/JS/main.js`);
+  const jsTargets = [
+    "dist/Assets/index.js",
+    "dist/Assets/JS/index.js",
+    "dist/Assets/JS/style.js",
+    "dist/Assets/JS/app.js",
+    "dist/Assets/JS/main.js",
+    "dist/Opossum_Ride_Adventure/Assets/index.js",
+    "dist/Opossum_Ride_Adventure/Assets/JS/index.js",
+    "dist/Opossum_Ride_Adventure/Assets/JS/style.js",
+    "dist/Opossum_Ride_Adventure/Assets/JS/app.js",
+    "dist/Opossum_Ride_Adventure/Assets/JS/main.js",
+    "public/Assets/JS/index.js"
+  ];
 
-    // CSS variations
-    copyFile(indexHtml, `${base}/CSS/index.html`);
-    copyFile(cssIndex, `${base}/index.css`);
-    copyFile(cssIndex, `${base}/CSS/index.css`);
-    copyFile(cssIndex, `${base}/CSS/style.css`);
-    copyFile(cssIndex, `${base}/CSS/main.css`);
+  const cssTargets = [
+    "dist/Assets/index.css",
+    "dist/Assets/CSS/index.css",
+    "dist/Assets/CSS/style.css",
+    "dist/Assets/CSS/main.css",
+    "dist/Opossum_Ride_Adventure/Assets/index.css",
+    "dist/Opossum_Ride_Adventure/Assets/CSS/index.css",
+    "dist/Opossum_Ride_Adventure/Assets/CSS/style.css",
+    "dist/Opossum_Ride_Adventure/Assets/CSS/main.css",
+    "public/Assets/CSS/style.css",
+    "public/Assets/CSS/index.css"
+  ];
 
-    // Images
-    copyFile(indexHtml, `${base}/Images/index.html`);
-    if (fs.existsSync('public/Assets/Images/Opossum_Ride_Illustration.png')) {
-      copyFile('public/Assets/Images/Opossum_Ride_Illustration.png', `${base}/Opossum_Ride_Illustration.png`);
-      copyFile('public/Assets/Images/Opossum_Ride_Illustration.png', `${base}/Images/Opossum_Ride_Illustration.png`);
-    }
-
-    // WebAssembly
-    copyFile(indexHtml, `${base}/Web_Assembly/index.html`);
-    if (fs.existsSync('public/Assets/Web_Assembly/index.wasm')) {
-      copyFile('public/Assets/Web_Assembly/index.wasm', `${base}/index.wasm`);
-      copyFile('public/Assets/Web_Assembly/index.wasm', `${base}/Web_Assembly/index.wasm`);
-    }
-    if (fs.existsSync('public/Assets/Web_Assembly/index.wat')) {
-      copyFile('public/Assets/Web_Assembly/index.wat', `${base}/index.wat`);
-      copyFile('public/Assets/Web_Assembly/index.wat', `${base}/Web_Assembly/index.wat`);
-    }
+  for (const target of jsTargets) {
+    copyFile(jsIndex, target);
+  }
+  for (const target of cssTargets) {
+    copyFile(cssIndex, target);
   }
 
-  // Also sync directly to public folder so local repository matches
-  copyFile(jsIndex, 'public/Assets/JS/index.js');
-  copyFile(cssIndex, 'public/Assets/CSS/style.css');
-  copyFile(cssIndex, 'public/Assets/CSS/index.css');
+  if (fs.existsSync("public/Assets/Images/Opossum_Ride_Illustration.png")) {
+    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Assets/Opossum_Ride_Illustration.png");
+    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Assets/Images/Opossum_Ride_Illustration.png");
+    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Opossum_Ride_Adventure/Assets/Opossum_Ride_Illustration.png");
+    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Opossum_Ride_Adventure/Assets/Images/Opossum_Ride_Illustration.png");
+  }
 
-  console.log('✅ All asset files and case-insensitive Apache rewrite rules synchronized flawlessly!');
+  if (fs.existsSync("public/Assets/Web_Assembly/index.wasm")) {
+    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Assets/index.wasm");
+    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Assets/Web_Assembly/index.wasm");
+    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Opossum_Ride_Adventure/Assets/index.wasm");
+    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Opossum_Ride_Adventure/Assets/Web_Assembly/index.wasm");
+  }
+
+  console.log("✅ All production HTML templates, asset bundles, and cPanel rewrite rules synchronized flawlessly!");
 }

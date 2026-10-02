@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="Assets/Images/Opossum_Ride_Illustration.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Opossum Ride Adventure</title>
     <meta name="description" content="Opossum Ride Adventure - Crafted with precision, mathematical logic, and ultra-broad security fortification." />
     <meta property="og:title" content="Opossum Ride Adventure" />
@@ -15,7 +15,6 @@
     <link rel="stylesheet" id="app-style-absolute" href="../../Opossum_Ride_Adventure/Assets/CSS/style.css" />
 
     <style>
-      /* Base dark background and immediate visible loading state to prevent blank screen */
       html, body, #root {
         width: 100%;
         height: 100%;
@@ -57,13 +56,14 @@
       <div id="fallback-loader">
         <div class="spinner"></div>
         <h2 style="font-size: 1.5rem; margin: 0 0 8px 0; font-weight: 600;">Opossum Ride Adventure</h2>
-        <p style="color: #9ca3af; margin: 0; font-size: 0.95rem;">Initializing high-performance game engine...</p>
+        <p style="color: #9ca3af; margin: 0; font-size: 0.95rem;">Initializing game engine...</p>
       </div>
     </div>
 
-    <!-- Script fallbacks for both ES module and standard script execution -->
+    <!-- Production bundle script tags -->
+    <script src="Assets/JS/index.js"></script>
 
-    <!-- Production bundle multi-path fallback script loader -->
+    <!-- Resilient multi-path fallback script loader -->
     <script>
       (function() {
         var scriptsToTry = [
@@ -91,13 +91,12 @@
           document.head.appendChild(s);
         }
 
-        // Delay 300ms to allow Vite dev module loader priority, then attempt production fallbacks if root is unmounted
         setTimeout(function() {
           var root = document.getElementById('root');
           if (root && root.querySelector('#fallback-loader')) {
             loadScript(0);
           }
-        }, 300);
+        }, 150);
       })();
     </script>
   </body>
