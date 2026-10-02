@@ -6,57 +6,57 @@ function copyFile(src, dest) {
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.copyFileSync(src, dest);
     console.log("Copied: " + src + " -> " + dest);
-  } else {
-    console.warn("Source file missing: " + src);
   }
 }
 
 if (fs.existsSync("dist")) {
-  let indexSrc = null;
-  if (fs.existsSync("dist/app/applet/index.html")) {
-    indexSrc = "dist/app/applet/index.html";
-  } else if (fs.existsSync("dist/index.html")) {
-    indexSrc = "dist/index.html";
-  }
+  const userHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset=\"UTF-8\" />
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+<title>Opossum Ride Adventure</title>
+<link href=\"CSS/style.css\" rel=\"stylesheet\">
+</head>
+<body>
+<div id=\"root\"></div>
+<script type=\"module\" crossorigin src=\"Assets/JS/index.js\"></script>
+</body>
+</html>`;
 
-  if (indexSrc) {
-    let content = fs.readFileSync(indexSrc, "utf-8");
-    // Normalize relative asset paths from ../../Assets/ or ../Assets/ to Assets/
-    content = content.replace(/\.\.\/\.\.\/Assets\//g, "Assets/");
-    content = content.replace(/\.\.\/Assets\//g, "Assets/");
-    content = content.replace(/src="\/src\/main\.tsx"/g, "src=\"Assets/index.js\"");
-    content = content.replace(/\/src\/main\.tsx/g, "Assets/index.js");
-
-    fs.writeFileSync("dist/index.html", content);
-    console.log("✅ Written normalized dist/index.html");
-  }
+  fs.writeFileSync("dist/index.html", userHtml);
+  fs.mkdirSync("dist/Opossum_Ride_Adventure", { recursive: true });
+  fs.writeFileSync("dist/Opossum_Ride_Adventure/index.html", userHtml);
+  console.log("✅ Wrote user-requested index.html");
 
   copyFile("public/.htaccess", "dist/.htaccess");
+  copyFile("public/.htaccess", "dist/Opossum_Ride_Adventure/.htaccess");
 
   const jsIndex = "dist/Assets/index.js";
   const cssIndex = "dist/Assets/index.css";
 
+  // Match user requested paths exactly
   copyFile(jsIndex, "dist/Assets/JS/index.js");
-  copyFile(jsIndex, "dist/Assets/JS/style.js");
-  copyFile(jsIndex, "dist/Assets/JS/app.js");
-  copyFile(jsIndex, "dist/Assets/JS/main.js");
+  copyFile(jsIndex, "dist/Opossum_Ride_Adventure/Assets/JS/index.js");
+  
+  copyFile(cssIndex, "dist/CSS/style.css");
+  copyFile(cssIndex, "dist/Opossum_Ride_Adventure/CSS/style.css");
 
-  copyFile(cssIndex, "dist/Assets/CSS/index.css");
-  copyFile(cssIndex, "dist/Assets/CSS/style.css");
-  copyFile(cssIndex, "dist/Assets/CSS/main.css");
+  // Fallbacks
+  copyFile(jsIndex, "dist/Assets/index.js");
+  copyFile(cssIndex, "dist/Assets/index.css");
 
-  copyFile(jsIndex, "public/Assets/JS/index.js");
-  copyFile(cssIndex, "public/Assets/CSS/style.css");
-  copyFile(cssIndex, "public/Assets/CSS/index.css");
-
-  if (fs.existsSync("public/Assets/Images/Opossum_Ride_Illustration.png")) {
-    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Assets/Opossum_Ride_Illustration.png");
-    copyFile("public/Assets/Images/Opossum_Ride_Illustration.png", "dist/Assets/Images/Opossum_Ride_Illustration.png");
+  // Images and Wasm
+  const img = "public/Assets/Images/Opossum_Ride_Illustration.png";
+  if (fs.existsSync(img)) {
+    copyFile(img, "dist/Assets/Images/Opossum_Ride_Illustration.png");
+    copyFile(img, "dist/Opossum_Ride_Adventure/Assets/Images/Opossum_Ride_Illustration.png");
   }
-
-  if (fs.existsSync("public/Assets/Web_Assembly/index.wasm")) {
-    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Assets/index.wasm");
-    copyFile("public/Assets/Web_Assembly/index.wasm", "dist/Assets/Web_Assembly/index.wasm");
+  
+  const wasm = "public/Assets/Web_Assembly/index.wasm";
+  if (fs.existsSync(wasm)) {
+    copyFile(wasm, "dist/Assets/Web_Assembly/index.wasm");
+    copyFile(wasm, "dist/Opossum_Ride_Adventure/Assets/Web_Assembly/index.wasm");
   }
 
   console.log("✅ Production build assets and .htaccess synchronized cleanly!");
