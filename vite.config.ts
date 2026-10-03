@@ -1,9 +1,16 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   base: "./",
+  publicDir: "Public",
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
@@ -11,13 +18,17 @@ export default defineConfig({
   },
   build: {
     outDir: "dist",
-    assetsDir: "Assets",
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        entryFileNames: "Assets/[name].js",
-        chunkFileNames: "Assets/[name].js",
-        assetFileNames: "Assets/[name].[ext]"
+        entryFileNames: "Assets/JS/index.js",
+        chunkFileNames: "Assets/JS/[name].js",
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'CSS/style.css';
+          }
+          return 'Assets/[name].[ext]';
+        }
       }
     }
   }

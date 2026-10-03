@@ -5,5 +5,4 @@ deployment:
     - /bin/mkdir -p $DEPLOYPATH
     - /bin/cp -rf dist/* $DEPLOYPATH/
     - /bin/cp -rf dist/.htaccess $DEPLOYPATH/ 2>/dev/null || true
-    - /bin/cp -rf dist/.* $DEPLOYPATH/ 2>/dev/null || true
     - /bin/chmod -R 755 $DEPLOYPATH
