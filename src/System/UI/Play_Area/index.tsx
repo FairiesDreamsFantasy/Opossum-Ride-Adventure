@@ -52,7 +52,7 @@ import {
   isMooseAndMonkeysAllowedInPlace,
   isMooseHotspotLevel
 } from "../../AI/In-Game";
-import { GeminiSystem } from "../../AI/External/Gemini";
+import { GeminiSystem, AIErrorBoundary } from "../../AI/External/Gemini";
 import { SmartArenaConfig } from "../../AI/External/Gemini/Smart_Arenas";
 import { AIGeneratedLevel } from "../../../World/1/Levels/AI-Generated_Levels";
 import { AIGeneratedPlace } from "../../../Arena/AI-Generated";
@@ -1684,13 +1684,15 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
       />
 
       {currentArena && !isAiGenerating && (
-        <AIGeneratedPlace arena={currentArena as any} />
+        <AIErrorBoundary moduleName="AIGeneratedPlace"><AIGeneratedPlace arena={currentArena as any} /></AIErrorBoundary>
       )}
 
       {currentLevel && currentLevel.id > 0 && GeminiSystem.isReady() && !isAiGenerating && (
-        <div className="absolute inset-0 pointer-events-none mix-blend-overlay">
-           <AIGeneratedLevel config={currentLevel as any} />
-        </div>
+        <AIErrorBoundary moduleName="AIGeneratedLevel">
+          <div className="absolute inset-0 pointer-events-none mix-blend-overlay">
+             <AIGeneratedLevel config={currentLevel as any} />
+          </div>
+        </AIErrorBoundary>
       )}
 
       {isAiGenerating && (

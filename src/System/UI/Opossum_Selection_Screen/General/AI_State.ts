@@ -2,7 +2,6 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-
 import { useState, useEffect } from "react";
 import { OPOSSUM_UI_CONSTANTS } from "./index";
 import { GeminiSystem, GeminiSafety } from "../../../AI/External/Gemini";
@@ -42,6 +41,124 @@ export interface AIOpossum {
   animationStyle?: "Standard Opossum" | "Dynamic Scurry";
 }
 
+const STORAGE_KEY = "OPOSSUM_AI_GENERATED_CATALOG";
+
+// Curated scientific initial prototypes (replaces crude 40 static clones)
+const INITIAL_SCIENTIFIC_PROTOTYPES: AIOpossum[] = [
+  {
+    id: "proto-jill-luna",
+    name: "Dusk Luna",
+    sex: "Jill",
+    isPaid: false,
+    size: 1.0,
+    sizeCategory: "Medium",
+    color: "Soft Silver",
+    furType: "Furry",
+    faceType: "Furry",
+    accessories: ["Pearl Necklace"],
+    skinTone: "Light",
+    earColor: "Pink",
+    tailColor: "Pink",
+    noseColor: "Pink",
+    eyeColor: "Deep Blue",
+    innerEarColor: "Pink",
+    rides: 12,
+    description: "A premier synthesized Jill utilizing high-fidelity cloud network synthesis with elegant marsupial chatter.",
+    vocalSource: "Cloud Network Synthesis",
+    neckRibbonColor: "None",
+    earSize: "Medium",
+    furryFacePercent: 82,
+    eyebrows: "None",
+    snoutLength: "Standard",
+    hasJewellery: true,
+    animationStyle: "Standard Opossum"
+  },
+  {
+    id: "proto-jack-buster",
+    name: "Silver Buster",
+    sex: "Jack",
+    isPaid: false,
+    size: 1.1,
+    sizeCategory: "Large",
+    color: "Natural Gray",
+    furType: "Furry",
+    faceType: "Furry",
+    accessories: [],
+    skinTone: "Dark",
+    earColor: "Black",
+    tailColor: "Pink",
+    noseColor: "Pink",
+    eyeColor: "Amber",
+    innerEarColor: "Pink",
+    rides: 25,
+    description: "A free-tier Jack companion featuring an iconic multi-colored neck ribbon and cloud-synthesized masculine vocalizations.",
+    vocalSource: "Cloud Network Synthesis",
+    neckRibbonColor: "Multi-colored",
+    earSize: "Medium",
+    furryFacePercent: 85,
+    eyebrows: "Bushy",
+    snoutLength: "Standard",
+    hasJewellery: false,
+    animationStyle: "Standard Opossum"
+  },
+  {
+    id: "proto-jill-hazel",
+    name: "Meadow Hazel",
+    sex: "Jill",
+    isPaid: false,
+    size: 0.95,
+    sizeCategory: "Medium",
+    color: "Pearl White",
+    furType: "Furry",
+    faceType: "Furry",
+    accessories: [],
+    skinTone: "Light",
+    earColor: "Pink",
+    tailColor: "Pink",
+    noseColor: "Light Pink",
+    eyeColor: "Natural Green",
+    innerEarColor: "Pink",
+    rides: 8,
+    description: "A swift and agile Jill utilizing local offline synthesis for responsive acoustic feedback across tranquil meadows.",
+    vocalSource: "Local Synthesizer",
+    neckRibbonColor: "None",
+    earSize: "Medium",
+    furryFacePercent: 78,
+    eyebrows: "None",
+    snoutLength: "Standard",
+    hasJewellery: false,
+    animationStyle: "Standard Opossum"
+  },
+  {
+    id: "proto-jack-jasper",
+    name: "Dusk Jasper",
+    sex: "Jack",
+    isPaid: false,
+    size: 1.05,
+    sizeCategory: "Medium",
+    color: "Slate Charcoal",
+    furType: "Furry",
+    faceType: "Furry",
+    accessories: [],
+    skinTone: "Dark",
+    earColor: "Dark Gray",
+    tailColor: "Pink",
+    noseColor: "Pink",
+    eyeColor: "Hazel",
+    innerEarColor: "Pink",
+    rides: 14,
+    description: "A robust Jack with balanced stride dynamics, high-frequency tail grip, and regulated multi-colored ribbon.",
+    vocalSource: "Cloud Network Synthesis",
+    neckRibbonColor: "Multi-colored",
+    earSize: "Medium",
+    furryFacePercent: 80,
+    eyebrows: "Standard",
+    snoutLength: "Standard",
+    hasJewellery: false,
+    animationStyle: "Standard Opossum"
+  }
+];
+
 /**
  * Global AI State for Opossum Generation
  */
@@ -50,24 +167,30 @@ export const useOpossumAIState = () => {
   const [smartNarrative, setSmartNarrative] = useState("");
   const [quota, setQuota] = useState(100);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedOpossums, setGeneratedOpossums] = useState<AIOpossum[]>([]);
+  const [generatedOpossums, setGeneratedOpossums] = useState<AIOpossum[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {
+      console.warn("Could not parse saved AI opossum catalog:", e);
+    }
+    return INITIAL_SCIENTIFIC_PROTOTYPES;
+  });
   const [hasAnyKey, setHasAnyKey] = useState(false);
   const [hasPaidKey, setHasPaidKey] = useState(false);
   const [showNetworkFeed, setShowNetworkFeed] = useState(true);
 
-  // Helper for generating meaningful, safe names with scientific variety
-  const generateSafeName = (sex: OpossumSex, index: number = 0) => {
-    const prefixes = ["Silver", "Dusk", "Meadow", "Mist", "Cloud", "Star", "Leaf", "River", "Golden", "Autumn", "Winter", "Spring", "Summer", "Ocean", "Forest", "Mountain"];
-    const jillNames = ["Luna", "Bella", "Willow", "Hazel", "Daisy", "Ivy", "Sasha", "Maya", "Nova", "Faye", "Skye", "Zoe", "Chloe", "Ruby", "Pearl", "Opal"];
-    const jackNames = ["Buster", "Finn", "Arlo", "Milo", "Otis", "Jasper", "Rocky", "Duke", "Max", "Leo", "Toby", "Bear", "Zeke", "Gus", "Jax", "Cooper"];
-    const list = sex === "Jill" ? jillNames : jackNames;
-    
-    // Deterministic selection based on index to ensure uniqueness across the grid
-    const pref = prefixes[(index + Math.floor(index / prefixes.length)) % prefixes.length];
-    const name = list[(index + Math.floor(index / list.length)) % list.length];
-    
-    return `${pref} ${name}`;
-  };
+  // Sync to local storage whenever generated opossums change
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(generatedOpossums));
+    } catch (e) {
+      console.warn("Failed to persist AI opossum catalog:", e);
+    }
+  }, [generatedOpossums]);
 
   useEffect(() => {
     const updateKeyState = () => {
@@ -84,103 +207,6 @@ export const useOpossumAIState = () => {
     return GeminiSystem.subscribe(updateKeyState);
   }, []);
 
-  useEffect(() => {
-    if (hasAnyKey && generatedOpossums.length === 0) {
-      // --- SCIENTIFIC REFINEMENT: Page 1 Seeding (5 Rows of 8 = 40 total) ---
-      // Row 1-3: Jill (Local Synthesizer) - 24 units
-      const row1to3 = Array.from({ length: 24 }, (_, i) => ({
-        id: `row-1-3-jill-${i}`,
-        name: generateSafeName("Jill", i),
-        sex: "Jill" as const,
-        isPaid: false,
-        size: 0.95 + (i % 5) * 0.05,
-        sizeCategory: "Medium" as const,
-        color: i % 2 === 0 ? "Gray" : "White",
-        furType: "Furry" as const,
-        faceType: "Furry" as const,
-        accessories: [],
-        skinTone: "Light" as const,
-        earColor: "Pink",
-        tailColor: "Pink",
-        noseColor: "Light Pink",
-        eyeColor: "Natural",
-        innerEarColor: "Pink",
-        rides: Math.floor(Math.random() * 20),
-        description: "A standard jill utilizing local sound synthesis.",
-        vocalSource: "Local Synthesizer" as const,
-        neckRibbonColor: "None" as const,
-        earSize: "Medium" as const,
-        furryFacePercent: 75,
-        eyebrows: "None",
-        snoutLength: "Standard" as const,
-        hasJewellery: false,
-        animationStyle: "Standard Opossum" as const
-      }));
-
-      // Row 4: Jill (Cloud Network Synthesis) - 8 units
-      const row4 = Array.from({ length: 8 }, (_, i) => ({
-        id: `row-4-jill-${i}`,
-        name: generateSafeName("Jill", i + 100), // Offset for uniqueness
-        sex: "Jill" as const,
-        isPaid: false,
-        size: 1.0,
-        sizeCategory: "Medium" as const,
-        color: "Soft Silver",
-        furType: "Furry" as const,
-        faceType: "Furry" as const,
-        accessories: ["Pearl Necklace"], // Special visual cue
-        skinTone: "Light" as const,
-        earColor: "Pink",
-        tailColor: "Pink",
-        noseColor: "Pink",
-        eyeColor: "Deep Blue",
-        innerEarColor: "Pink",
-        rides: Math.floor(Math.random() * 40),
-        description: "A premium-tier jill utilizing high-fidelity cloud network synthesis.",
-        vocalSource: "Cloud Network Synthesis" as const,
-        neckRibbonColor: "None" as const,
-        earSize: "Medium" as const,
-        furryFacePercent: 80,
-        eyebrows: "None",
-        snoutLength: "Standard" as const,
-        hasJewellery: true,
-        animationStyle: "Standard Opossum" as const
-      }));
-
-      // Row 5: Jack (Cloud Network Synthesis) - 8 units
-      const row5 = Array.from({ length: 8 }, (_, i) => ({
-        id: `row-5-jack-${i}`,
-        name: generateSafeName("Jack", i + 200),
-        sex: "Jack" as const,
-        isPaid: false,
-        size: 1.1,
-        sizeCategory: "Large" as const,
-        color: "Natural Gray",
-        furType: "Furry" as const,
-        faceType: "Furry" as const,
-        accessories: [],
-        skinTone: "Dark" as const,
-        earColor: "Black",
-        tailColor: "Pink",
-        noseColor: "Pink",
-        eyeColor: "Amber",
-        innerEarColor: "Pink",
-        rides: Math.floor(Math.random() * 60),
-        description: "A free jack utilizing cloud network synthesis for masculine vocalizations.",
-        vocalSource: "Cloud Network Synthesis" as const,
-        neckRibbonColor: "Multi-colored" as const,
-        earSize: "Medium" as const,
-        furryFacePercent: 85,
-        eyebrows: "Bushy",
-        snoutLength: "Standard" as const,
-        hasJewellery: false,
-        animationStyle: "Standard Opossum" as const
-      }));
-
-      setGeneratedOpossums([...row1to3, ...row4, ...row5]);
-    }
-  }, [hasAnyKey]);
-
   const generateOpossum = async (prompt: string): Promise<{
     type: "question" | "generate" | "error";
     text: string;
@@ -189,14 +215,13 @@ export const useOpossumAIState = () => {
     if (!hasAnyKey || quota <= 0) {
       return {
         type: "error",
-        text: "Please provide a valid Gemini API Key via 'Insert AI' to run this action."
+        text: "Please provide a valid Gemini API Key via 'Insert AI' to run dynamic fullstack opossum generation."
       };
     }
     
     // --- Pre-processing: Comments, Tags & Segments ---
     let processedPrompt = prompt;
     
-    // 1. Strip block comments <!-- ... --> (but keep inner content if it contains specific tags)
     // Extract special segments
     const generalChatMatch = prompt.match(/<!--General Chat Start-->([\s\S]*?)<!--General Chat End-->/i);
     const descriptionMatch = prompt.match(/<!--Opossum Description Start-->([\s\S]*?)<!--Opossum Description End-->/i);
@@ -208,13 +233,11 @@ export const useOpossumAIState = () => {
     // Strip remaining <!-- ... --> comments
     processedPrompt = processedPrompt.replace(/<!--[\s\S]*?-->/g, "");
 
-    // 2. Strip line comments // and # (but ignore hashtags in paragraphs)
+    // Strip line comments // and # (but ignore hashtags in paragraphs)
     processedPrompt = processedPrompt.split('\n').map(line => {
-      // Only treat // or # as a comment if it's not part of a word (simple heuristic)
       const lineWithoutHashtags = line.replace(/#\w+/g, 'TOKEN');
       const commentIdx = lineWithoutHashtags.search(/\/\/|#/);
       if (commentIdx !== -1) {
-        // Find the actual index in the original line
         const charAtIdx = lineWithoutHashtags.charAt(commentIdx);
         return line.substring(0, line.indexOf(charAtIdx, line.search(new RegExp(`[^#\\w]${charAtIdx === '#' ? '\\#' : '\\/\\/'}`)) + 1));
       }
@@ -223,11 +246,9 @@ export const useOpossumAIState = () => {
 
     const lowerPrompt = processedPrompt.toLowerCase();
     
-    // 3. Terminology Validation (Kid vs Child/Idren)
-    // Ignore kids if it's a hashtag or part of specific exempt brands
+    // Terminology Validation (Kid vs Child/Idren)
     const hasHashtagKid = /#\w*kid\w*/i.test(prompt);
     const isExemptBrand = lowerPrompt.includes("pbs kids") || lowerPrompt.includes("national geographic kids") || lowerPrompt.includes("tom & jerry kids");
-    
     const isKidTermUsed = lowerPrompt.includes("kid") && !isExemptBrand && !hasHashtagKid;
     
     if (isKidTermUsed) {
@@ -237,7 +258,7 @@ export const useOpossumAIState = () => {
       };
     }
 
-    // 0. Ultra-Hardened Zero-Tolerance Anti-Spanking & Violence Interception
+    // Zero-Tolerance Anti-Spanking & Child Safety Mandate
     const safetyCheck = GeminiSafety.validatePrompt(prompt, "OPOSSUM_SELECTION_USER_PROMPT");
     if (safetyCheck.violationDetected) {
       return {
@@ -246,7 +267,7 @@ export const useOpossumAIState = () => {
       };
     }
 
-    // 4. Fetish/Erotica Block (Babylonian Norm Prevention)
+    // Fetish/Erotica Block (Babylonian Norm Prevention)
     const isFetish = lowerPrompt.includes("fetish") || lowerPrompt.includes("sexual") || lowerPrompt.includes("erotica") || lowerPrompt.includes("pornography");
     if (isFetish) {
       return {
@@ -259,18 +280,11 @@ export const useOpossumAIState = () => {
 
     try {
       const ai = GeminiSystem.getClient();
-      if (!ai) {
-        throw new Error("Gemini Client not initialized.");
-      }
-
-      // Check for dwarfism or specific height requests to adjust scaling
-      const hasDwarfism = lowerPrompt.includes("dwarfism") || lowerPrompt.includes("short") || (lowerPrompt.match(/\d+ feet/) && parseInt(lowerPrompt.match(/(\d+) feet/)?.[1] || "5") < 4);
-
       const currentConfig = GeminiSystem.getConfig();
       const selectedModel = currentConfig?.selectedModel || "gemini-flash-latest";
+      const hasDwarfism = lowerPrompt.includes("dwarfism") || lowerPrompt.includes("short") || (lowerPrompt.match(/\d+ feet/) && parseInt(lowerPrompt.match(/(\d+) feet/)?.[1] || "5") < 4);
 
-      const basePrompt = `
-You are the advanced Gemini AI Game Subsystem for "Opossum Ride Adventure" (v0.0.8.9).
+      const basePrompt = `You are the advanced Gemini AI Game Subsystem for "Opossum Ride Adventure" (v0.1.0.7.5).
 The player has provided their own Gemini API key and typed the following prompt:
 "${prompt}"
 
@@ -281,47 +295,35 @@ Current System Info:
 SAFETY & CULTURAL RULES:
 - BABYLON-FREE MANDATE: Always prioritize wholesome, artistic, and respectful content. Oppose "Babylonian norms" like vanity, materialism, and fetishism.
 - FETISHISM BLOCK: Strictly refuse any request for fetishism, erotica, or sexualized content.
-- RELIGION TIERING: 
-  * Christianity (including denominations like Catholic, Protestant, etc. but excluding Rastafari) is a PAID feature. If a free user requests it, classify as "question" and explain that an upgrade is required to generate a Christian-associated opossum.
-  * Rastafari is FREE and OPEN for everyone (both paid and free tiers). If requested, respond with: "A Rastafarian opossum... or Rastafari opossum? No problem! This is a crafted work of art what you are making. This is going to be good... and you may continue on."
+- RELIGION TIERING:
+  * Christianity is a PAID feature. If a free user requests it, classify as "question" and explain that an upgrade is required.
+  * Rastafari is FREE and OPEN for everyone. If requested, respond with: "A Rastafarian opossum... or Rastafari opossum? No problem! This is a crafted work of art what you are making. This is going to be good... and you may continue on."
 
 CLASSIFICATION RULES:
-- If the user is asking questions about jacks, jills, or opossum topics in general, classify as "question". Answer the question in detail, scientifically and nicely!
-- If the user is trying to generate or customize an opossum, classify as "generate".
-- If the prompt mentions "child-friendly" or "idren-friendly", respond with "Okay, I'll make it 'Babylon-Free' by default. Looks like you want to generate this beautiful opossum." as part of the explanation.
-
-TERMINOLOGY TRANSLATIONS (For general chat):
-- Translate "kid" to "child" and "kids" to "idren/children" in your explanations.
-- If they ask about "Kiddy rides", explain they should be called "idren's ride machines" and discuss safety/design for all ages, not just infants.
-- If they ask about brands like "PBS Kids" or "Tom & Jerry Kids", address them correctly without confusion.
+- If asking questions about jacks, jills, or opossum topics in general, classify as "question".
+- If trying to generate or customize an opossum, classify as "generate".
 
 GENERATION RULES (IF "generate"):
-- Gender: Determine if the requested opossum is a "Jill" (female) or "Jack" (male). If not specified, default to either (randomly).
-- Jills: Fully free to generate with no restrictions. Can have custom jewelry, accessories, and colors.
+- Gender: Determine if "Jill" or "Jack".
+- Jills: Fully free to generate with no restrictions.
 - Jacks on FREE TIER (${!hasPaidKey ? "ACTIVE" : "INACTIVE"}):
-  * Name: Must be chosen from a set of pre-determined names: Buster, Finn, Arlo, Milo, Otis, Jasper, Rocky, Silver Buster, Dusk Milo, etc.
+  * Name: Chosen from: Buster, Finn, Arlo, Milo, Otis, Jasper, Rocky, Silver Buster, Dusk Milo, etc.
   * Ribbon: Free jacks MUST wear a multi-colored ribbon around their neck ("Multi-colored").
-  * Size: Must be one of the pre-determined size categories: "Small", "Medium", "Large", "Extra-Large".
-  * Furry Face Level: Must be a pre-determined percentage from 1% to 100% furry face like a conventional opossum (e.g., 75).
-  * Ear Size: Must be chosen from pre-determined sizes: "Small", "Medium", "Large" to prevent them from being too big or small.
-  * Eyebrows: Must be pre-determined ("Standard", "Bushy", "None").
-  * Colors: Must be selected from pre-determined sets of colors: e.g. body color (Gray, White, Soft Silver), ear/inner ear (Pink, Dark Gray), tail (Pink, Spotted), nose (Light Pink, Red, Black), paws.
-  * Snout length, head size, and tail length are pre-determined (can only be customized up to 20% longer, colors and markings are pre-determined, shoulder height is pre-determined by size).
-  * NO jewelry is allowed on free jacks (jewelry is a paid feature). If they asked for jewelry on a free jack, politely explain they need to upgrade/paid API key, but generate the free jack without jewelry.
-  * If they requested removing the pre-determined name or customizing further, explain they need to upgrade/paid key.
-  * Animation style is pre-determined ("Standard Opossum" representing a typical real opossum).
-  * Audio is cloud-based high-quality sound synthesis (vocalSource: "Cloud Network Synthesis").
-- Jacks on PAID TIER: Fully customizable with jewelry, any name (can remove pre-determined name restriction), and further customization.
+  * Size: "Small", "Medium", "Large", "Extra-Large".
+  * Furry Face Level: 1% to 100% (default 80%).
+  * Ear Size: "Small", "Medium", "Large".
+  * Eyebrows: "Standard", "Bushy", "None".
+  * Audio: Cloud-based high-quality sound synthesis (vocalSource: "Cloud Network Synthesis").
 
 HEIGHT ACCOMMODATION:
-- If dwarfism or short height is detected, respond with: "Dwarfism? No problem!! I'll generate a smaller sized jack opossum just for your size. Thanks for reminding me about dwarfism-related height." as part of your explanation.
-- Set the "size" property accordingly (smaller for dwarfism, e.g. 0.6 to 0.75).
+- If dwarfism or short height detected, respond with: "Dwarfism? No problem!! I'll generate a smaller sized jack opossum just for your size. Thanks for reminding me about dwarfism-related height."
+- Set "size" smaller (0.6 to 0.75).
 
 You MUST respond strictly with a valid JSON object matching this schema:
 {
   "type": "question" | "generate",
-  "explanation": "A friendly, scientific, and detailed response back to the player, explaining the opossum details or answering their question.",
-  "opossum": { // ONLY if type is "generate"
+  "explanation": "A friendly, scientific, and detailed response back to the player.",
+  "opossum": {
     "name": "The parsed/generated name",
     "sex": "Jill" | "Jack",
     "size": float (between 0.6 and 1.4),
@@ -339,71 +341,53 @@ You MUST respond strictly with a valid JSON object matching this schema:
     "noseColor": "color",
     "eyeColor": "color",
     "skinTone": "Light" | "Dark",
-    "accessories": string[], // jewelry or collar
+    "accessories": string[],
     "hasJewellery": boolean,
     "neckRibbonColor": "Multi-colored" | "None",
     "vocalSource": "Cloud Network Synthesis" | "Local Synthesizer",
     "animationStyle": "Standard Opossum" | "Dynamic Scurry"
   }
 }
+Do not include markdown outside of the JSON block.`;
 
-Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
-`;
-
-      const manifest = GeminiSystem.getSystemManifest();
       const customInstructions = currentConfig?.systemInstructions || "";
-      const instructionsFormat = currentConfig?.instructionsFormat || "markdown";
-      
-      // Validate Custom Instructions from "Insert AI" module
-      if (customInstructions.trim().length > 0) {
-        const instructionSafety = GeminiSafety.validatePrompt(customInstructions, "INSERT_AI_SYSTEM_INSTRUCTIONS");
-        if (instructionSafety.violationDetected) {
-          setIsGenerating(false);
-          return {
-            type: "question",
-            text: instructionSafety.blockedMessage || "Custom instructions blocked under the Zero-Tolerance Anti-Spanking & Child Safety Mandate."
-          };
-        }
-      }
-
       let fullInstruction = GeminiSafety.wrapSystemInstructions(basePrompt);
       if (customInstructions.trim().length > 0) {
-        fullInstruction = `CUSTOM PLAYER INSTRUCTIONS (${instructionsFormat.toUpperCase()}):\n${customInstructions}\n\n${fullInstruction}`;
+        fullInstruction = `CUSTOM PLAYER INSTRUCTIONS:\n${customInstructions}\n\n${fullInstruction}`;
       }
 
       let textResponse = "";
+
+      // Prioritize fullstack Express proxy route for player-provided keys
       try {
         const response = await fetch("/api/gemini/generate", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             apiKey: currentConfig?.apiKey,
             model: selectedModel,
-            contents: [
-              { parts: [{ text: fullInstruction }] }
-            ]
+            contents: [{ parts: [{ text: fullInstruction }] }]
           })
         });
+
         if (!response.ok) {
           const errText = await response.text();
           throw new Error(errText);
         }
+
         const responseData = await response.json();
         textResponse = responseData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
       } catch (proxyErr) {
-        console.warn("[Fullstack Proxy Route Fallback]: Direct call fallback triggered.", proxyErr);
+        console.warn("[Fullstack Proxy Fallback]: Calling client instance directly...", proxyErr);
+        if (!ai) throw new Error("Fullstack proxy failed and local Gemini client not initialized.");
         const result = await ai.models.generateContent({
           model: selectedModel,
-          contents: [
-            { text: fullInstruction }
-          ]
+          contents: [{ text: fullInstruction }]
         });
         textResponse = result.text || "";
       }
 
-      // Validate Generated AI Output before Parsing (Model Drift Quarantine)
+      // Safety Output Validation
       const outputSafety = GeminiSafety.validateOutput(textResponse, "OPOSSUM_GENERATION_OUTPUT");
       if (outputSafety.violationDetected) {
         setIsGenerating(false);
@@ -416,7 +400,7 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
         });
         const fallbackCharacter: AIOpossum = {
           ...driftHandled.safeFallbackOpossum,
-          id: `gen-drift-fallback-${Date.now()}`,
+          id: `gen-drift-${Date.now()}`,
           isPaid: hasPaidKey,
           rides: 0
         };
@@ -424,17 +408,16 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
         return {
           type: "generate",
           opossum: fallbackCharacter,
-          text: "Notice: The generative AI model drifted into an invalid output. Your prompt has been preserved, and a serene, pre-validated woodland companion has been safely provided instead."
+          text: "Notice: Output adjusted to comply with safety mandates. A serene companion has been synthesized."
         };
       }
+
       let jsonMatch = textResponse.match(/```(?:json)?\s*([\s\S]*?)```/);
       let parsedData: any = null;
-
       try {
         const jsonText = jsonMatch ? jsonMatch[1].trim() : textResponse.trim();
         parsedData = JSON.parse(jsonText);
       } catch (e) {
-        console.warn("Could not parse JSON directly from Gemini, treating as question:", textResponse);
         parsedData = {
           type: "question",
           explanation: textResponse
@@ -444,28 +427,16 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
       if (parsedData.type === "generate" && parsedData.opossum) {
         const rawOp = parsedData.opossum;
         const finalSex = rawOp.sex === "Jack" ? "Jack" : "Jill";
-        
-        // Enforce Free Jack Rules
-        let finalName = rawOp.name;
-        let finalRibbon = rawOp.neckRibbonColor;
-        let finalJewellery = rawOp.hasJewellery;
+        let finalName = rawOp.name || "Synthesized Opossum";
+        let finalRibbon = rawOp.neckRibbonColor || "None";
+        let finalJewellery = Boolean(rawOp.hasJewellery);
         let finalEarSize = rawOp.earSize || "Medium";
-        let finalFurryFace = rawOp.furryFacePercent || 75;
+        let finalFurryFace = rawOp.furryFacePercent || 80;
         let finalAnim = rawOp.animationStyle || "Standard Opossum";
-        
+
         if (finalSex === "Jack" && !hasPaidKey) {
-          // pre-determined name check
-          const allowedNames = ["Buster", "Finn", "Arlo", "Milo", "Otis", "Jasper", "Rocky"];
-          const prefixList = ["Silver", "Dusk", "Meadow", "Mist", "Cloud", "Star", "Leaf", "River"];
-          const hasPref = prefixList.some(p => finalName.toLowerCase().includes(p.toLowerCase()));
-          const hasAllowed = allowedNames.some(a => finalName.toLowerCase().includes(a.toLowerCase()));
-          
-          if (!hasAllowed) {
-            finalName = `${prefixList[Math.floor(Math.random() * prefixList.length)]} ${allowedNames[Math.floor(Math.random() * allowedNames.length)]}`;
-          }
           finalRibbon = "Multi-colored";
           finalJewellery = false;
-          finalAnim = "Standard Opossum"; // typical real opossum animation
         }
 
         const newOp: AIOpossum = {
@@ -485,19 +456,19 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
           earColor: rawOp.earColor || (finalSex === "Jack" ? "Dark Gray" : "Pink"),
           tailColor: rawOp.tailColor || "Pink",
           noseColor: rawOp.noseColor || "Pink",
-          eyeColor: rawOp.eyeColor || "Blue",
+          eyeColor: rawOp.eyeColor || "Deep Blue",
           innerEarColor: rawOp.innerEarColor || "Pink",
           skinTone: rawOp.skinTone || "Light",
           accessories: finalJewellery ? ["Diamond Earring"] : [],
           hasJewellery: finalJewellery,
           neckRibbonColor: finalRibbon,
           rides: 0,
-          description: parsedData.explanation || `Synthesized entity.`,
+          description: parsedData.explanation || "A dynamically synthesized entity.",
           vocalSource: rawOp.vocalSource || "Cloud Network Synthesis",
           animationStyle: finalAnim
         };
 
-        setGeneratedOpossums(prev => [newOp, ...prev]);
+        setGeneratedOpossums(prev => [newOp, ...prev.filter(p => p.id !== newOp.id)]);
         setIsGenerating(false);
 
         return {
@@ -512,73 +483,41 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
           text: parsedData.explanation || textResponse
         };
       }
-
-    } catch (err) {
-      console.error("Gemini Opossum Generation Failed:", err);
-      
-      // Standby local generator as a flawless scientific fallback
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const sex = Math.random() > 0.4 ? "Jill" : "Jack";
-      const preName = generateSafeName(sex);
-      
-      const fallbackOp: AIOpossum = {
-        id: `gen-fallback-${Date.now()}`,
-        name: preName,
-        sex,
-        isPaid: hasPaidKey,
-        size: 0.8 + Math.random() * 0.5,
-        sizeCategory: "Medium",
-        color: "Natural Gray",
-        furType: "Furry",
-        faceType: "Furry",
-        furryFacePercent: 75,
-        earSize: "Medium",
-        eyebrows: "None",
-        snoutLength: "Standard",
-        earColor: sex === "Jack" ? "Dark Gray" : "Pink",
-        tailColor: "Pink",
-        noseColor: "Pink",
-        eyeColor: "Blue",
-        innerEarColor: "Pink",
-        skinTone: "Light",
-        accessories: [],
-        hasJewellery: false,
-        neckRibbonColor: sex === "Jack" ? "Multi-colored" : "None",
-        rides: 0,
-        description: `Synthesized via local backup parameters.`,
-        vocalSource: "Cloud Network Synthesis",
-        animationStyle: "Standard Opossum"
-      };
-
-      setGeneratedOpossums(prev => [fallbackOp, ...prev]);
+    } catch (err: any) {
+      console.error("Gemini Opossum Generation Error:", err);
       setIsGenerating(false);
-
       return {
-        type: "generate",
-        text: `Scientific Standby: Locally compiled ${sex} named ${preName} as an authorized backup.`,
-        opossum: fallbackOp
+        type: "error",
+        text: `Synthesis Exception: ${err.message || "Failed to communicate with fullstack Gemini backend."}`
       };
     }
   };
 
   const reset = () => {
-    setSmartNarrative("");
-    setIsGenerating(false);
+    setGeneratedOpossums(INITIAL_SCIENTIFIC_PROTOTYPES);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {}
+  };
+
+  const removeOpossum = (id: string) => {
+    setGeneratedOpossums(prev => prev.filter(o => o.id !== id));
   };
 
   return {
+    activeAITab,
+    setActiveAITab,
+    smartNarrative,
+    setSmartNarrative,
     quota,
     isGenerating,
     generatedOpossums,
     hasAnyKey,
     hasPaidKey,
-    generateOpossum,
-    activeAITab,
-    setActiveAITab,
-    smartNarrative,
-    setSmartNarrative,
     showNetworkFeed,
     setShowNetworkFeed,
+    generateOpossum,
+    removeOpossum,
     reset
   };
 };

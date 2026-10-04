@@ -46,6 +46,7 @@ import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Fer
 export * from "./Security";
 export * from "./Safety";
 export * from "./Fun";
+export * from "./AIErrorBoundary";
 
 /**
  * Gemini External AI Subsystem

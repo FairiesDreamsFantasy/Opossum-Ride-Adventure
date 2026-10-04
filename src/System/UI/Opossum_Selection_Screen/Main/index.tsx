@@ -116,7 +116,7 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
     const cx = width / 2;
     const cy = height / 2 + 10;
 
-    if (activeTab === "AI_GENERATED" && selectedAIOpossum) {
+    if ((activeTab === "AI_GENERATED" || activeTab === "GENERATE_OPOSSUM") && selectedAIOpossum) {
       // Use standard conversion for drawing
       import("../../../../utils/ai-conversion").then(({ convertAItoCharacter }) => {
         import("../../../../Characters/Opossums/AI-Generated/Drawing").then(({ AIGeneratedOpossum }) => {
@@ -495,14 +495,19 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
             onSelectCompactOpossum={handleCompactSelect}
           />
         ) : (
-          <AIGeneratedView onAISelect={handleAISelect} />
+          <AIGeneratedView 
+            onAISelect={handleAISelect} 
+            mode={activeTab === "GENERATE_OPOSSUM" ? "PROMPT" : "CATALOG"}
+            onNavigateToPrompt={() => setActiveTab("GENERATE_OPOSSUM")}
+            onNavigateToCatalog={() => setActiveTab("AI_GENERATED")}
+          />
         )}
       </div>
 
       <div className="md:col-span-5 bg-zinc-950 border border-green-900 p-6 rounded flex flex-col justify-between">
         <div className="space-y-4">
           <h2 className={`text-xl font-bold tracking-tight border-b border-green-900 pb-2 ${activeTab === "CRAFTED" ? "text-green-300" : activeTab === "COMPACT" ? "text-amber-300" : (selectedAIOpossum?.sex === "Jill" ? "text-green-300" : "text-blue-300")}`}>
-            {activeTab === "CRAFTED" ? "Opossum Description" : activeTab === "COMPACT" ? "Compact Jill Profile" : "AI Specification"}
+            {activeTab === "CRAFTED" ? "Opossum Description" : activeTab === "COMPACT" ? "Compact Jill Profile" : (activeTab === "GENERATE_OPOSSUM" ? "AI Synthesis Console" : "AI Specification")}
           </h2>
           <div className="text-sm text-green-400 space-y-3 leading-relaxed">
             {activeTab === "CRAFTED" ? (
@@ -584,7 +589,7 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
           </button>
           <button
             onClick={() => onStart(
-              activeTab === "AI_GENERATED" 
+              (activeTab === "AI_GENERATED" || activeTab === "GENERATE_OPOSSUM")
                 ? (selectedAIOpossum || undefined) 
                 : activeTab === "COMPACT" 
                   ? (selectedCompactOpossum || undefined) 
@@ -601,7 +606,7 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
               }
             `}
             disabled={
-              (activeTab === "AI_GENERATED" && !selectedAIOpossum) ||
+              ((activeTab === "AI_GENERATED" || activeTab === "GENERATE_OPOSSUM") && !selectedAIOpossum) ||
               (activeTab === "COMPACT" && !selectedCompactOpossum)
             }
           >
