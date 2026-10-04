@@ -371,14 +371,37 @@ Do not include any markdown outside of the JSON block. Ensure the JSON is valid.
         fullInstruction = `CUSTOM PLAYER INSTRUCTIONS (${instructionsFormat.toUpperCase()}):\n${customInstructions}\n\n${fullInstruction}`;
       }
 
-      const result = await ai.models.generateContent({
-        model: selectedModel,
-        contents: [
-          { text: fullInstruction }
-        ]
-      });
-
-      const textResponse = result.text || "";
+      let textResponse = "";
+      try {
+        const response = await fetch("/api/gemini/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            apiKey: currentConfig?.apiKey,
+            model: selectedModel,
+            contents: [
+              { parts: [{ text: fullInstruction }] }
+            ]
+          })
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(errText);
+        }
+        const responseData = await response.json();
+        textResponse = responseData?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      } catch (proxyErr) {
+        console.warn("[Fullstack Proxy Route Fallback]: Direct call fallback triggered.", proxyErr);
+        const result = await ai.models.generateContent({
+          model: selectedModel,
+          contents: [
+            { text: fullInstruction }
+          ]
+        });
+        textResponse = result.text || "";
+      }
 
       // Validate Generated AI Output before Parsing (Model Drift Quarantine)
       const outputSafety = GeminiSafety.validateOutput(textResponse, "OPOSSUM_GENERATION_OUTPUT");
