@@ -570,11 +570,19 @@ export class ProceduralSoundSystem {
   /**
    * SFX Proxies
    */
-  public playFootstep(surface: string, movementType?: string) {
+  public playFootstep(surface: string, movementType?: string, isAI: boolean = false) {
     const ctx = this.getContext();
     if (!ctx || ctx.state === "suspended") return;
     const dest = this.getSharedDestination(ctx, 0.3675);
-    this.sfx.playFootstep(ctx, dest, surface);
+    if (isAI) {
+      if (movementType === "Jack" || movementType?.toLowerCase() === "male") {
+        this.sfx.playCloudJackFootstep(ctx, dest, surface);
+      } else {
+        this.sfx.playCloudJillFootstep(ctx, dest, surface);
+      }
+    } else {
+      this.sfx.playFootstep(ctx, dest, surface);
+    }
   }
 
   public playTickChime() {

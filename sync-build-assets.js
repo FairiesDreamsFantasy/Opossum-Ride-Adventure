@@ -56,7 +56,7 @@ if (fs.existsSync('dist')) {
     let html = fs.readFileSync(indexPath, 'utf8');
 
     const buildTimestamp = Date.now();
-    const versionParam = `v=0.1.0.7.5-${buildTimestamp}`;
+    const versionParam = `v=0.1.0.7.6-${buildTimestamp}`;
     console.log(`Applying Cache Busting parameter: ${versionParam}`);
 
     // Pre-normalize ALL possible path types to a clean standard

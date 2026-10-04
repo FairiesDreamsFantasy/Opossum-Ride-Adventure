@@ -183,7 +183,18 @@ export function updateFoyerPhysics(
       lastFootstepZRef.current = stateRef.current.playerZ;
       const surfaceName = stateRef.current.foyerY > 2000 ? "wooden decking" : "ceramic tile";
       const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-      soundSystemRef.current?.playFootstep(surfaceName, opSex);
+      const isAI = Boolean(
+        selectedOpossum?.isAI ||
+        selectedOpossum?.isAIGenerated ||
+        selectedOpossum?.aiData != null ||
+        (typeof selectedOpossum?.id === "string" && (
+          selectedOpossum.id.startsWith("gen-") ||
+          selectedOpossum.id.startsWith("proto-") ||
+          selectedOpossum.id.startsWith("ai_") ||
+          selectedOpossum.id.startsWith("ai-")
+        ))
+      );
+      soundSystemRef.current?.playFootstep(surfaceName, opSex, isAI);
     } else {
       stateRef.current.playerY = Math.sin(stateRef.current.jumpProgress) * 3;
     }
@@ -320,7 +331,18 @@ export function updateFoyerPhysics(
     lastFootstepZRef.current = stateRef.current.playerZ;
     const surfaceName = stateRef.current.foyerY > 2000 ? "wooden decking" : "ceramic tile";
     const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-    soundSystemRef.current.playFootstep(surfaceName, opSex);
+    const isAI = Boolean(
+      selectedOpossum?.isAI ||
+      selectedOpossum?.isAIGenerated ||
+      selectedOpossum?.aiData != null ||
+      (typeof selectedOpossum?.id === "string" && (
+        selectedOpossum.id.startsWith("gen-") ||
+        selectedOpossum.id.startsWith("proto-") ||
+        selectedOpossum.id.startsWith("ai_") ||
+        selectedOpossum.id.startsWith("ai-")
+      ))
+    );
+    soundSystemRef.current.playFootstep(surfaceName, opSex, isAI);
   }
 
   // Foyer Ticks collision check
@@ -436,7 +458,18 @@ export function updateStandardPhysics(
       lastFootstepZRef.current = stateRef.current.playerZ;
       const currentPlaceObj = PlaceResolver.resolvePlace(currentLevel.placeId);
       const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-      soundSystemRef.current?.playFootstep(platformUnder ? "rock" : currentPlaceObj.surfaceType, opSex);
+      const isAI = Boolean(
+        selectedOpossum?.isAI ||
+        selectedOpossum?.isAIGenerated ||
+        selectedOpossum?.aiData != null ||
+        (typeof selectedOpossum?.id === "string" && (
+          selectedOpossum.id.startsWith("gen-") ||
+          selectedOpossum.id.startsWith("proto-") ||
+          selectedOpossum.id.startsWith("ai_") ||
+          selectedOpossum.id.startsWith("ai-")
+        ))
+      );
+      soundSystemRef.current?.playFootstep(platformUnder ? "rock" : currentPlaceObj.surfaceType, opSex, isAI);
     } else {
       const platformUnder = localObstacles.find(obs => obs.type === "stone_platform" && obs.lane === stateRef.current.playerLane && Math.abs(obs.z - stateRef.current.playerZ) <= obs.width / 2);
       const baseHeight = platformUnder && stateRef.current.playerY >= platformUnder.height - 0.2 ? platformUnder.height : 0;
@@ -458,7 +491,18 @@ export function updateStandardPhysics(
           lastFootstepZRef.current = stateRef.current.playerZ;
           const currentPlaceObj = PlaceResolver.resolvePlace(currentLevel.placeId);
           const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-          soundSystemRef.current?.playFootstep(currentPlaceObj.surfaceType, opSex);
+          const isAI = Boolean(
+            selectedOpossum?.isAI ||
+            selectedOpossum?.isAIGenerated ||
+            selectedOpossum?.aiData != null ||
+            (typeof selectedOpossum?.id === "string" && (
+              selectedOpossum.id.startsWith("gen-") ||
+              selectedOpossum.id.startsWith("proto-") ||
+              selectedOpossum.id.startsWith("ai_") ||
+              selectedOpossum.id.startsWith("ai-")
+            ))
+          );
+          soundSystemRef.current?.playFootstep(currentPlaceObj.surfaceType, opSex, isAI);
         }
       }
     }
@@ -527,22 +571,24 @@ export function updateStandardPhysics(
   const currentPlace = PlaceResolver.resolvePlace(currentLevel.placeId);
   const stepDeltaZ = stateRef.current.playerZ - lastFootstepZRef.current;
   const isJack = selectedOpossum?.gender === "Jack" || selectedOpossum?.sex === "Jack" || selectedOpossum?.gender === "Male";
-  const isAIGeneratedOpossum = selectedOpossum?.isAIGenerated || selectedOpossum?.aiData != null || (typeof selectedOpossum?.id === "string" && selectedOpossum.id.startsWith("ai_gen_"));
-
-  let trotStrideFrequency = isJack ? RHYTHM_PROFILES.opossum.jackTrot : RHYTHM_PROFILES.opossum.trot;
-
-  if (isAIGeneratedOpossum) {
-    // Biomechanical stride frequency formula based on physical size, mass, and leg scaling
-    const opWeight = selectedOpossum?.aiData?.physicalAttributes?.weightKg || selectedOpossum?.weight || (isJack ? 9.2 : 7.8);
-    const massScaleFactor = Math.pow(opWeight / 8.5, 0.12);
-    const baseStride = isJack ? 2.10 : 1.85;
-    trotStrideFrequency = Math.max(1.35, Math.min(2.75, baseStride * massScaleFactor));
-  }
+  const trotStrideFrequency = computeOpossumStrideFrequency(selectedOpossum, isJack);
+  
+  const isAI = Boolean(
+    selectedOpossum?.isAI ||
+    selectedOpossum?.isAIGenerated ||
+    selectedOpossum?.aiData != null ||
+    (typeof selectedOpossum?.id === "string" && (
+      selectedOpossum.id.startsWith("gen-") ||
+      selectedOpossum.id.startsWith("proto-") ||
+      selectedOpossum.id.startsWith("ai_") ||
+      selectedOpossum.id.startsWith("ai-")
+    ))
+  );
   
   if (Math.abs(stepDeltaZ) >= trotStrideFrequency && Math.abs(stateRef.current.speed) > 0.1 && !stateRef.current.isJumping && stateRef.current.playerY <= 0) {
     lastFootstepZRef.current = stateRef.current.playerZ;
     const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-    soundSystemRef.current.playFootstep(currentPlace.surfaceType, opSex);
+    soundSystemRef.current.playFootstep(currentPlace.surfaceType, opSex, isAI);
   }
 
   // Move opponents

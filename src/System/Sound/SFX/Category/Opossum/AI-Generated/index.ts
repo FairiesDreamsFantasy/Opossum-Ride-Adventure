@@ -48,10 +48,11 @@ export class AIOpossumAcousticEngine {
     if (isJill) {
       // --- JILL BIO-ACOUSTIC VOCALIZATION ---
       // Authentic marsupial multi-chirp downward sweep (1350Hz -> 420Hz)
-      const chirpCount = isCloud ? 6 : 4;
-      const chirpInterval = 0.065;
-      const chirpDuration = 0.038;
-      const maxVol = isCloud ? 0.22 : 0.18;
+      // Upgraded to use the elegant 6-chirp cadence to match crafted premium quality
+      const chirpCount = 6;
+      const chirpInterval = isCloud ? 0.065 : 0.08;
+      const chirpDuration = isCloud ? 0.038 : 0.04;
+      const maxVol = isCloud ? 0.22 : 0.207;
       let maxEnd = now;
 
       // Pitch adjustment: larger size = slightly lower formant, smaller = higher
@@ -67,8 +68,8 @@ export class AIOpossumAcousticEngine {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        // Sawtooth carrier provides rich marsupial harmonics, filtered smoothly
-        osc.type = isCloud ? "sawtooth" : "triangle";
+        // High-fidelity sawtooth carrier provides rich harmonics
+        osc.type = "sawtooth";
         osc.frequency.setValueAtTime(startFreq, tStart);
         osc.frequency.exponentialRampToValueAtTime(endFreq, tEnd);
 
