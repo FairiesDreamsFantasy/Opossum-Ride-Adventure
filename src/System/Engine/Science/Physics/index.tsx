@@ -102,6 +102,32 @@ export function applyScientificReaction(
   }
 }
 
+/**
+ * Computes scientific stride frequency for opossum movement.
+ * Completely decouples AI-Generated opossums from the crafted 400ms elegant trot.
+ */
+export function computeOpossumStrideFrequency(selectedOpossum: any, isJack: boolean): number {
+  const isAIGenerated = Boolean(
+    selectedOpossum?.isAI ||
+    selectedOpossum?.isAIGenerated ||
+    selectedOpossum?.aiData != null ||
+    (typeof selectedOpossum?.id === "string" && (
+      selectedOpossum.id.startsWith("gen-") ||
+      selectedOpossum.id.startsWith("proto-") ||
+      selectedOpossum.id.startsWith("ai_") ||
+      selectedOpossum.id.startsWith("ai-")
+    ))
+  );
+
+  if (isAIGenerated) {
+    const scale = selectedOpossum?.size || selectedOpossum?.aiData?.size || 1.0;
+    return AIOpossumAcousticEngine.calculateStrideFrequency(isJack, scale);
+  }
+
+  // Crafted opossum rhythm profile (e.g. 400ms elegant trot for Jills)
+  return isJack ? RHYTHM_PROFILES.opossum.jackTrot : RHYTHM_PROFILES.opossum.trot;
+}
+
 export function updateFoyerPhysics(
   delta: number,
   stateRef: any,
