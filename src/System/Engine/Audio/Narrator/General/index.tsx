@@ -21,7 +21,7 @@ export const DEFAULT_NARRATOR_SETTINGS: NarratorSettings = {
 };
 
 /**
- * General helper to compile a scenic description for narrator screen-readers.
+ * Helper to compile an ultra-scientific scenic description for narrator screen-readers.
  */
 export function compileScenicDescription(
   arena: { name: string; surfaceType: string; theme: string; longDescription?: string },
@@ -31,19 +31,21 @@ export function compileScenicDescription(
 ): string {
   if (isFoyer) {
     let desc = foyerDesc.prompt;
-    if (settings.announceReverb) {
-      desc += ` The reverb profile is ${foyerDesc.reverbProfile}.`;
+    if (settings.announceReverb && foyerDesc.reverbProfile) {
+      desc += ` The acoustic reverberation profile is ${foyerDesc.reverbProfile}.`;
     }
-    if (settings.extendedInfo) {
+    if (settings.extendedInfo && foyerDesc.extendedNarrative) {
       desc += ` ${foyerDesc.extendedNarrative}`;
     }
     return desc;
   }
 
-  const name = arena.name || "Unknown Location";
-  const surface = arena.surfaceType || "standard ground";
+  const name = arena.name || "Natural Simulation Arena";
+  const surface = arena.surfaceType || "calibrated terrain substrate";
   const theme = arena.theme || "Serene";
   const longDesc = arena.longDescription ? ` ${arena.longDescription}` : "";
 
-  return `You are currently at ${name}. This is a ${surface} environment. The atmosphere is ${theme}.${longDesc}`;
+  return `You are currently at ${name}. Terrain substrate features ${surface}. Atmospheric resonance is ${theme}.${longDesc}`;
 }
+
+export default compileScenicDescription;

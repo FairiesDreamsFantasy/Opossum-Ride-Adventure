@@ -84,18 +84,18 @@ export const PlaceSoundProfileMap: Record<string, PlaceSoundProfile> = {
 export function createAIGeneratedPlaceDefinition(placeId: string, customName?: string): PlaceDefinition {
   const normalized = placeId.toLowerCase().replace(/^ai_gen_/, "").replace(/_/g, " ");
   const formattedName = customName || normalized.replace(/\b\w/g, (char) => char.toUpperCase());
-  const displayName = customName ? customName : `AI Realm: ${formattedName}`;
+  const displayName = customName ? customName : `${formattedName}`;
 
   return {
     id: placeId,
     name: displayName,
-    description: `A procedurally synthesized AI arena environment (${formattedName}) with dynamic surface physics, Sabine acoustic dampening, and ambient frequency scapes.`,
-    surfaceType: "procedurally synthesized polymer asphalt with 0.75 kinetic friction",
-    footstepSound: "synthetic acoustic dampening stride",
+    description: `A scientifically simulated natural arena featuring ${formattedName}. Characterized by specialized geological substrates, dynamic kinetic friction coefficient \u03bc_k \u2248 0.72, and Sabine acoustic reverberation decay RT60 modeling.`,
+    surfaceType: "geologically structured mineral substrate with calibrated kinetic friction",
+    footstepSound: "acoustic substrate impact absorption",
     colorBase: "#0284c7",
-    ambientNoise: "procedural synthetic AI ambient frequency wave",
-    longDescription: `An ultra-scientific procedurally generated AI arena (${formattedName}). Features dynamic surface friction, Sabine RT60 reverberation modeling, adaptive particle visual layers, and Web Audio API synthesized acoustic scapes.`,
-    accessibilityInfo: "AI-generated synthetic arena layout with procedurally calibrated surface boundaries.",
+    ambientNoise: "atmospheric wind flow and natural microclimate acoustic resonance",
+    longDescription: `An ultra-scientific procedurally synthesized arena (${formattedName}). Environment features dynamic kinetic friction modeling (\u03bc_k \u2248 0.72), Sabine acoustic decay time RT60 \u2248 1.15 seconds with an 85 Hz Helmholtz baseline resonance, and Rayleigh optical sky scattering.`,
+    accessibilityInfo: `High-fidelity natural terrain simulation calibrated for sensory whisker and acoustic echo navigation.`,
     pathPattern: "ground"
   };
 }

@@ -701,6 +701,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     }
 
     setCurrentLevel(levelObj);
+    currentLevelRef.current = levelObj;
     setCurrentLevelId(levelId);
     stateRef.current.currentLevelId = levelId;
     
@@ -842,13 +843,14 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         layout,
         () => handleAudioDescription(),
         () => {
+          const activeLevel = currentLevelRef.current;
           const lId = stateRef.current.currentLevelId;
           const distProgress = Measured_Distance_Value(stateRef.current.playerZ);
           const segment = getCourseSegmentDirection(stateRef.current.playerZ);
           const basePosition = InGameAccessibility.Narration.compilePositionAnnouncement(
             lId,
-            currentLevel.name,
-            currentLevel.placeId,
+            activeLevel.name,
+            activeLevel.placeId,
             stateRef.current.foyerX,
             stateRef.current.foyerY,
             stateRef.current.foyerDirection,
