@@ -22,9 +22,9 @@ export const KeyboardLayoutGeneral = {
    */
   getLayoutSummary: (layout: KeyboardLayoutType): string => {
     if (layout === KeyboardLayoutType.CEDELLA) {
-      return "Cedella Layout: Arrow keys for movement, Space for jump, S for chatter, R for rider description, T for POV toggle, O for opponent radar, 3 for HUD readout, Shift+1 for chatter notifications, Shift+2 for feed log, Shift+7 for pause/resume.";
+      return "Cedella Layout: Arrow keys for movement, Space for jump, S for chatter, r for ridden opossum description, Shift+R for rider description, T for POV toggle, O for opponent radar, 3 for HUD readout, Shift+1 for chatter notifications, Shift+2 for feed log, Shift+7 for pause/resume.";
     }
-    return "Arden Denis Layout: W/A/S/D for movement, Space for jump, L for chatter, R for rider description, T for POV toggle, O for opponent radar, 3 for HUD readout, Shift+1 for chatter notifications, Shift+2 for feed log, Shift+7 for pause/resume.";
+    return "Arden Denis Layout: W/A/S/D for movement, Space for jump, L for chatter, r for ridden opossum description, Shift+R for rider description, T for POV toggle, O for opponent radar, 3 for HUD readout, Shift+1 for chatter notifications, Shift+2 for feed log, Shift+7 for pause/resume.";
   },
 
   /**

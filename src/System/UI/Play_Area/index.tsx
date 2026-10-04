@@ -983,10 +983,15 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           triggerChatter();
           break;
         }
-        case "announce_rider": {
+        case "announce_opossum": {
           const op = selectedOpossumRef.current;
+          const announcement = InGameAccessibility.Narration.compileRiddenOpossumProfile(op);
+          speakWords(announcement);
+          break;
+        }
+        case "announce_rider": {
           const rider = defaultRiderRef.current;
-          const announcement = InGameAccessibility.Narration.compileActiveRiderAndOpossumProfile(rider, op);
+          const announcement = InGameAccessibility.Narration.compileRiderPersonProfile(rider);
           speakWords(announcement);
           break;
         }

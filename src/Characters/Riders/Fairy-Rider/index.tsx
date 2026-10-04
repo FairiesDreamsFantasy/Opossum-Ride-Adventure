@@ -19,7 +19,8 @@ export const FAIRY_RIDER: RiderCharacter = {
   hair: "black hair",
   outfit: "blue onesie",
   shoes: "black shoes",
-  height: "5 feet and 4 inches"
+  height: "5 feet and 4 inches",
+  heritage: "Rastafarian"
 };
 
 export {

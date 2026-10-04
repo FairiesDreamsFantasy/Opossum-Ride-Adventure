@@ -4,6 +4,7 @@
  */
 
 export * from "./_Wildcard_";
+export * from "./Fairy-Rider";
 export * from "./Mary";
 export * from "./Edward";
 export * from "./George_Blake";

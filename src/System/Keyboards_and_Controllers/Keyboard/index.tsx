@@ -25,8 +25,8 @@ export const CEDELLA_BINDINGS: KeyBinding[] = [
   { key: " ", action: "jump", description: "Jump" },
   { key: "s", action: "chatter", description: "Opossum Chatter" },
   { key: "S", action: "chatter", description: "Opossum Chatter" },
-  { key: "r", action: "announce_rider", description: "Announce Ridden Opossum" },
-  { key: "R", action: "announce_rider", description: "Announce Ridden Opossum" },
+  { key: "r", shiftKey: false, action: "announce_opossum", description: "Announce Ridden Opossum (r)" },
+  { key: "R", shiftKey: true, action: "announce_rider", description: "Announce Chosen Rider (Shift+R)" },
   { key: "t", action: "toggle_view", description: "Toggle POV / Rider View" },
   { key: "T", action: "toggle_view", description: "Toggle POV / Rider View" },
   { key: "o", action: "scan_opponents", description: "Scan For Opponents" },
@@ -54,8 +54,8 @@ export const ARDEN_DENIS_BINDINGS: KeyBinding[] = [
   { key: "L", action: "chatter", description: "Opossum Chatter" },
   { key: "o", action: "scan_opponents", description: "Scan For Opponents" },
   { key: "O", action: "scan_opponents", description: "Scan For Opponents" },
-  { key: "r", action: "announce_rider", description: "Announce Ridden Opossum" },
-  { key: "R", action: "announce_rider", description: "Announce Ridden Opossum" },
+  { key: "r", shiftKey: false, action: "announce_opossum", description: "Announce Ridden Opossum (r)" },
+  { key: "R", shiftKey: true, action: "announce_rider", description: "Announce Chosen Rider (Shift+R)" },
   { key: "t", action: "toggle_view", description: "Toggle POV / Rider View" },
   { key: "T", action: "toggle_view", description: "Toggle POV / Rider View" },
   { key: "!", shiftKey: true, action: "toggle_chatter_notify", description: "Toggle Chatter Notifications (Shift+1)" },
@@ -76,7 +76,10 @@ export const KeyboardSystem = {
     const bindings = layout === KeyboardLayoutType.CEDELLA ? CEDELLA_BINDINGS : ARDEN_DENIS_BINDINGS;
     return bindings.find((b) => {
       if (b.shiftKey !== undefined && b.shiftKey !== e.shiftKey) return false;
-      return b.key.toLowerCase() === e.key.toLowerCase() || b.key === e.key;
+      if (b.shiftKey === undefined) {
+        return b.key.toLowerCase() === e.key.toLowerCase();
+      }
+      return b.key === e.key || b.key.toLowerCase() === e.key.toLowerCase();
     });
   },
   layouts: [KeyboardLayoutType.CEDELLA, KeyboardLayoutType.ARDEN_DENIS],
