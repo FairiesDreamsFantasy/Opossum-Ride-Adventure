@@ -110,7 +110,10 @@ export class InGameLocalNarrationEngine {
     const earLengthDesc = earLength === "Long" ? "long and expressive" : (earLength === "Medium" ? "medium-length" : "of conventional, balanced proportion");
     const earOrientDesc = earOrient === "Forward Leaning" ? "forward-leaning orientation" : "upright orientation";
 
-    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} face skin is ${skinLabel}. ${possessive} outer ears feature a ${patternLabel} pattern, and are ${earLengthDesc} with an ${earOrientDesc}. ${possessive} head orientation is ${op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck")}.`;
+    const earPattern = OpossumsAttributesDesign.Ear_Color_With_Patterns.getByOpossumId(opId);
+    const earPatternDesc = earPattern !== "Solid Plain" ? `${possessive} outer ears feature a ${earPattern} pattern, and are ` : `${possessive} outer ears are `;
+
+    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} face skin is ${skinLabel}. ${earPatternDesc}${earLengthDesc} with an ${earOrientDesc}. ${possessive} head orientation is ${op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck")}.`;
   }
 
   /**
