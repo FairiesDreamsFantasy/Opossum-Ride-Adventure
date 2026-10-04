@@ -84,16 +84,17 @@ export const PlaceSoundProfileMap: Record<string, PlaceSoundProfile> = {
 export function createAIGeneratedPlaceDefinition(placeId: string, customName?: string): PlaceDefinition {
   const normalized = placeId.toLowerCase().replace(/^ai_gen_/, "").replace(/_/g, " ");
   const formattedName = customName || normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+  const displayName = customName ? customName : `AI Realm: ${formattedName}`;
 
   return {
     id: placeId,
-    name: `AI Realm: ${formattedName}`,
-    description: `A procedurally synthesized AI arena environment (${formattedName}) with dynamic surface physics and ambient scapes.`,
-    surfaceType: "procedurally synthesized polymer asphalt",
+    name: displayName,
+    description: `A procedurally synthesized AI arena environment (${formattedName}) with dynamic surface physics, Sabine acoustic dampening, and ambient frequency scapes.`,
+    surfaceType: "procedurally synthesized polymer asphalt with 0.75 kinetic friction",
     footstepSound: "synthetic acoustic dampening stride",
     colorBase: "#0284c7",
     ambientNoise: "procedural synthetic AI ambient frequency wave",
-    longDescription: `An ultra-scientific procedurally generated AI arena (${formattedName}). Features dynamic surface friction, adaptive particle visual layers, and Web Audio API synthesized ambient scapes.`,
+    longDescription: `An ultra-scientific procedurally generated AI arena (${formattedName}). Features dynamic surface friction, Sabine RT60 reverberation modeling, adaptive particle visual layers, and Web Audio API synthesized acoustic scapes.`,
     accessibilityInfo: "AI-generated synthetic arena layout with procedurally calibrated surface boundaries.",
     pathPattern: "ground"
   };

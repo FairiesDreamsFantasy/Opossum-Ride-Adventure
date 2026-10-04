@@ -50,25 +50,25 @@ export class SmartLevels {
     }
 
     try {
-      const prompt = `As a high-fidelity level designer for "Opossum Ride Adventure", generate a NEW level based on the previous one.
+      const prompt = `As an ultra-scientific procedural level generator for "Opossum Ride Adventure", synthesize a scientifically rigorous NEW level based on the previous context.
       Current Context: Level ${previousLevel.id} (${previousLevel.name}) at ${previousLevel.placeId}.
       Recently Used Names (FORBIDDEN): ${this.usedNames.join(", ") || "None"}.
       
-      Requirements:
-      - The new level must increase in difficulty.
-      - Ensure the "placeId" is one of: garden, floor_foyer, cave, plain, mountains, stone_corridor, forest, city, quarry, desert, stone_room, generic.
-      - "theme" should be a short evocative word (e.g., Serene, Mysterious, Aggressive, Haunted, Vibrant).
-      - "surfaceType" should be a descriptive phrase matching the environment (e.g., "mossy forest floor", "cracked dry clay", "polished marble slabs").
-      - "feralPigDensity": density between 0.1 and 0.8 of roaming feral boars and sows.
-      - "longDescription": A 3-4 sentence detailed atmospheric description of the level's environment and scientific context.
+      Scientific Requirements:
+      - The new level must increase in difficulty and feature authentic mathematical/geological biomechanics.
+      - "placeId": A unique descriptive place identifier (e.g. "ai_gen_crystalline_cavern", "ai_gen_basalt_ridge", "ai_gen_sequoia_canopy", "plain", "mountains", "forest", "cave", "desert").
+      - "theme": An evocative scientific/atmospheric descriptor (e.g., "Hyper-Resonant", "Aerodynamic", "Geothermal", "Sub-Alpine", "Piezoelectric", "Serene").
+      - "surfaceType": Precise physical substrate (e.g., "vitreous basalt slabs with 0.72 friction coefficient", "interlocking quartz sheets", "compacted volcanic andesite tephra").
+      - "longDescription": A 3-4 sentence ultra-scientific atmospheric narrative specifying geological strata, Sabine RT60 reverberation decay in seconds, Helmholtz baseline resonance in Hz, atmospheric pressure (kPa), air density (kg/m^3), and kinetic friction.
+      - "feralPigDensity": Density between 0.1 and 0.8 of roaming feral boars and sows.
       
       Respond ONLY with a valid JSON object:
       {
-        "name": "Unique Atmospheric Level Name",
+        "name": "Unique Scientific Level Name",
         "placeId": "place_id",
-        "theme": "AtmosphericTheme",
-        "surfaceType": "descriptive surface string",
-        "longDescription": "Detailed narrative...",
+        "theme": "ScientificAtmosphere",
+        "surfaceType": "descriptive physical substrate with friction",
+        "longDescription": "Ultra-scientific 3-4 sentence narrative grounded in geological acoustics, Sabine RT60 decay, Helmholtz resonance, and microclimate physics...",
         "gravity": 0.8-1.5,
         "windSpeed": 0-15,
         "mooseDensity": 0.2-1.2,
@@ -143,6 +143,7 @@ export class SmartLevels {
       placeId: "plain",
       theme: "Serene",
       surfaceType: "lush switchgrass prairie",
+      longDescription: "A tranquil open plain characterized by dense loam soil and lush switchgrass with an acoustic absorption coefficient alpha of 0.25. Atmospheric reverberation RT60 decay is measured at 0.45 seconds with calm laminar wind vectors.",
       gravity: 0.98,
       windSpeed: 2,
       mooseDensity: 0.3,
@@ -160,8 +161,17 @@ export class SmartLevels {
   private static generateLocalFallback(id: number): SmartLevelConfig {
     const places = ["plain", "forest", "mountains", "cave"];
     const themes = ["Serene", "Mysterious", "Aggressive", "Gloomy"];
-    const surfaces = ["soft grass", "crunchy mulch", "slippery snow", "damp soil"];
-    const place = places[id % places.length];
+    const surfaces = ["soft prairie switchgrass", "damp aromatic sequoia mulch", "compacted granite scree slopes", "resonant limestone cavern floor"];
+    const acoustics = [
+      { rt60: 0.45, hz: 160 },
+      { rt60: 0.85, hz: 110 },
+      { rt60: 0.65, hz: 190 },
+      { rt60: 2.80, hz: 55 }
+    ];
+    const placeIdx = id % places.length;
+    const place = places[placeIdx];
+    const surface = surfaces[placeIdx];
+    const acoustic = acoustics[placeIdx];
 
     const spawnedPigs: FeralPigEntity[] = [
       FeralPigManager.spawnFeralPig(id * 53 + 1, "Boar", "trail", 500, 0),
@@ -173,7 +183,8 @@ export class SmartLevels {
       name: `Wild Frontier ${id}`,
       placeId: place,
       theme: themes[id % themes.length],
-      surfaceType: surfaces[id % surfaces.length],
+      surfaceType: surface,
+      longDescription: `Geologically synthesized expanse featuring ${surface}. Sabine RT60 acoustic reverberation calculated at ${acoustic.rt60}s with a Helmholtz baseline resonance frequency of ${acoustic.hz}Hz and aerodynamic ambient pressure.`,
       gravity: 0.98 + (Math.random() * 0.2),
       windSpeed: Math.random() * 5,
       mooseDensity: 0.3 + (Math.random() * 0.4),

@@ -604,20 +604,16 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                 </span>
                 <button
                   type="button"
-                  disabled={isGameActive}
                   aria-pressed={generateLevelsOnDemand}
                   onClick={() => {
-                    if (isGameActive) return;
                     const next = !generateLevelsOnDemand;
                     setGenerateLevelsOnDemand(next);
                     GeminiSystem.setGenerateLevelsOnDemand(next);
                     playProceduralSound("tick");
                   }}
                   className={`px-3 py-1.5 rounded text-xs font-bold border min-h-[44px] transition ${
-                    isGameActive
-                      ? "bg-zinc-900 text-zinc-600 border-zinc-900 cursor-not-allowed"
-                      : generateLevelsOnDemand
-                      ? "bg-green-950 text-green-200 border-green-500"
+                    generateLevelsOnDemand
+                      ? "bg-green-950 text-green-200 border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.3)]"
                       : "bg-black text-zinc-600 border-zinc-900 hover:border-zinc-700"
                   }`}
                 >
@@ -625,9 +621,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                 </button>
               </div>
               <p className="text-[9px] text-green-600">
-                {isGameActive 
-                  ? "Disabled during active gameplay session. Adjust before starting run." 
-                  : "When active, Gemini creates procedural segments dynamically ahead of time."}
+                When ON, Gemini dynamically synthesizes custom procedural arenas and sectors ahead of time.
               </p>
             </div>
 

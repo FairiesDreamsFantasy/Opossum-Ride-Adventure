@@ -5,8 +5,11 @@
 
 import { KeyboardLayoutType } from "../../../../types";
 import { KeyboardSystem, KeyBinding } from "../../../Keyboards_and_Controllers/Keyboard";
+import { KeyboardGeneralInput } from "./General";
 
 export const InputKeyboard = {
+  General: KeyboardGeneralInput,
+
   /**
    * Helper to identify matching key bindings for key events.
    */
@@ -51,3 +54,5 @@ export const InputKeyboard = {
     });
   }
 };
+
+export default InputKeyboard;

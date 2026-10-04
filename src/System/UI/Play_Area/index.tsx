@@ -50,7 +50,9 @@ import {
   evaluateSmartChatter,
   SmartChatterState,
   isMooseAndMonkeysAllowedInPlace,
-  isMooseHotspotLevel
+  isMooseHotspotLevel,
+  InGameAccessibility,
+  InGameKeyTapManager
 } from "../../AI/In-Game";
 import { GeminiSystem, AIErrorBoundary } from "../../AI/External/Gemini";
 import { SmartArenaConfig } from "../../AI/External/Gemini/Smart_Arenas";
@@ -412,14 +414,15 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   const [largeText, setLargeText] = useState<boolean>(false);
   const [chalkboardConfig, setChalkboardConfig] = useState<ChalkboardColorConfig>(DEFAULT_CHALKBOARD_CONFIG);
   const lastKeyEventRef = useRef<{ key: string; time: number }>({ key: "", time: 0 });
+  const keyTapManagerRef = useRef<InGameKeyTapManager>(new InGameKeyTapManager());
 
   const handleAudioDescription = () => {
     const level = currentLevelRef.current;
-    const place = PlaceResolver.resolvePlace(level.placeId);
+    const place = PlaceResolver.resolvePlace(level.placeId, level.name);
     
-    // Resolve "Undefined atmosphere" by prioritizing Level overrides, then Place definitions, then defaults
+    // Resolve atmosphere and descriptions by prioritizing Level overrides, then Place definitions, then defaults
     const arenaInfo = {
-      name: level.name,
+      name: level.name || place.name,
       surfaceType: level.surfaceType || place.surfaceType,
       theme: level.theme || place.ambientNoise || "Serene",
       longDescription: level.longDescription || place.description
@@ -653,7 +656,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     let levelObj: any;
     
     // AI Arena Generation Logic
-    if (levelId > 0 && GeminiSystem.isReady()) {
+    const shouldGenerateAI = levelId > 0 && GeminiSystem.isReady() && (GeminiSystem.getConfig()?.generateLevelsOnDemand ?? true);
+    if (shouldGenerateAI) {
       setIsAiGenerating(true);
       setAiProgressPercent(10);
       setAiLoadingStatus("Connecting to Gemini AI Engine...");
@@ -700,7 +704,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     setCurrentLevelId(levelId);
     stateRef.current.currentLevelId = levelId;
     
-    const placeCheck = PlaceResolver.resolvePlace(levelObj.placeId);
+    const placeCheck = PlaceResolver.resolvePlace(levelObj.placeId, levelObj.name);
     
     // Spawn Ticks/Treats, Obstacles, and Opponents via modular Spawner engine
     const spawnedTicks = Spawner.spawnTicks(levelObj, levelId);
@@ -789,17 +793,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Suppress game steering & character actions when focus is inside Menu Bar, dialogs, modals, or form controls
-      const activeEl = document.activeElement;
-      if (
-        activeEl && (
-          activeEl.closest("#Menu_Bar") ||
-          activeEl.closest("[role='menubar']") ||
-          activeEl.closest("[role='dialog']") ||
-          activeEl.tagName === "INPUT" ||
-          activeEl.tagName === "SELECT" ||
-          activeEl.tagName === "TEXTAREA"
-        )
-      ) {
+      if (Input.Keyboard.General.isFormOrMenuFocused()) {
         return;
       }
 
@@ -807,49 +801,34 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
       const currentLevel = currentLevelRef.current;
       const localAnimals = animalsRef.current;
 
-      // Pressing the Control (Ctrl) key globally at any stage must instantly stop/cancel all active speech-synthesis announcements (window.speechSynthesis.cancel())
-      if (e.key === "Control" || e.ctrlKey) {
-        KeyboardGeneralInput.handleGlobalCtrlCancel(e);
-        if (e.key === "Control") {
-          return; // Suppress further default handling of raw Control key press
-        }
+      // 1. Global Ctrl speech cancel
+      if (KeyboardSystem.handleGlobalCtrlCancel(e)) {
+        if (e.key === "Control") return;
       }
 
-      // Toggle Measurement Unit with Keyboard key "4"
-      if (e.key === "4") {
-        const nextVal = !stateRef.current.isImperial;
+      // 2. Unit toggle (key 4)
+      if (KeyboardSystem.handleUnitToggle(e, stateRef.current.isImperial, (nextVal) => {
         stateRef.current.isImperial = nextVal;
         setIsImperial(nextVal);
         speakWords(`Measurement unit set to ${nextVal ? "Imperial (feet)" : "Metric (meters)"}`);
         setStatusMessage(`Unit: ${nextVal ? "Imperial (ft)" : "Metric (m)"}`);
+      })) {
         return;
       }
 
-      // Cruise Control handling - separate from layout bindings to ensure precise intervals
-      const isCedella = layout === KeyboardLayoutType.CEDELLA;
-      const isArden = layout === KeyboardLayoutType.ARDEN_DENIS;
-
-      if (stateRef.current.isPlaying && !stateRef.current.isGameOver) {
-        if ((isCedella && e.key === "]") || (isArden && e.key === "i")) {
-          stateRef.current.cruiseSpeed = SystemRegistry.Engine.Mathematics.Utils.clamp(stateRef.current.cruiseSpeed + 5, 0, 30);
-          const speedLabel = Measured_Speed_Value(stateRef.current.cruiseSpeed / 2.23694);
-          speakWords(`Cruise control increased to ${speedLabel}`);
-          setStatusMessage(`Cruise: ${speedLabel}`);
-          return;
+      // 3. Cruise Control handling (] / [ / 0 on Cedella, i / k / 0 on Arden Denis)
+      if (KeyboardSystem.handleCruiseControl(
+        e, 
+        layout, 
+        stateRef.current.cruiseSpeed, 
+        stateRef.current.isPlaying && !stateRef.current.isGameOver, 
+        (nextCruise, statusText) => {
+          stateRef.current.cruiseSpeed = nextCruise;
+          speakWords(statusText);
+          setStatusMessage(statusText);
         }
-        if ((isCedella && e.key === "[") || (isArden && e.key === "k")) {
-          stateRef.current.cruiseSpeed = SystemRegistry.Engine.Mathematics.Utils.clamp(stateRef.current.cruiseSpeed - 5, 0, 30);
-          const speedLabel = Measured_Speed_Value(stateRef.current.cruiseSpeed / 2.23694);
-          speakWords(`Cruise control decreased to ${speedLabel}`);
-          setStatusMessage(`Cruise: ${speedLabel}`);
-          return;
-        }
-        if (isCedella && e.key === "0") {
-          stateRef.current.cruiseSpeed = 0;
-          speakWords("Cruise control stopped");
-          setStatusMessage("Cruise: OFF");
-          return;
-        }
+      )) {
+        return;
       }
 
       // Prevent scrolling defaults except inside forms/lists
@@ -857,43 +836,26 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         e.preventDefault();
       }
 
-      // Track double/triple 'a' or 'u' keypresses (case-insensitive) for descriptions and coordinate announcements
-      const pressedKey = e.key.toLowerCase();
-      if ((pressedKey === "a" && layout === KeyboardLayoutType.CEDELLA) || 
-          (pressedKey === "u" && layout === KeyboardLayoutType.ARDEN_DENIS)) {
-        const now = Date.now();
-        const recent = keyHistoryRef.current.filter((item) => item.key === pressedKey && now - item.timestamp < 1200);
-        recent.push({ key: pressedKey, timestamp: now });
-        keyHistoryRef.current = [
-          ...keyHistoryRef.current.filter((item) => item.key !== pressedKey),
-          ...recent
-        ];
-
-        if (recent.length === 2) {
-          if (doubleTapTimerRef.current) clearTimeout(doubleTapTimerRef.current);
-          doubleTapTimerRef.current = setTimeout(() => {
-            handleAudioDescription();
-            keyHistoryRef.current = keyHistoryRef.current.filter((item) => item.key !== pressedKey);
-            doubleTapTimerRef.current = null;
-          }, 350);
-        } else if (recent.length >= 3) {
-          if (doubleTapTimerRef.current) {
-            clearTimeout(doubleTapTimerRef.current);
-            doubleTapTimerRef.current = null;
-          }
-          keyHistoryRef.current = keyHistoryRef.current.filter((item) => item.key !== pressedKey); // Clear
+      // 4. Multi-tap 'a' (Cedella) or 'u' (Arden Denis) for double-tap description and triple-tap position
+      const handledMultiTap = keyTapManagerRef.current.handleMultiTapKey(
+        e.key,
+        layout,
+        () => handleAudioDescription(),
+        () => {
           const lId = stateRef.current.currentLevelId;
-          const px = SystemRegistry.Engine.Mathematics.Utils.round(stateRef.current.foyerX);
-          const py = SystemRegistry.Engine.Mathematics.Utils.round(stateRef.current.foyerY);
-          
-          let basePosition = "";
-          if (lId === 0) {
-            basePosition = `You are at position ${px}, ${py} of the floor foyer, facing ${stateRef.current.foyerDirection}.`;
-          } else {
-            const currentPlace = PlaceResolver.resolvePlace(currentLevel.placeId);
-            const segment = getCourseSegmentDirection(stateRef.current.playerZ);
-            basePosition = `You are at ${Measured_Distance_Value(stateRef.current.playerZ)} of ${currentPlace.name} via a course path, facing ${segment.direction.toLowerCase()}.`;
-          }
+          const distProgress = Measured_Distance_Value(stateRef.current.playerZ);
+          const segment = getCourseSegmentDirection(stateRef.current.playerZ);
+          const basePosition = InGameAccessibility.Narration.compilePositionAnnouncement(
+            lId,
+            currentLevel.name,
+            currentLevel.placeId,
+            stateRef.current.foyerX,
+            stateRef.current.foyerY,
+            stateRef.current.foyerDirection,
+            stateRef.current.playerZ,
+            distProgress,
+            segment.direction
+          );
 
           const forwardObstacle = computeForwardNavigationTarget({
             currentLevel: lId,
@@ -905,43 +867,26 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           });
 
           speakWords(`${basePosition} ${forwardObstacle}`);
-          return;
         }
-      }
+      );
+      if (handledMultiTap) return;
 
-      // Track "Shift-Z-Z" to toggle TTS on/off
-      if (e.key === "Z" && e.shiftKey) {
-        const now = Date.now();
-        const recentZ = keyHistoryRef.current.filter(
-          (item) => item.key === "Z" && now - item.timestamp < 1000
-        );
-        recentZ.push({ key: "Z", timestamp: now });
-        
-        // Update general history to keep recent entries clean
-        keyHistoryRef.current = [
-          ...keyHistoryRef.current.filter((item) => item.key !== "Z"),
-          { key: "Z", timestamp: now }
-        ];
-
-        if (recentZ.length >= 2) {
-          keyHistoryRef.current = keyHistoryRef.current.filter((item) => item.key !== "Z");
-          const nextTts = !isSpeechEnabled();
-          setSpeechEnabled(nextTts);
-          setTtsEnabled(nextTts);
-          
-          if (nextTts) {
-            speakWords("Text to speech enabled");
-            setStatusMessage("Text to speech enabled (Shift-Z-Z)");
-          } else {
-            // Force a quick final alert before disabling
-            setSpeechEnabled(true);
-            speakWords("Text to speech disabled");
-            setSpeechEnabled(false);
-            setTtsEnabled(false);
-            setStatusMessage("Text to speech disabled (Shift-Z-Z)");
-          }
-          return;
+      // 5. Shift+Z double-tap for TTS toggle
+      if (keyTapManagerRef.current.handleShiftZTtsToggle(e)) {
+        const nextTts = !isSpeechEnabled();
+        setSpeechEnabled(nextTts);
+        setTtsEnabled(nextTts);
+        if (nextTts) {
+          speakWords("Text to speech enabled");
+          setStatusMessage("Text to speech enabled (Shift-Z-Z)");
+        } else {
+          setSpeechEnabled(true);
+          speakWords("Text to speech disabled");
+          setSpeechEnabled(false);
+          setTtsEnabled(false);
+          setStatusMessage("Text to speech disabled (Shift-Z-Z)");
         }
+        return;
       }
 
       // Look up action binding using the modular Input Engine
@@ -1164,17 +1109,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      const activeEl = document.activeElement;
-      if (
-        activeEl && (
-          activeEl.closest("#Menu_Bar") ||
-          activeEl.closest("[role='menubar']") ||
-          activeEl.closest("[role='dialog']") ||
-          activeEl.tagName === "INPUT" ||
-          activeEl.tagName === "SELECT" ||
-          activeEl.tagName === "TEXTAREA"
-        )
-      ) {
+      if (Input.Keyboard.General.isFormOrMenuFocused()) {
         return;
       }
 

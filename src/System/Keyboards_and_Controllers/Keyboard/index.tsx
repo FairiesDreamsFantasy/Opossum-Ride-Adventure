@@ -4,6 +4,7 @@
  */
 
 import { KeyboardLayoutType } from "../../../types";
+import { KeyboardLayoutGeneral } from "./General";
 
 /**
  * Keyboard System Module
@@ -67,8 +68,63 @@ export const ARDEN_DENIS_BINDINGS: KeyBinding[] = [
 ];
 
 export const KeyboardSystem = {
+  General: KeyboardLayoutGeneral,
   getBindingsForLayout: (layout: KeyboardLayoutType): KeyBinding[] => {
     return layout === KeyboardLayoutType.CEDELLA ? CEDELLA_BINDINGS : ARDEN_DENIS_BINDINGS;
   },
+  findBinding: (e: KeyboardEvent, layout: KeyboardLayoutType): KeyBinding | undefined => {
+    const bindings = layout === KeyboardLayoutType.CEDELLA ? CEDELLA_BINDINGS : ARDEN_DENIS_BINDINGS;
+    return bindings.find((b) => {
+      if (b.shiftKey !== undefined && b.shiftKey !== e.shiftKey) return false;
+      return b.key.toLowerCase() === e.key.toLowerCase() || b.key === e.key;
+    });
+  },
   layouts: [KeyboardLayoutType.CEDELLA, KeyboardLayoutType.ARDEN_DENIS],
+  handleGlobalCtrlCancel: (e: KeyboardEvent): boolean => {
+    if (e.key === "Control" || e.ctrlKey) {
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      return true;
+    }
+    return false;
+  },
+  handleUnitToggle: (e: KeyboardEvent, isImperial: boolean, onToggle: (next: boolean) => void): boolean => {
+    if (e.key === "4") {
+      const next = !isImperial;
+      onToggle(next);
+      return true;
+    }
+    return false;
+  },
+  handleCruiseControl: (
+    e: KeyboardEvent,
+    layout: KeyboardLayoutType,
+    currentCruise: number,
+    isPlaying: boolean,
+    onUpdate: (nextCruise: number, status: string) => void
+  ): boolean => {
+    if (!isPlaying) return false;
+    const isCedella = layout === KeyboardLayoutType.CEDELLA;
+    const isArden = layout === KeyboardLayoutType.ARDEN_DENIS;
+
+    if ((isCedella && e.key === "]") || (isArden && (e.key === "i" || e.key === "I"))) {
+      const next = Math.min(30, currentCruise + 5);
+      onUpdate(next, `Cruise control increased to ${Math.round(next)} mph`);
+      return true;
+    }
+    if ((isCedella && e.key === "[") || (isArden && (e.key === "k" || e.key === "K"))) {
+      const next = Math.max(0, currentCruise - 5);
+      onUpdate(next, `Cruise control decreased to ${Math.round(next)} mph`);
+      return true;
+    }
+    if (isCedella && e.key === "0") {
+      onUpdate(0, "Cruise control stopped");
+      return true;
+    }
+    return false;
+  }
 };
+
+export { KeyboardLayoutGeneral };
+export default KeyboardSystem;

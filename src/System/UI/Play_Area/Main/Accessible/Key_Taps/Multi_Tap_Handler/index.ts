@@ -18,6 +18,7 @@ export interface MultiTapContext {
   levelDistanceTraveled: number;
   isImperial: boolean;
   activePlaceId?: string;
+  activePlaceName?: string;
   isTTSMuted: boolean;
   speakWords: (text: string, force?: boolean) => void;
   setStatusMessage: (msg: string) => void;
@@ -77,7 +78,8 @@ export class MultiTapNavigator {
             basePositionAnnouncement = `You are at position ${MathUtils.round(ctx.foyerX)}, ${MathUtils.round(ctx.foyerY)} of the floor foyer, facing ${ctx.foyerDirection}.`;
           } else {
             const distStr = MeasurementEngine.formatDistance(ctx.levelDistanceTraveled, ctx.isImperial, true);
-            basePositionAnnouncement = `You are at ${distStr} of ${ctx.activePlaceId || "Level " + ctx.currentLevel} via a course path, facing ${ctx.foyerDirection}.`;
+            const levelLabel = ctx.activePlaceName || ctx.activePlaceId || ("Level " + ctx.currentLevel);
+            basePositionAnnouncement = `You are at ${distStr} of ${levelLabel} via a course path, facing ${ctx.foyerDirection}.`;
           }
 
           // Dynamic Forward Obstacle / Door Target Computation
