@@ -9,7 +9,7 @@
  * Strictly formatted in Central Standard Time (CST) only.
  */
 export const VersionRegistry = {
-  current: "0.1.0.7.6",
+  current: "0.1.0.7.7",
   date: "10/04/2026",
   time: "12:25:19 CST",
   timestamp: "10/04/2026 12:25:19 CST",
