@@ -80,6 +80,7 @@ export interface GeminiConfig {
   fetchItemsEnabled?: boolean;
   fetchSoundEnabled?: boolean;
   fetchVisualsEnabled?: boolean;
+  fetchLocalArenasEnabled?: boolean;
   systemInstructions?: string;
   instructionsFormat?: SystemInstructionFormat;
   selectedModel?: string;
@@ -156,6 +157,7 @@ class GeminiManager {
         fetchItemsEnabled: config.fetchItemsEnabled ?? true,
         fetchSoundEnabled: config.fetchSoundEnabled ?? true,
         fetchVisualsEnabled: config.fetchVisualsEnabled ?? true,
+        fetchLocalArenasEnabled: config.fetchLocalArenasEnabled ?? true,
         systemInstructions: config.systemInstructions ?? "",
         instructionsFormat: config.instructionsFormat ?? "markdown",
         selectedModel: config.selectedModel ?? "gemini-flash-latest",
@@ -195,7 +197,8 @@ class GeminiManager {
       fetchBuildingBlocks: this.config?.fetchBuildingBlocksEnabled ?? true,
       fetchItems: this.config?.fetchItemsEnabled ?? true,
       fetchSound: this.config?.fetchSoundEnabled ?? true,
-      fetchVisuals: this.config?.fetchVisualsEnabled ?? true
+      fetchVisuals: this.config?.fetchVisualsEnabled ?? true,
+      fetchLocalArenas: this.config?.fetchLocalArenasEnabled ?? true
     });
     return this.cachedManifest;
   }
@@ -495,12 +498,14 @@ Respond strictly with a JSON object:
     items?: boolean;
     sound?: boolean;
     visuals?: boolean;
+    localArenas?: boolean;
   }) {
     if (this.config) {
       if (toggles.buildingBlocks !== undefined) this.config.fetchBuildingBlocksEnabled = toggles.buildingBlocks;
       if (toggles.items !== undefined) this.config.fetchItemsEnabled = toggles.items;
       if (toggles.sound !== undefined) this.config.fetchSoundEnabled = toggles.sound;
       if (toggles.visuals !== undefined) this.config.fetchVisualsEnabled = toggles.visuals;
+      if (toggles.localArenas !== undefined) this.config.fetchLocalArenasEnabled = toggles.localArenas;
       this.refreshSystemManifest();
     }
     this.notifyListeners();

@@ -37,6 +37,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   const [fetchItems, setFetchItems] = useState(true);
   const [fetchSound, setFetchSound] = useState(true);
   const [fetchVisuals, setFetchVisuals] = useState(true);
+  const [fetchLocalArenas, setFetchLocalArenas] = useState(true);
 
   // System instructions & format
   const [systemInstructions, setSystemInstructions] = useState("");
@@ -56,7 +57,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   // Load existing config if available
   useEffect(() => {
     // Check if the gameplay canvas or gameplay element is active
-    const gameplayEl = document.getElementById("Gameplay_Area") || document.querySelector("canvas");
+    const gameplayEl = document.getElementById("Game_Canvas_Container");
     setIsGameActive(!!gameplayEl);
 
     const existing = GeminiSystem.getConfig();
@@ -72,6 +73,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       if (existing.fetchItemsEnabled !== undefined) setFetchItems(existing.fetchItemsEnabled);
       if (existing.fetchSoundEnabled !== undefined) setFetchSound(existing.fetchSoundEnabled);
       if (existing.fetchVisualsEnabled !== undefined) setFetchVisuals(existing.fetchVisualsEnabled);
+      if (existing.fetchLocalArenasEnabled !== undefined) setFetchLocalArenas(existing.fetchLocalArenasEnabled);
       if (existing.systemInstructions) setSystemInstructions(existing.systemInstructions);
       if (existing.instructionsFormat) setInstructionsFormat(existing.instructionsFormat);
       if (existing.selectedModel) setSelectedModel(existing.selectedModel);
@@ -117,6 +119,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       fetchItemsEnabled: fetchItems,
       fetchSoundEnabled: fetchSound,
       fetchVisualsEnabled: fetchVisuals,
+      fetchLocalArenasEnabled: fetchLocalArenas,
       systemInstructions,
       instructionsFormat,
       selectedModel,
@@ -146,6 +149,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
     setFetchItems(true);
     setFetchSound(true);
     setFetchVisuals(true);
+    setFetchLocalArenas(true);
     setSystemInstructions("");
     setInstructionsFormat("markdown");
     setSelectedModel("gemini-flash-latest");
@@ -164,6 +168,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       fetchItemsEnabled: true,
       fetchSoundEnabled: true,
       fetchVisualsEnabled: true,
+      fetchLocalArenasEnabled: true,
       systemInstructions: "",
       instructionsFormat: "markdown",
       selectedModel: "gemini-flash-latest",
@@ -194,6 +199,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       fetchItemsEnabled: fetchItems,
       fetchSoundEnabled: fetchSound,
       fetchVisualsEnabled: fetchVisuals,
+      fetchLocalArenasEnabled: fetchLocalArenas,
       systemInstructions,
       instructionsFormat,
       selectedModel,
@@ -489,6 +495,28 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                 }`}
               >
                 {fetchVisuals ? "ON" : "OFF"}
+              </button>
+            </div>
+
+            {/* Local Arenas */}
+            <div className="flex items-center justify-between p-2.5 bg-black/60 rounded border border-green-950">
+              <span className="text-xs font-bold text-green-300">Fetch local Arena/ via local game (when supported)</span>
+              <button
+                type="button"
+                aria-pressed={fetchLocalArenas}
+                onClick={() => {
+                  const next = !fetchLocalArenas;
+                  setFetchLocalArenas(next);
+                  GeminiSystem.setFetchToggles({ localArenas: next });
+                  playProceduralSound("tick");
+                }}
+                className={`px-3 py-1.5 rounded text-xs font-bold border min-h-[44px] transition ${
+                  fetchLocalArenas 
+                    ? "bg-green-950 text-green-200 border-green-500" 
+                    : "bg-black text-zinc-600 border-zinc-900"
+                }`}
+              >
+                {fetchLocalArenas ? "ON" : "OFF"}
               </button>
             </div>
           </div>

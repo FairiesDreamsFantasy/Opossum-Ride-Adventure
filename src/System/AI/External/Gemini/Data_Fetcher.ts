@@ -14,6 +14,7 @@ export interface SystemFetchManifest {
   items?: Record<string, any>;
   sound?: Record<string, any>;
   visuals?: Record<string, any>;
+  localArenas?: Record<string, any>;
   fetchedAt: string;
   totalModulesCount: number;
 }
@@ -187,6 +188,25 @@ export class GeminiDataFetcher {
   }
 
   /**
+   * Fetches local pre-generated arenas and templates in System/Registry/Arena/
+   */
+  public static fetchLocalArenas(): Record<string, any> {
+    return {
+      registryId: "System/Registry/Arena",
+      description: "Local pre-generated or handcrafted procedural Arenas and Geological Templates",
+      arenasCount: 16,
+      templates: [
+        { id: "floor_foyer", surface: "ceramic tile", geologicalStyle: "Manor Grand Vault" },
+        { id: "stone_corridor", surface: "slate stone", geologicalStyle: "Underground Dungeon" },
+        { id: "garden", surface: "light gravel", geologicalStyle: "Cultivated Maze" },
+        { id: "plain", surface: "soft grass", geologicalStyle: "Tranquil Meadow" },
+        { id: "cave", surface: "slab stone", geologicalStyle: "Natural Cavern" },
+        { id: "mountains", surface: "sharp granite", geologicalStyle: "Elevated Slopes" }
+      ]
+    };
+  }
+
+  /**
    * Compiles the requested active modules into a comprehensive manifest
    */
   public static fetchAllSupportedContext(options: {
@@ -194,6 +214,7 @@ export class GeminiDataFetcher {
     fetchItems?: boolean;
     fetchSound?: boolean;
     fetchVisuals?: boolean;
+    fetchLocalArenas?: boolean;
   }): SystemFetchManifest {
     const manifest: SystemFetchManifest = {
       fetchedAt: new Date().toISOString(),
@@ -214,6 +235,10 @@ export class GeminiDataFetcher {
     }
     if (options.fetchVisuals !== false) {
       manifest.visuals = this.fetchVisuals();
+      manifest.totalModulesCount++;
+    }
+    if (options.fetchLocalArenas !== false) {
+      manifest.localArenas = this.fetchLocalArenas();
       manifest.totalModulesCount++;
     }
 
