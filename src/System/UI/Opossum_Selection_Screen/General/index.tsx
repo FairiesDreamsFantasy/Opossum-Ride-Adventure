@@ -108,11 +108,21 @@ export const getOpossumAestheticDescription = (opossum: OpossumCharacter) => {
     outerEarDesc = `featuring a geometric diamond pattern on her outer ears facing the rider`;
   }
 
+  const earLengthTerm = earLength === "Long"
+    ? "long and expressive"
+    : earLength === "Medium"
+    ? "medium-length"
+    : "of conventional, balanced proportion";
+
+  const earOrientTerm = earOrient === "Forward Leaning"
+    ? "forward-leaning"
+    : "upright";
+
   // Accessories sentence
   const accText = accessory !== "None"
     ? `For adornment, she proudly wears handcrafted accessories: ${accessory}.`
     : "She wears no physical jewelry, displaying her natural grace and elegant form.";
 
-  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat which is organized as a ${patternLabel}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLength} and set in a ${earOrient} orientation, ${outerEarDesc}, and lined with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
+  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat which is organized as a ${patternLabel}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLengthTerm} and set in a ${earOrientTerm} orientation, ${outerEarDesc}, and lined with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
 };
 
