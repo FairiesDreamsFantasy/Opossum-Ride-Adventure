@@ -43,6 +43,7 @@ export interface OpossumCharacter {
   description: string;
   playChatter?: (ctx: AudioContext, isRetro: boolean, dest: AudioNode) => void;
   isAI?: boolean;
+  isAIGenerated?: boolean;
   aiData?: any;
 }
 
