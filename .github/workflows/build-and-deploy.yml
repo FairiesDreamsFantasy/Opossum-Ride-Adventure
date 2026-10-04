@@ -1,17 +1,20 @@
 name: Automate Game Build for cPanel
 
+# Trigger automated GitHub cloud compilation on push
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - 'dist/**'
-      - '.cpanel.yml'
-      - 'README.md'
+      - stable-cpanel-deployment
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
+    runs-on.ubuntu-latest: false
+  build-job:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source Code
@@ -37,3 +40,4 @@ jobs:
           commit_message: "Automated Build: Compile clean production game bundle for cPanel"
           branch: main
           file_pattern: "dist/** .cpanel.yml"
+          skip_ci: true
