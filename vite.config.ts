@@ -10,7 +10,7 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   base: "./",
-  publicDir: "Public",
+  publicDir: "public",
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
