@@ -715,25 +715,25 @@ export class ProceduralSoundSystem {
     this.sfx.playMooseJump(ctx, dest, type);
   }
 
-  public playAIOpossumSound(sex: string, size: number = 1.0) {
+  public playAIOpossumSound(sex: string, size: number = 1.0, vocalSource: string = "Cloud Network Synthesis") {
     const ctx = this.getContext();
     if (!ctx || ctx.state === "suspended") return;
     const dest = this.getSharedDestination(ctx, 0.45);
     if (sex === "Jill" || sex?.toLowerCase() === "female") {
-      this.sfx.playCloudJillChatter(ctx, dest, size);
+      this.sfx.playCloudJillChatter(ctx, dest, size, vocalSource);
     } else {
-      this.sfx.playCloudJackGrunt(ctx, dest, size);
+      this.sfx.playCloudJackGrunt(ctx, dest, size, vocalSource);
     }
   }
 
-  public playAIOpossumJump(sex: string, source?: string) {
+  public playAIOpossumJump(sex: string, source?: string, size: number = 1.0) {
     const ctx = this.getContext();
     if (!ctx || ctx.state === "suspended") return;
     const dest = this.getSharedDestination(ctx, 0.35);
     if (sex === "Jill" || sex?.toLowerCase() === "female") {
-      this.sfx.playCloudJillJump(ctx, dest);
+      this.sfx.playCloudJillJump(ctx, dest, size);
     } else {
-      this.sfx.playCloudJackJump(ctx, dest);
+      this.sfx.playCloudJackJump(ctx, dest, size);
     }
   }
 

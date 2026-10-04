@@ -42,7 +42,7 @@ export const AIGeneratedView: React.FC<AIGeneratedViewProps> = ({
     const op = generatedOpossums.find(o => o.id === id);
     if (op) {
       if (onAISelect) onAISelect(op);
-      soundSystemRef.current.playAIOpossumSound(op.sex, op.size);
+      soundSystemRef.current.playAIOpossumSound(op.sex, op.size, op.vocalSource);
     }
   };
 

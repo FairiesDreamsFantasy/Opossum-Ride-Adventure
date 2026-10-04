@@ -5,6 +5,7 @@
 
 import { GameLevel, TickItem, Opponent, ObstacleItem, GameViewMode, AnimalItem } from "../../../../types";
 import { RHYTHM_PROFILES } from "../../../Sound";
+import { AIOpossumAcousticEngine } from "../../../Sound/SFX/Category/Opossum/AI-Generated";
 import { INITIAL_PLACES } from "../../../../Arena";
 import { PlaceResolver } from "../../Resolver";
 import { GeminiSystem } from "../../../AI/External/Gemini";
@@ -287,7 +288,7 @@ export function updateFoyerPhysics(
   // Footstep ticking on ceramic tile or wooden porch decking
   const stepDeltaZ = stateRef.current.playerZ - lastFootstepZRef.current;
   const isJack = selectedOpossum?.gender === "Jack" || selectedOpossum?.sex === "Jack" || selectedOpossum?.gender === "Male";
-  const trotStrideFrequency = isJack ? RHYTHM_PROFILES.opossum.jackTrot : RHYTHM_PROFILES.opossum.trot;
+  const trotStrideFrequency = computeOpossumStrideFrequency(selectedOpossum, isJack);
   
   if (Math.abs(stepDeltaZ) >= trotStrideFrequency && Math.abs(stateRef.current.speed) > 0.1 && !stateRef.current.isJumping && stateRef.current.playerY <= 0) {
     lastFootstepZRef.current = stateRef.current.playerZ;

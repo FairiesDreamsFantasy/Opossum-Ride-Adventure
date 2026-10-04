@@ -23,6 +23,7 @@ import {
 } from "./Category/Moose";
 import { GenericBoarSynthesizer } from "./Synthesizer/Special_Effects/Animal/Generic/Pig/Boar";
 import { GenericSowSynthesizer } from "./Synthesizer/Special_Effects/Animal/Generic/Pig/Sow";
+import { AIOpossumAcousticEngine } from "./Category/Opossum/AI-Generated";
 import { FeralPigSmashSound } from "./Category/Feral_Pig/Smash";
 
 /**
@@ -807,105 +808,31 @@ export class DedicatedSFXSynthesizer {
   }
 
   /**
-   * Play cloud-based high-fidelity chatter for Jill opossums
+   * Play scientific acoustic vocalization for AI-Generated Jill opossums
    */
-  public playCloudJillChatter(ctx: AudioContext, destination: AudioNode, pitch: number = 1.0) {
-    const now = ctx.currentTime;
-    const duration = 0.4;
-    
-    const carrier = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    carrier.type = "sine";
-    carrier.frequency.setValueAtTime(950 * pitch, now);
-    carrier.frequency.exponentialRampToValueAtTime(1200 * pitch, now + duration);
-    
-    gain.gain.setValueAtTime(0, now);
-    const clicks = 8;
-    for(let i=0; i<clicks; i++) {
-      const t = now + (i * duration / clicks);
-      gain.gain.linearRampToValueAtTime(0.12, t + 0.01);
-      gain.gain.linearRampToValueAtTime(0.01, t + (duration/clicks) - 0.01);
-    }
-    
-    carrier.connect(gain);
-    gain.connect(destination);
-    carrier.start(now);
-    carrier.stop(now + duration);
+  public playCloudJillChatter(ctx: AudioContext, destination: AudioNode, pitch: number = 1.0, vocalSource: string = "Cloud Network Synthesis") {
+    return AIOpossumAcousticEngine.playVocalization(ctx, destination, "Jill", pitch, vocalSource);
   }
 
   /**
-   * Play cloud-based high-fidelity grunt for Jack opossums
+   * Play scientific acoustic vocalization for AI-Generated Jack opossums
    */
-  public playCloudJackGrunt(ctx: AudioContext, destination: AudioNode, pitch: number = 1.0) {
-    const now = ctx.currentTime;
-    const duration = 0.3;
-    
-    const carrier = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    carrier.type = "sawtooth";
-    carrier.frequency.setValueAtTime(80 * pitch, now);
-    carrier.frequency.linearRampToValueAtTime(45 * pitch, now + duration);
-    
-    const filter = ctx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.setValueAtTime(400, now);
-    
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    
-    carrier.connect(filter);
-    filter.connect(gain);
-    gain.connect(destination);
-    carrier.start(now);
-    carrier.stop(now + duration);
+  public playCloudJackGrunt(ctx: AudioContext, destination: AudioNode, pitch: number = 1.0, vocalSource: string = "Cloud Network Synthesis") {
+    return AIOpossumAcousticEngine.playVocalization(ctx, destination, "Jack", pitch, vocalSource);
   }
 
   /**
-   * Play cloud-based high-fidelity jump for Jack opossums
+   * Play scientific parabolic spring jump for AI-Generated Jack opossums
    */
-  public playCloudJackJump(ctx: AudioContext, destination: AudioNode) {
-    const now = ctx.currentTime;
-    const duration = 0.5;
-    
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = "triangle";
-    osc.frequency.setValueAtTime(100, now);
-    osc.frequency.exponentialRampToValueAtTime(350, now + duration);
-    
-    gain.gain.setValueAtTime(0.25, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    
-    osc.connect(gain);
-    gain.connect(destination);
-    osc.start(now);
-    osc.stop(now + duration);
+  public playCloudJackJump(ctx: AudioContext, destination: AudioNode, size: number = 1.0) {
+    return AIOpossumAcousticEngine.playJumpImpulse(ctx, destination, "Jack", size);
   }
 
   /**
-   * Play cloud-based high-fidelity jump for Jill opossums
+   * Play scientific parabolic spring jump for AI-Generated Jill opossums
    */
-  public playCloudJillJump(ctx: AudioContext, destination: AudioNode) {
-    const now = ctx.currentTime;
-    const duration = 0.45;
-    
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(180, now);
-    osc.frequency.exponentialRampToValueAtTime(500, now + duration);
-    
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    
-    osc.connect(gain);
-    gain.connect(destination);
-    osc.start(now);
-    osc.stop(now + duration);
+  public playCloudJillJump(ctx: AudioContext, destination: AudioNode, size: number = 1.0) {
+    return AIOpossumAcousticEngine.playJumpImpulse(ctx, destination, "Jill", size);
   }
 
   /**
