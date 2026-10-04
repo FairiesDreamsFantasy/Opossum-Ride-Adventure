@@ -985,16 +985,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         }
         case "announce_rider": {
           const op = selectedOpossumRef.current;
-          const isMale = op.gender === "Male" || (op.gender as string) === "Jack" || op.sex === "Jack";
-          const sub = isMale ? "He" : "She";
-          
-          if (op.description && typeof op.description === "string" && op.description.length > 50) {
-            speakWords(`You are riding ${op.name}. ${op.description}`);
-          } else {
-            speakWords(
-              `You are riding ${op.name}, a ${op.gender || op.sex} opossum. ${sub} has a shoulder height of ${op.shoulderHeight || (op.size ? `${(op.size * 5.25).toFixed(2)} feet` : "5 feet and 3 inches")}. ${sub} is ${op.width || 36} inches wide and ${op.length || 86} inches long. Fur color: ${op.color}. Eyes: ${op.eyeColor || "Blue"}. Nose: ${op.noseColor || "Pink"}. Tail: ${op.tailColor || "Pink"}. Inner ears: ${op.innerEarColor || "Pink"}. Head orientation is ${op.headOrientation || "perched on top of her neck"}.`
-            );
-          }
+          const riderAnnouncement = InGameAccessibility.Narration.compileRiderProfile(op);
+          speakWords(riderAnnouncement);
           break;
         }
         case "announce_hud": {

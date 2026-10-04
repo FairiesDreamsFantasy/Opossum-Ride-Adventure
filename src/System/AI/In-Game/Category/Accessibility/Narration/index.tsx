@@ -77,27 +77,27 @@ export class InGameLocalNarrationEngine {
   }
 
   /**
-   * Generates a rider profile description for the active opossum.
+   * Generates an ultra-precise rider profile description for the active opossum.
    */
   public static compileRiderProfile(op: OpossumCharacter): string {
-    const isMale = op.gender === "Male" || (op.gender as string) === "Jack" || op.sex === "Jack";
-    const sub = isMale ? "He" : "She";
-
-    if (op.description && typeof op.description === "string" && op.description.length > 50) {
+    if (op.description && typeof op.description === "string" && op.description.trim().length > 30) {
       return `You are riding ${op.name}. ${op.description}`;
     }
 
+    const isMale = op.gender === "Male" || (op.gender as string) === "Jack" || op.sex === "Jack";
+    const sub = isMale ? "He" : "She";
+    const possessive = isMale ? "His" : "Her";
     const shoulderHeight = op.shoulderHeight || (op.size ? `${(op.size * 5.25).toFixed(2)} feet` : "5 feet and 3 inches");
-    const width = op.width || 36;
+    const width = op.width || 38;
     const length = op.length || 86;
-    const fur = op.color;
-    const eyes = op.eyeColor || "Blue";
+    const fur = op.color || "natural coat";
+    const eyes = op.eyeColor || (isMale ? "Deep-Brown" : "Emerald-Green");
     const nose = op.noseColor || "Pink";
     const tail = op.tailColor || "Pink";
     const innerEars = op.innerEarColor || "Pink";
-    const head = op.headOrientation || "perched on top of her neck";
+    const head = op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck");
 
-    return `You are riding ${op.name}, a ${op.gender || op.sex} opossum. ${sub} has a shoulder height of ${shoulderHeight}. ${sub} is ${width} inches wide and ${length} inches long. Fur color: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. Head orientation is ${head}.`;
+    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} head orientation is ${head}.`;
   }
 }
 
