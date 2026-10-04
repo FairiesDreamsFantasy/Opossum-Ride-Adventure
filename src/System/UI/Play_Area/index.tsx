@@ -985,8 +985,9 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         }
         case "announce_rider": {
           const op = selectedOpossumRef.current;
-          const riderAnnouncement = InGameAccessibility.Narration.compileRiderProfile(op);
-          speakWords(riderAnnouncement);
+          const rider = defaultRiderRef.current;
+          const announcement = InGameAccessibility.Narration.compileActiveRiderAndOpossumProfile(rider, op);
+          speakWords(announcement);
           break;
         }
         case "announce_hud": {

@@ -4,7 +4,7 @@
  */
 
 import { PlaceResolver } from "../../../../../Engine/Resolver";
-import { OpossumCharacter } from "../../../../../../types";
+import { OpossumCharacter, RiderCharacter } from "../../../../../../types";
 
 export interface SceneNarrationContext {
   levelId: number;
@@ -47,7 +47,7 @@ export class InGameLocalNarrationEngine {
     const atmosphere = ctx.theme || resolvedPlace.ambientNoise || "Serene";
     const longDesc = ctx.longDescription || resolvedPlace.longDescription || resolvedPlace.description || "";
 
-    const base = `You are currently at ${name}. This is a ${surface} environment. The atmosphere is ${atmosphere}.`;
+    const base = `You are currently at ${name}. Terrain substrate features ${surface}. Atmospheric resonance is ${atmosphere}.`;
     return longDesc ? `${base} ${longDesc}` : base;
   }
 
@@ -77,9 +77,9 @@ export class InGameLocalNarrationEngine {
   }
 
   /**
-   * Generates an ultra-precise rider profile description for the active opossum.
+   * Generates an ultra-precise description for the ridden Opossum (the animal mount).
    */
-  public static compileRiderProfile(op: OpossumCharacter): string {
+  public static compileRiddenOpossumProfile(op: OpossumCharacter): string {
     if (op.description && typeof op.description === "string" && op.description.trim().length > 30) {
       return `You are riding ${op.name}. ${op.description}`;
     }
@@ -97,7 +97,37 @@ export class InGameLocalNarrationEngine {
     const innerEars = op.innerEarColor || "Pink";
     const head = op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck");
 
-    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} head orientation is ${head}.`;
+    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} head orientation is ${head}.`;
+  }
+
+  /**
+   * Generates a description for the active Rider (the human/fairy person riding the opossum).
+   */
+  public static compileRiderPersonProfile(rider: RiderCharacter): string {
+    const name = rider.name || "Rider";
+    const height = rider.height ? ` Height: ${rider.height}.` : "";
+    const ethnicity = rider.ethnicity ? ` Background: ${rider.ethnicity}.` : "";
+    const hair = rider.hair ? ` Hair: ${rider.hair}.` : "";
+    const outfit = rider.outfit ? ` Outfit: ${rider.outfit}.` : "";
+    const shoes = rider.shoes ? ` Footwear: ${rider.shoes}.` : "";
+
+    return `Active Rider is ${name}.${height}${ethnicity}${hair}${outfit}${shoes}`;
+  }
+
+  /**
+   * Generates a combined narrative describing both the Rider (person) and the Opossum (mount).
+   */
+  public static compileActiveRiderAndOpossumProfile(rider: RiderCharacter, op: OpossumCharacter): string {
+    const riderText = this.compileRiderPersonProfile(rider);
+    const opossumText = this.compileRiddenOpossumProfile(op);
+    return `${riderText} ${opossumText}`;
+  }
+
+  /**
+   * Backward-compatible alias for compileRiddenOpossumProfile.
+   */
+  public static compileRiderProfile(op: OpossumCharacter): string {
+    return this.compileRiddenOpossumProfile(op);
   }
 }
 
