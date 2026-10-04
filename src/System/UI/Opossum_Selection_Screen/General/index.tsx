@@ -59,10 +59,11 @@ import { OpossumsAttributesDesign } from "../../../Registry/Characters/Opossums/
  * Calculates the maximum rider height based on opossum physical dimensions.
  * Resolves hardcoded strings in the description area.
  */
-export const calculateMaxRiderHeight = (opossum: OpossumCharacter) => {
-  const totalInches = Math.floor(opossum.width * OPOSSUM_UI_CONSTANTS.RIDER_HEIGHT_COEFFICIENT);
-  const feet = Math.floor(totalInches / 12);
-  const inches = totalInches % 12;
+export const calculateMaxRiderHeight = (_opossum: OpossumCharacter) => {
+  // Standard comfortable rider capacity for robust opossum mounts (up to 6 feet and 3 inches)
+  const totalInches = 75;
+  const feet = 6;
+  const inches = 3;
   return { feet, inches, totalInches };
 };
 

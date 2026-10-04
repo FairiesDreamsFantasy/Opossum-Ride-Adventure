@@ -18,6 +18,9 @@ import { calculateMaxRiderHeight, getOpossumAestheticDescription } from "./Gener
 import { convertAItoCharacter } from "../../../utils/ai-conversion";
 import { convertCompactToCharacter } from "../../../Characters/Opossums/Generic";
 
+import { FAIRY_RIDER } from "../../../Characters/Riders";
+import { InGameAccessibility } from "../../AI/In-Game/Category/Accessibility";
+
 export * from "./Mobile_Portrait_4_Phone";
 
 interface OpossumSelectionScreenProps {
@@ -43,7 +46,11 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
       const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
       if (targetTag === "input" || targetTag === "textarea") return;
 
-      if (e.key === "r" || e.key === "R" || e.code === "KeyR") {
+      if (e.key === "R" || (e.key === "r" && e.shiftKey)) {
+        const rider = selectedRider || FAIRY_RIDER;
+        const spoken = InGameAccessibility.Narration.compileRiderPersonProfile(rider);
+        ScreenReader.announceText(spoken, "USER_COMMAND");
+      } else if (e.key === "r" || e.code === "KeyR") {
         const { feet, inches } = calculateMaxRiderHeight(currentOpossum);
         const aesthetic = getOpossumAestheticDescription(currentOpossum);
         const spokenText = `Profile of ${currentOpossum.name}. Description: ${currentOpossum.description} She features a body length of ${currentOpossum.length} inches, with a body width of ${currentOpossum.width} inches and a registered shoulder height of ${currentOpossum.shoulderHeight}. Perfect spacing accommodates rider heights of up to ${feet} feet and ${inches} inches comfortably. ${aesthetic}`;
@@ -56,7 +63,7 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
-  }, [currentOpossum]);
+  }, [currentOpossum, selectedRider]);
 
   const handleSelect = (id: OpossumId) => {
 
