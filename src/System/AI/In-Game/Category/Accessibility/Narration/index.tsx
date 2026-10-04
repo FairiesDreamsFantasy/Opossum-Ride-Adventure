@@ -5,6 +5,7 @@
 
 import { PlaceResolver } from "../../../../../Engine/Resolver";
 import { OpossumCharacter, RiderCharacter } from "../../../../../../types";
+import { OpossumsAttributesDesign } from "../../../../../Registry/Characters/Opossums/Attributes/Design";
 
 export interface SceneNarrationContext {
   levelId: number;
@@ -84,6 +85,15 @@ export class InGameLocalNarrationEngine {
       return `You are riding ${op.name}. ${op.description}`;
     }
 
+    const opId = op.id === "arden_rosie" ? "arden_rosie_kone_reynolds" : op.id;
+    const skinInfo = OpossumsAttributesDesign.Skin_Color.getByOpossumId(opId);
+    const skinLabel = (OpossumsAttributesDesign.Skin_Color as any)[skinInfo.root]?.[skinInfo.tone]?.label || "Alabaster Off-White";
+    
+    const earLength = OpossumsAttributesDesign.Ear_Length.getByOpossumId(opId);
+    const earOrient = OpossumsAttributesDesign.Ear_Orientation.getByOpossumId(opId);
+    const pattern = OpossumsAttributesDesign.With_Patterns.getByOpossumId(opId);
+    const patternLabel = (OpossumsAttributesDesign.With_Patterns as any)[pattern]?.label || "solid color";
+
     const isMale = op.gender === "Male" || (op.gender as string) === "Jack" || op.sex === "Jack";
     const sub = isMale ? "He" : "She";
     const possessive = isMale ? "His" : "Her";
@@ -95,9 +105,12 @@ export class InGameLocalNarrationEngine {
     const nose = op.noseColor || "Pink";
     const tail = op.tailColor || "Pink";
     const innerEars = op.innerEarColor || "Pink";
-    const head = op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck");
+    
+    // Map enums to natural descriptions
+    const earLengthDesc = earLength === "Long" ? "long and expressive" : (earLength === "Medium" ? "medium-length" : "of conventional, balanced proportion");
+    const earOrientDesc = earOrient === "Forward Leaning" ? "forward-leaning orientation" : "upright orientation";
 
-    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} head orientation is ${head}.`;
+    return `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount. ${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ears: ${innerEars}. ${possessive} face skin is ${skinLabel}. ${possessive} outer ears feature a ${patternLabel} pattern, and are ${earLengthDesc} with an ${earOrientDesc}. ${possessive} head orientation is ${op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck")}.`;
   }
 
   /**
