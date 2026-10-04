@@ -91,18 +91,28 @@ export const getOpossumAestheticDescription = (opossum: OpossumCharacter) => {
   // Furry face sentence
   const faceText = furryFacePercentage > 0
     ? `She possesses a unique, partially furry face (${furryFacePercentage}% furry face skin coverage) with a lovely ${faceFurColor} face fur tone, contrasting with her main coat.`
-    : `She features a completely hairless, smooth pink face skin, matching the delicate skin profile of conventional opossums.`;
+    : `She features a completely hairless, smooth ${skinLabel} face skin.`;
 
   // Tail design sentence
   const tailText = tailPct > 0
     ? `Her tail is ${tailPct}% covered in rich fur, featuring a specialized design: ${tailDesign}.`
     : `She has a classic, hairless tactile prehensile tail with a ${opossum.tailColor} coloration.`;
 
+  // Outer ear pattern description facing the rider
+  let outerEarDesc = `with outer ears matching her ${opossum.color} coat surface facing the rider`;
+  if (opId === "saffron_rose") {
+    outerEarDesc = `featuring a neon saffron yellow polka-dot pattern on her outer ears facing the rider`;
+  } else if (opId === "roxanne_kone_reynolds") {
+    outerEarDesc = `featuring yellow with red diamonds spaced out by 0.1 inches on her outer ears facing the rider`;
+  } else if (["arden_rosie_kone_reynolds", "dagmar_kone_reynolds", "jahmella_rose", "amara_qin", "jalissa_chin", "melissa", "ashley"].includes(opId)) {
+    outerEarDesc = `featuring a geometric diamond pattern on her outer ears facing the rider`;
+  }
+
   // Accessories sentence
   const accText = accessory !== "None"
     ? `For adornment, she proudly wears handcrafted accessories: ${accessory}.`
     : "She wears no physical jewelry, displaying her natural grace and elegant form.";
 
-  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat which is organized as a ${patternLabel}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLength} and set in a ${earOrient} orientation with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
+  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat which is organized as a ${patternLabel}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLength} and set in a ${earOrient} orientation, ${outerEarDesc}, and lined with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
 };
 
