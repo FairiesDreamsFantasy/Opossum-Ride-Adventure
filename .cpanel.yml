@@ -3,6 +3,8 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Opossum_Ride_Adventure
     - /bin/mkdir -p $DEPLOYPATH
+    # Remove old build files to ensure a clean state, excluding potential .git directory
+    - /bin/rm -rf $DEPLOYPATH/assets $DEPLOYPATH/index.html $DEPLOYPATH/.htaccess
     - /bin/cp -rf dist/* $DEPLOYPATH/
     - /bin/cp -rf dist/.htaccess $DEPLOYPATH/ 2>/dev/null || true
     - /bin/chmod -R 755 $DEPLOYPATH
