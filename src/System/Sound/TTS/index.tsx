@@ -126,9 +126,28 @@ export function speakWords(words: string, interrupt = true) {
     
     // Safeguard 4: The "speech-synthesis-cancel-gap" pattern (50ms gap).
     // Avoids immediate subsequent speak call which causes NVDA/JAWS/Chrome speech engines to freeze or crash.
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         if (!speechEnabled) return;
+
+        // Try Gemini Cloud TTS if enabled and configured
+        const { GeminiSystem } = await import("../../AI/External/Gemini");
+        const cloudAudio = await GeminiSystem.generateSpeech(words);
+
+        if (cloudAudio) {
+          const audio = new Audio(`data:audio/wav;base64,${cloudAudio}`);
+          audio.play().catch(e => {
+            console.error("Gemini Cloud TTS Playback failed, falling back to local:", e);
+            // Fallback manually if playback fails
+            const utterance = new SpeechSynthesisUtterance(words);
+            utterance.rate = 1.1;
+            utterance.pitch = 0.95;
+            window.speechSynthesis.speak(utterance);
+          });
+          return;
+        }
+
+        // Fallback to standard Web Speech API
         const utterance = new SpeechSynthesisUtterance(words);
         // Use standard rate so speech is clear and distinct
         utterance.rate = 1.1;

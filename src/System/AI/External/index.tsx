@@ -13,7 +13,8 @@ import {
   AIVisualsMode, 
   AITier, 
   SystemInstructionFormat, 
-  AVAILABLE_GEMINI_MODELS 
+  AVAILABLE_GEMINI_MODELS,
+  TTSVoice
 } from "./Gemini";
 
 export interface ExternalAIModalProps {
@@ -24,6 +25,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   const [apiKey, setApiKey] = useState("");
   const [strength, setStrength] = useState<"Light" | "Medium" | "Heavy">("Light");
   const [cloudTTS, setCloudTTS] = useState(true);
+  const [ttsVoice, setTtsVoice] = useState<TTSVoice>("Kore");
   const [smartVisuals, setSmartVisuals] = useState(true);
   const [smartMP3, setSmartMP3] = useState(false);
   const [visualsMode, setVisualsMode] = useState<AIVisualsMode>("3-D+");
@@ -65,6 +67,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       setApiKey(existing.apiKey || "");
       setStrength(existing.strength || "Light");
       setCloudTTS(existing.cloudTTS ?? true);
+      setTtsVoice(existing.ttsVoice || "Kore");
       setSmartVisuals(existing.smartVisuals ?? true);
       setSmartMP3(existing.smartMP3 ?? false);
       if (existing.visualsMode) setVisualsMode(existing.visualsMode);
@@ -111,6 +114,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       apiKey: apiKey.trim(),
       strength,
       cloudTTS,
+      ttsVoice,
       smartVisuals,
       smartMP3: isPaid ? smartMP3 : false,
       visualsMode,
@@ -145,6 +149,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
     setStatus("Idle");
     setIsConfigured(false);
     setSelectedTier("Free");
+    setCloudTTS(true);
+    setTtsVoice("Kore");
     setFetchBuildingBlocks(true);
     setFetchItems(true);
     setFetchSound(true);
@@ -160,6 +166,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       apiKey: "",
       strength: "Light",
       cloudTTS: true,
+      ttsVoice: "Kore",
       smartVisuals: true,
       smartMP3: false,
       visualsMode: "3-D+",
@@ -191,6 +198,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       apiKey: apiKey.trim(), 
       strength, 
       cloudTTS, 
+      ttsVoice,
       smartVisuals, 
       smartMP3: isPaid ? smartMP3 : false, 
       visualsMode, 
@@ -726,17 +734,37 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                   </div>
                   <div className="flex items-center justify-between">
                     <label>Cloud TTS:</label>
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        const next = !cloudTTS;
-                        setCloudTTS(next);
-                        GeminiSystem.setSmartTTS(next);
-                      }}
-                      className={`px-2 py-1 rounded border min-h-[36px] ${cloudTTS ? 'border-green-500 text-green-200 bg-green-950' : 'border-green-900 text-green-800 bg-black'}`}
-                    >
-                      {cloudTTS ? "ON" : "OFF"}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {cloudTTS && (
+                        <select
+                          value={ttsVoice}
+                          onChange={(e) => {
+                            const v = e.target.value as any;
+                            setTtsVoice(v);
+                            GeminiSystem.setSmartTTS(true, v);
+                            playProceduralSound("tick");
+                          }}
+                          className="bg-black border border-green-800 rounded px-1 text-[10px] text-green-200 h-[36px]"
+                        >
+                          <option value="Kore">Voice: Kore</option>
+                          <option value="Zephyr">Voice: Zephyr</option>
+                          <option value="Puck">Voice: Puck</option>
+                          <option value="Charon">Voice: Charon</option>
+                          <option value="Fenrir">Voice: Fenrir</option>
+                        </select>
+                      )}
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const next = !cloudTTS;
+                          setCloudTTS(next);
+                          GeminiSystem.setSmartTTS(next);
+                        }}
+                        className={`px-2 py-1 rounded border min-h-[36px] ${cloudTTS ? 'border-green-500 text-green-200 bg-green-950' : 'border-green-900 text-green-800 bg-black'}`}
+                      >
+                        {cloudTTS ? "ON" : "OFF"}
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <label>Smart Visuals:</label>

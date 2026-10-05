@@ -12,6 +12,7 @@ export async function runScientificDiagnostic(apiKey: string) {
     apiKey: apiKey,
     strength: "Light" as const,
     cloudTTS: false,
+    ttsVoice: "Kore" as const,
     smartVisuals: false,
     smartMP3: false
   };

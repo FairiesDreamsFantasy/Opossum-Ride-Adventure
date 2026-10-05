@@ -68,10 +68,13 @@ export type AIVisualsMode =
 export type AITier = "Free" | "Paid";
 export type SystemInstructionFormat = "markdown" | "html" | "text";
 
+export type TTSVoice = "Puck" | "Charon" | "Kore" | "Fenrir" | "Zephyr";
+
 export interface GeminiConfig {
   apiKey: string;
   strength: "Light" | "Medium" | "Heavy";
   cloudTTS: boolean;
+  ttsVoice: TTSVoice;
   smartVisuals: boolean;
   smartMP3: boolean;
   visualsMode?: AIVisualsMode;
@@ -99,7 +102,17 @@ export const AVAILABLE_GEMINI_MODELS: ModelOption[] = [
   { id: "gemini-flash-latest", name: "Gemini Flash Latest", description: "Default ultra-fast next-generation reasoning, multimodal speed & 5000% scientific procedural generation", tierRequirement: "Free" },
   { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash Lite", description: "Ultra-low latency micro-inferences & fast state updates", tierRequirement: "Free" },
   { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", description: "High-precision STEM reasoning & atmospheric physics simulation", tierRequirement: "Free" },
+  { id: "gemini-3.8-flash-lite-tts", name: "Gemini 3.8 Flash Lite TTS", description: "High-efficiency, low-latency, cost-optimized audio generation", tierRequirement: "Free" },
+  { id: "gemini-3.8-flash-tts", name: "Gemini 3.8 Flash TTS", description: "Flagship audio model for custom voice personas and vocal bursts", tierRequirement: "Free" },
   { id: "gemini-3.1-pro-preview", name: "Gemini 3.1 Pro", description: "Advanced complex spatial geometry & mathematical landscape synthesis", tierRequirement: "Paid" }
+];
+
+export const AVAILABLE_TTS_VOICES: { id: TTSVoice; label: string }[] = [
+  { id: "Kore", label: "Kore (Balanced)" },
+  { id: "Zephyr", label: "Zephyr (Breezy)" },
+  { id: "Puck", label: "Puck (Playful)" },
+  { id: "Charon", label: "Charon (Deep)" },
+  { id: "Fenrir", label: "Fenrir (Primal)" }
 ];
 
 class GeminiManager {
@@ -153,6 +166,7 @@ class GeminiManager {
         tier,
         smartMP3: isPaid ? config.smartMP3 : false,
         visualsMode: defaultVisualsMode,
+        ttsVoice: config.ttsVoice || "Kore",
         fetchBuildingBlocksEnabled: config.fetchBuildingBlocksEnabled ?? true,
         fetchItemsEnabled: config.fetchItemsEnabled ?? true,
         fetchSoundEnabled: config.fetchSoundEnabled ?? true,
@@ -180,12 +194,56 @@ class GeminiManager {
         this.refreshSystemManifest();
       }
       
-      console.log(`Gemini Subsystem: Scientific Refinement Initialized (${tier} Tier, Model: ${this.config.selectedModel}, Visuals Mode: ${defaultVisualsMode}).`);
+      console.log(`Gemini Subsystem: Scientific Refinement Initialized (${tier} Tier, Model: ${this.config.selectedModel}, Visuals Mode: ${defaultVisualsMode}, TTS Voice: ${this.config.ttsVoice}).`);
       this.notifyListeners();
       return true;
     } catch (error) {
       console.error("Gemini Initialization Failed:", error);
       return false;
+    }
+  }
+
+  /**
+   * Generates speech audio for the given text using Gemini TTS models.
+   * Returns a base64 encoded WAV string or null if failed.
+   */
+  public async generateSpeech(text: string): Promise<string | null> {
+    if (!this.ai || !this.config?.apiKey || !this.config.cloudTTS) return null;
+
+    try {
+      const voice = this.config.ttsVoice || "Kore";
+      // Prefer lite model for speed unless user specifically chose the flagship
+      const model = this.config.selectedModel?.includes("tts") 
+        ? this.config.selectedModel 
+        : "gemini-3.8-flash-lite-tts";
+
+      const response = await this.ai.models.generateContent({
+        model,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text }]
+          }
+        ],
+        config: {
+          responseModalities: ["AUDIO"],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: voice }
+            }
+          }
+        }
+      });
+
+      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (base64Audio) {
+        this.incrementQuota();
+        return base64Audio;
+      }
+      return null;
+    } catch (error) {
+      console.error("Gemini TTS Generation Failed:", error);
+      return null;
     }
   }
 
@@ -223,9 +281,13 @@ class GeminiManager {
    * Smart TTS Enablement
    * Connects the AI output to the procedural or cloud-based text-to-speech engine.
    */
-  public setSmartTTS(enabled: boolean) {
-    if (this.config) this.config.cloudTTS = enabled;
-    console.log(`Gemini Smart TTS: ${enabled ? "ENABLED" : "DISABLED"}`);
+  public setSmartTTS(enabled: boolean, voice?: TTSVoice) {
+    if (this.config) {
+      this.config.cloudTTS = enabled;
+      if (voice) this.config.ttsVoice = voice;
+    }
+    console.log(`Gemini Smart TTS: ${enabled ? "ENABLED" : "DISABLED"} (Voice: ${voice || this.config?.ttsVoice})`);
+    this.notifyListeners();
   }
 
   /**
