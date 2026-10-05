@@ -1,7 +1,6 @@
 node_modules/
 .vite/
 .aistudio/
-dist/
 *.log
 .DS_Store
 tmp/
