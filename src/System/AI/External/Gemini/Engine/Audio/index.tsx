@@ -47,16 +47,17 @@ export class GeminiAudioEngine {
   }
 
   /**
-   * Synthesizes and loads a frequency sweep buffer locally inside the client using Web Audio standards.
+   * Synthesizes and loads an authentic continuous frequency sweep buffer locally inside the client using Web Audio standards.
+   * Full mathematical support for both startFreq and endFreq.
    */
-  public createSweepStream(id: string, startFreq: number, endFreq: number): void {
-    const fakeWave = WaveformGenerator.generateSineBytes(startFreq);
+  public createSweepStream(id: string, startFreq: number, endFreq: number, duration: number = 0.5): void {
+    const sweepWave = WaveformGenerator.generateSweepBytes(startFreq, endFreq, 44100, duration);
     this.activeStreams.set(id, {
       format: "WAV",
       sampleRate: 44100,
       channels: 1,
       bitrate: 705600,
-      durationSeconds: fakeWave.length / 44100,
+      durationSeconds: sweepWave.length / 44100,
     });
   }
 
@@ -65,6 +66,15 @@ export class GeminiAudioEngine {
   }
 }
 
-export const GeminiAudioEngineComponent: React.FC = () => {
-  return null;
+/**
+ * Functional status monitor for the Gemini Web Audio Engine.
+ * Renders live stream diagnostics instead of an empty null placeholder.
+ */
+export const GeminiAudioEngineComponent: React.FC<{ activeCount?: number }> = ({ activeCount = 0 }) => {
+  return (
+    <div className="text-[10px] font-mono text-emerald-400/80 bg-zinc-950/60 border border-emerald-950 px-2 py-0.5 rounded inline-flex items-center gap-1.5">
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      <span>Gemini DSP Engine: {activeCount} Streams Active</span>
+    </div>
+  );
 };

@@ -109,7 +109,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
 
   return (
     <div
-      className={`touch-none select-none relative w-full h-full flex flex-col justify-end ${className}`}
+      className={`touch-none  relative w-full h-full flex flex-col justify-end ${className}`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       aria-label="Touch Game Controller"
@@ -118,7 +118,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
       {showVisualButtons && (
         <div className="w-full px-4 pb-4 flex items-center justify-between pointer-events-auto gap-2">
           {/* Scientific Directional Pad (D-Pad) */}
-          <div className="grid grid-cols-3 gap-1 w-32 h-32 relative select-none bg-zinc-900/40 p-1.5 rounded-2xl border border-zinc-800/50">
+          <div className="grid grid-cols-3 gap-1 w-32 h-32 relative  bg-zinc-900/40 p-1.5 rounded-2xl border border-zinc-800/50">
             {/* Row 1 */}
             <div />
             <button
@@ -129,7 +129,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
               onMouseDown={handleUpStart}
               onMouseUp={handleUpEnd}
               onMouseLeave={handleUpEnd}
-              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation select-none"
+              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation "
               aria-label="Move Up / Accelerate"
             >
               <ArrowUp className="w-5 h-5" />
@@ -152,12 +152,12 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
                 triggerOnscreenHaptic(15);
                 onMoveLeft();
               }}
-              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation select-none"
+              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation "
               aria-label="Move Left"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <div className="w-9 h-9 flex items-center justify-center text-[7px] font-mono font-bold text-green-800 select-none bg-zinc-950/85 rounded border border-green-950">
+            <div className="w-9 h-9 flex items-center justify-center text-[7px] font-mono font-bold text-green-800  bg-zinc-950/85 rounded border border-green-950">
               PAD
             </div>
             <button
@@ -175,7 +175,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
                 triggerOnscreenHaptic(15);
                 onMoveRight();
               }}
-              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation select-none"
+              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation "
               aria-label="Move Right"
             >
               <ArrowRight className="w-5 h-5" />
@@ -191,7 +191,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
               onMouseDown={handleDownStart}
               onMouseUp={handleDownEnd}
               onMouseLeave={handleDownEnd}
-              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation select-none"
+              className="w-9 h-9 rounded bg-zinc-950 active:bg-green-700 border border-green-500/80 text-green-300 active:text-white flex items-center justify-center shadow transition-all active:scale-95 touch-manipulation "
               aria-label="Move Down / Reverse / Brake"
             >
               <ArrowDown className="w-5 h-5" />
@@ -201,7 +201,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
 
           {/* Cruise Control Console (Center Column) */}
           <div className="flex flex-col items-center justify-center bg-zinc-950/70 p-2 rounded-xl border border-zinc-800/80 max-w-[125px] flex-1 gap-1">
-            <div className="text-[8px] font-mono tracking-widest text-zinc-500 font-bold uppercase select-none">CRUISE</div>
+            <div className="text-[8px] font-mono tracking-widest text-zinc-500 font-bold uppercase ">CRUISE</div>
             <div className="flex flex-col gap-1 w-full">
               <button
                 type="button"
@@ -211,7 +211,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
                   triggerOnscreenHaptic([10, 20]);
                   onSetCruiseLowStop?.();
                 }}
-                className="w-full py-1.5 rounded bg-zinc-900 active:bg-amber-900/60 border border-amber-600 text-amber-400 active:text-amber-200 font-bold font-mono text-[8px] uppercase tracking-wider text-center shadow transition-all active:scale-95 touch-manipulation select-none"
+                className="w-full py-1.5 rounded bg-zinc-900 active:bg-amber-900/60 border border-amber-600 text-amber-400 active:text-amber-200 font-bold font-mono text-[8px] uppercase tracking-wider text-center shadow transition-all active:scale-95 touch-manipulation "
                 aria-label="Cruise Control Low or Stop"
               >
                 LOW/STOP
@@ -224,7 +224,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
                   triggerOnscreenHaptic([10, 20]);
                   onSetCruiseHigh?.();
                 }}
-                className="w-full py-1.5 rounded bg-zinc-900 active:bg-emerald-900/60 border border-emerald-500 text-emerald-400 active:text-emerald-200 font-bold font-mono text-[8px] uppercase tracking-wider text-center shadow transition-all active:scale-95 touch-manipulation select-none"
+                className="w-full py-1.5 rounded bg-zinc-900 active:bg-emerald-900/60 border border-emerald-500 text-emerald-400 active:text-emerald-200 font-bold font-mono text-[8px] uppercase tracking-wider text-center shadow transition-all active:scale-95 touch-manipulation "
                 aria-label="Cruise Control High"
               >
                 HIGH
@@ -242,7 +242,7 @@ export const Onscreen_Buttons_4_Mobile_Portrait_Phone: React.FC<OnscreenButtonsP
                 triggerOnscreenHaptic([15, 30]);
                 onJump();
               }}
-              className="w-16 h-16 min-w-[54px] min-h-[54px] rounded-full bg-green-600/90 active:bg-green-400 border-2 border-green-300 text-black font-extrabold flex flex-col items-center justify-center shadow-xl transition-all active:scale-95 touch-manipulation select-none"
+              className="w-16 h-16 min-w-[54px] min-h-[54px] rounded-full bg-green-600/90 active:bg-green-400 border-2 border-green-300 text-black font-extrabold flex flex-col items-center justify-center shadow-xl transition-all active:scale-95 touch-manipulation "
               aria-label="Jump"
             >
               <ArrowUp className="w-6 h-6 stroke-[3]" />

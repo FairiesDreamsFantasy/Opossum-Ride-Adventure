@@ -14,7 +14,7 @@ export const WindChimes: React.FC<WindChimesProps> = ({ className = "" }) => {
   return (
     <div
       id="Wind_Chimes_Item_Component"
-      className={`relative flex flex-col items-center select-none p-4 rounded bg-zinc-950/40 border border-zinc-800/60 max-w-[120px] ${className}`}
+      className={`relative flex flex-col items-center  p-4 rounded bg-zinc-950/40 border border-zinc-800/60 max-w-[120px] ${className}`}
       title={WIND_CHIMES_OBJECT_METADATA.name}
     >
       {/* Wooden support plate */}

@@ -41,11 +41,17 @@ import { GeminiDataFetcher, SystemFetchManifest } from "./Data_Fetcher";
 import { GeminiSecurity } from "./Security";
 import { GeminiSafety } from "./Safety";
 import { GeminiFun, GeminiTeaParty } from "./Fun";
+import { GeminiShopping, GeminiShoppingModal } from "./Shopping";
+import { GeminiPlay, GeminiPlayBooksModal } from "./Play";
+import { GeminiYouTube, GeminiYouTubeModal } from "./YouTube";
 import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Feral";
 
 export * from "./Security";
 export * from "./Safety";
 export * from "./Fun";
+export * from "./Shopping";
+export * from "./Play";
+export * from "./YouTube";
 export * from "./AIErrorBoundary";
 
 /**
@@ -652,6 +658,9 @@ Respond strictly with a JSON object:
   public readonly Safety = GeminiSafety;
   public readonly Fun = GeminiFun;
   public readonly TeaParty = GeminiTeaParty;
+  public readonly Shopping = GeminiShopping;
+  public readonly Play = GeminiPlay;
+  public readonly YouTube = GeminiYouTube;
 }
 
 export const GeminiSystem = new GeminiManager();

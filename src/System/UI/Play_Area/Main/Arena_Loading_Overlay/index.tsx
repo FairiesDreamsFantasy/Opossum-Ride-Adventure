@@ -22,7 +22,7 @@ export const ArenaLoadingOverlay: React.FC<ArenaLoadingOverlayProps> = ({
 
   return (
     <div 
-      className="absolute inset-0 bg-black/85 backdrop-blur-md z-40 flex flex-col justify-between p-4 sm:p-6 select-none font-mono border border-green-950/80 shadow-2xl overflow-hidden"
+      className="absolute inset-0 bg-black/85 backdrop-blur-md z-40 flex flex-col justify-between p-4 sm:p-6  font-mono border border-green-950/80 shadow-2xl overflow-hidden"
       role="status"
       aria-live="polite"
       aria-label={`Arena Loading: ${currentPercent}% - ${loadingStatus}`}

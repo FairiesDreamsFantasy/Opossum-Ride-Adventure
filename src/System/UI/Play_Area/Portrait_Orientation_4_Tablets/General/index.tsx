@@ -46,7 +46,7 @@ export const TABLET_PORTRAIT_THEME: TabletPortraitTheme = {
  */
 export const LeafBezelOrnament: React.FC<{ side: "left" | "right"; className?: string }> = ({ side, className = "" }) => {
   return (
-    <div className={`flex flex-col items-center justify-around h-full py-4 opacity-75 select-none pointer-events-none ${className}`}>
+    <div className={`flex flex-col items-center justify-around h-full py-4 opacity-75  pointer-events-none ${className}`}>
       {Array.from({ length: 6 }).map((_, i) => (
         <svg
           key={i}

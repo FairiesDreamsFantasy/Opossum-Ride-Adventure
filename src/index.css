@@ -1,5 +1,20 @@
-@import "./CSS/Mobile/index.css";
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ * 
+ * ============================================================================
+ * IMMUTABLE LOCKED CSS MANIFEST - OPOSSUM RIDE ADVENTURE
+ * Security Standard: 1,000,000,000,000% Ultra-Broad Protection Standard
+ * 
+ * SOVEREIGN SELECTION MANDATE:
+ * Blocking text selection and clipboard copying is permanently prohibited.
+ * All user-select: none, select-none, and -webkit-user-select: none rules
+ * are permanently decommissioned and forbidden across all modules.
+ * This file is locked against regression, pruning, or overwriting.
+ * ============================================================================
+ */
 
+@import "./CSS/Mobile/index.css";
 @import "tailwindcss";
 
 :root {
@@ -15,8 +30,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+/* Global Selection & Copying Guarantee */
+*, *::before, *::after {
   box-sizing: border-box;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
 html,
@@ -30,4 +48,6 @@ body,
   min-height: 100dvh;
   overflow: hidden;
   background-color: #000000;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }

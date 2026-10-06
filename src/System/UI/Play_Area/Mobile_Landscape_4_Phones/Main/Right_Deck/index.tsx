@@ -31,7 +31,7 @@ export const LandscapeRightDeck: React.FC<LandscapeRightDeckProps> = ({
   return (
     <div
       id="Mobile_Landscape_Right_Deck"
-      className="flex flex-col items-center justify-between p-2 select-none h-full"
+      className="flex flex-col items-center justify-between p-2  h-full"
     >
       {/* Upper Right Action Cluster: Pause/Resume with Menu Button placed directly below it */}
       <div className="flex flex-col items-center gap-2 w-full">

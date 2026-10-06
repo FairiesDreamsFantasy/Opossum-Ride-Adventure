@@ -138,7 +138,7 @@ export const PortraitOrientation4Tablets: React.FC<PortraitOrientation4TabletsPr
   return (
     <div
       id="Tablet_Portrait_Container"
-      className="fixed inset-0 w-full h-full bg-stone-950 text-green-300 font-sans flex flex-col justify-between overflow-hidden select-none z-50"
+      className="fixed inset-0 w-full h-full bg-stone-950 text-green-300 font-sans flex flex-col justify-between overflow-hidden  z-50"
     >
       {/* 1. Top Tablet Bar */}
       <div className="w-full bg-stone-900 border-b border-emerald-900/80 px-4 py-2 flex items-center justify-between z-20 shadow-md">

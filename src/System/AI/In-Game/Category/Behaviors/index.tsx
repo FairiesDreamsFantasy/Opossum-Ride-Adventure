@@ -9,7 +9,7 @@ export const BehaviorAnalyzerView: React.FC<{ isBull: boolean }> = ({ isBull }) 
   const resolved = resolveMooseAndMonkeyBehavior(randomSeed, isBull);
 
   return (
-    <div id="BehaviorAnalyzer" className="p-3 bg-zinc-950 border border-green-950 rounded text-xs select-none">
+    <div id="BehaviorAnalyzer" className="p-3 bg-zinc-950 border border-green-950 rounded text-xs ">
       <span className="text-green-500 font-mono block mb-1 font-semibold uppercase tracking-wider">
         Bebehaviors Simulator (Markov-Ethology Engine)
       </span>

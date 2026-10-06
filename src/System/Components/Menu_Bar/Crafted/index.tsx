@@ -23,12 +23,20 @@ import {
   Palette,
   Music,
   QrCode,
-  Network
+  Network,
+  ShoppingBag,
+  BookOpen,
+  Youtube
 } from "lucide-react";
 import { DOMEngine } from "../../../DOM";
 import { VisualPaletteType } from "../../../Visuals";
 import { ExternalAIModal } from "../../../AI/External";
-import { GeminiSystem } from "../../../AI/External/Gemini";
+import { 
+  GeminiSystem, 
+  GeminiShoppingModal, 
+  GeminiPlayBooksModal,
+  GeminiYouTubeModal 
+} from "../../../AI/External/Gemini";
 import { ChalkboardModeSettingsModal } from "../../../UI/Modal/Chalkboard_Mode_Settings";
 import { WiiControllerManager } from "../../../Keyboards_and_Controllers/Controller/Wii";
 import { DecentralizedNetworkModal } from "../../../UI/Modal/Decentralized_Network";
@@ -101,6 +109,9 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
   onSetCustomTrack
 }) => {
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showShoppingModal, setShowShoppingModal] = useState(false);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [showYouTubeModal, setShowYouTubeModal] = useState(false);
   const [showChalkboardModal, setShowChalkboardModal] = useState(false);
   const [tempChalkboardCfg, setTempChalkboardCfg] = useState<ChalkboardColorConfig>(chalkboardConfig);
   const [musicMenuMode, setMusicMenuMode] = useState<"none" | "main" | "list">("none");
@@ -289,11 +300,35 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
       tabIndex={0}
       onKeyDown={handleMenuBarKeyDown} 
       onKeyUp={(e) => e.stopPropagation()}
-      className="flex flex-col bg-zinc-950 border border-green-900 rounded-md shadow-lg overflow-hidden select-none outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400"
+      className="flex flex-col bg-zinc-950 border border-green-900 rounded-md shadow-lg overflow-hidden  outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400"
     >
       {/* External AI Modal */}
       {showAIModal && (
         <ExternalAIModal onClose={() => setShowAIModal(false)} />
+      )}
+
+      {/* Gemini Shopping Modal */}
+      {showShoppingModal && (
+        <GeminiShoppingModal
+          isOpen={showShoppingModal}
+          onClose={() => setShowShoppingModal(false)}
+        />
+      )}
+
+      {/* Gemini Play Books Modal */}
+      {showBooksModal && (
+        <GeminiPlayBooksModal
+          isOpen={showBooksModal}
+          onClose={() => setShowBooksModal(false)}
+        />
+      )}
+
+      {/* The Zion Way YouTube Modal */}
+      {showYouTubeModal && (
+        <GeminiYouTubeModal
+          isOpen={showYouTubeModal}
+          onClose={() => setShowYouTubeModal(false)}
+        />
       )}
 
       {/* Change Chalkboard Colors Modal */}
@@ -435,6 +470,40 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                 >
                   <Sparkles size={12} className="text-amber-400" />
                   <span>{hasApiKey ? "Edit/Check AI" : "Insert AI"}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowShoppingModal(true);
+                    if (speakWords) speakWords("Opening Google Shopping modal");
+                  }}
+                  className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-emerald-950 text-emerald-200 border-emerald-600 hover:bg-emerald-900 shadow-[0_0_8px_rgba(16,185,129,0.3)] min-h-[44px] ${itemTextClass}`}
+                  aria-label="Open Google Shopping & Field Supplies"
+                >
+                  <ShoppingBag size={12} className="text-emerald-400" />
+                  <span>Shopping</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowBooksModal(true);
+                  }}
+                  className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-indigo-950 text-indigo-200 border-indigo-600 hover:bg-indigo-900 shadow-[0_0_8px_rgba(99,102,241,0.3)] min-h-[44px] ${itemTextClass}`}
+                  aria-label="Open Google Play Books & Literature Library"
+                >
+                  <BookOpen size={12} className="text-indigo-400" />
+                  <span>Play Books</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowYouTubeModal(true);
+                  }}
+                  className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-amber-950 text-amber-200 border-amber-600 hover:bg-amber-900 shadow-[0_0_8px_rgba(245,158,11,0.3)] min-h-[44px] ${itemTextClass}`}
+                  aria-label="Open The Zion Way & Babylon-Free YouTube Explorer"
+                >
+                  <Youtube size={12} className="text-amber-400" />
+                  <span>Zion YouTube</span>
                 </button>
 
                 <button

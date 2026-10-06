@@ -45,7 +45,7 @@ export const MobilePortraitOpossumSelection: React.FC<MobilePortraitOpossumSelec
   return (
     <div
       id="Mobile_Portrait_Opossum_Selection_Screen"
-      className="fixed inset-0 w-full h-full bg-zinc-950 text-green-400 font-sans flex flex-col justify-between overflow-hidden z-50 select-none"
+      className="fixed inset-0 w-full h-full bg-zinc-950 text-green-400 font-sans flex flex-col justify-between overflow-hidden z-50 "
     >
       {/* Top Header */}
       <header className="w-full px-3 py-2.5 bg-zinc-900/90 border-b border-green-900/80 flex items-center justify-between font-mono text-xs">

@@ -30,7 +30,7 @@ export const IntentionalText: React.FC<{
 
   return (
     <div 
-      className={`absolute pointer-events-none select-none ${className}`}
+      className={`absolute pointer-events-none  ${className}`}
       style={{ left: x, top: y }}
     >
       {text}

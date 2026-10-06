@@ -65,7 +65,7 @@ export const MobileLandscape4Phones: React.FC<MobileLandscape4PhonesProps> = ({
   return (
     <div
       id="Mobile_Landscape_Root"
-      className="fixed inset-0 w-full h-full max-h-screen bg-stone-950 flex flex-col justify-between overflow-hidden select-none z-50"
+      className="fixed inset-0 w-full h-full max-h-screen bg-stone-950 flex flex-col justify-between overflow-hidden  z-50"
       style={{
         background: `radial-gradient(ellipse at center, ${NIGHT_SKY_AMBER_SPECS.bezelBgMid} 0%, ${NIGHT_SKY_AMBER_SPECS.bezelBgStart} 100%)`
       }}
