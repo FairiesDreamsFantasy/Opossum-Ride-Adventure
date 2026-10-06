@@ -10,7 +10,8 @@ import {
   Mic, 
   MicOff, 
   Settings,
-  Sparkles
+  Sparkles,
+  Newspaper
 } from "lucide-react";
 import { GeminiSystem } from "../../index";
 
@@ -18,6 +19,7 @@ interface GeminiToolboxMenuProps {
   onOpenShopping: () => void;
   onOpenYouTube: () => void;
   onOpenPreferences: () => void;
+  onOpenNews?: () => void;
   itemTextClass?: string;
 }
 
@@ -25,6 +27,7 @@ export const GeminiToolboxMenu: React.FC<GeminiToolboxMenuProps> = ({
   onOpenShopping,
   onOpenYouTube,
   onOpenPreferences,
+  onOpenNews,
   itemTextClass = "text-[11px]"
 }) => {
   const [liveEnabled, setLiveEnabled] = useState(false);
@@ -73,6 +76,18 @@ export const GeminiToolboxMenu: React.FC<GeminiToolboxMenuProps> = ({
           <Youtube size={12} className="text-amber-400" />
           <span>Zion YouTube</span>
         </button>
+
+        {/* News Button */}
+        {onOpenNews && (
+          <button
+            onClick={onOpenNews}
+            className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-red-950 text-red-200 border-red-600 hover:bg-red-900 shadow-[0_0_8px_rgba(239,68,68,0.3)] min-h-[44px] ${itemTextClass}`}
+            aria-label="Open YouTube News & Live Broadcasts"
+          >
+            <Newspaper size={12} className="text-red-400" />
+            <span>YouTube News</span>
+          </button>
+        )}
 
         {/* Gemini Live ON/OFF Toggle Button */}
         <button

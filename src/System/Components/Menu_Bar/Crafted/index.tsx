@@ -36,6 +36,7 @@ import {
   GeminiShoppingModal, 
   GeminiPlayBooksModal,
   GeminiYouTubeModal,
+  GeminiYouTubeNewsModal,
   GeminiLiveModal,
   GeminiToolboxMenu
 } from "../../../AI/External/Gemini";
@@ -114,6 +115,7 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
   const [showShoppingModal, setShowShoppingModal] = useState(false);
   const [showBooksModal, setShowBooksModal] = useState(false);
   const [showYouTubeModal, setShowYouTubeModal] = useState(false);
+  const [showNewsModal, setShowNewsModal] = useState(false);
   const [showLiveModal, setShowLiveModal] = useState(false);
   const [showChalkboardModal, setShowChalkboardModal] = useState(false);
   const [tempChalkboardCfg, setTempChalkboardCfg] = useState<ChalkboardColorConfig>(chalkboardConfig);
@@ -336,6 +338,14 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
         />
       )}
 
+      {/* YouTube News & Live Broadcasts Modal */}
+      {showNewsModal && (
+        <GeminiYouTubeNewsModal
+          isOpen={showNewsModal}
+          onClose={() => setShowNewsModal(false)}
+        />
+      )}
+
       {/* Gemini Live Preferences Modal */}
       {showLiveModal && (
         <GeminiLiveModal
@@ -438,6 +448,7 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
             <GeminiToolboxMenu
               onOpenShopping={() => setShowShoppingModal(true)}
               onOpenYouTube={() => setShowYouTubeModal(true)}
+              onOpenNews={() => setShowNewsModal(true)}
               onOpenPreferences={() => setShowLiveModal(true)}
               itemTextClass={itemTextClass}
             />

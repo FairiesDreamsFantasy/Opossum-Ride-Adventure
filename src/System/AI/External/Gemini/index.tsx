@@ -59,6 +59,18 @@ export * from "./YouTube";
 export * from "./Live";
 export * from "./GCP";
 export * from "./Maps";
+export * from "./VO";
+export * from "./Blogger";
+export * from "./GMail";
+export * from "./Docs";
+export * from "./Slides";
+export * from "./Sheets";
+export * from "./Drawings";
+export * from "./Workspace";
+export * from "./Chat";
+export * from "./Photos";
+export * from "./Lens";
+export * from "./ChromeCast";
 export * from "./Components/Menus";
 export * from "./AIErrorBoundary";
 
