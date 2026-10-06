@@ -5,12 +5,14 @@
 
 import { SmartLevelConfig } from "../Smart_Levels";
 import { FeralPigManager, FeralPigEntity } from "../../../../../Characters/Pigs/Feral";
+import { GeminiMaps, RealWorldArenaBlueprint } from "../Maps";
 
 export interface SmartArenaConfig {
   id: number;
   name: string;
   theme: string;
   isAIGenerated?: boolean;
+  realWorldBlueprint?: RealWorldArenaBlueprint;
   levels: SmartLevelConfig[];
   hotspots: { x: number; y: number; type: string }[];
 }
@@ -113,6 +115,7 @@ export class SmartArenas {
         ...parsed,
         id: arenaId,
         isAIGenerated: true,
+        realWorldBlueprint: GeminiMaps.generateArenaBlueprint(arenaId),
         levels: parsed.levels.map((l: any, i: number) => {
           const lvlId = (arenaId * 3) + i + 1;
           const density = typeof l.feralPigDensity === "number" ? l.feralPigDensity : 0.4;
@@ -217,6 +220,7 @@ export class SmartArenas {
       id,
       name: `Arena ${id}: ${chosen.name}`,
       theme: `Scientific Simulation of ${chosen.name}`,
+      realWorldBlueprint: GeminiMaps.generateArenaBlueprint(id),
       levels,
       hotspots: [
         { x: Math.floor(prng() * 1000), y: Math.floor(prng() * 500), type: "bonus" },

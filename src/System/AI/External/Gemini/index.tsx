@@ -47,6 +47,7 @@ import { GeminiYouTube, GeminiYouTubeModal } from "./YouTube";
 import { GeminiLive } from "./Live";
 import { GeminiGcp } from "./GCP";
 import { GeminiToolboxMenu } from "./Components/Menus";
+import { GeminiMaps } from "./Maps";
 import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Feral";
 
 export * from "./Security";
@@ -57,6 +58,7 @@ export * from "./Play";
 export * from "./YouTube";
 export * from "./Live";
 export * from "./GCP";
+export * from "./Maps";
 export * from "./Components/Menus";
 export * from "./AIErrorBoundary";
 
@@ -724,6 +726,7 @@ Respond strictly with a JSON object:
   public readonly YouTube = GeminiYouTube;
   public readonly Live = GeminiLive;
   public readonly GCP = GeminiGcp;
+  public readonly Maps = GeminiMaps;
 }
 
 export const GeminiSystem = new GeminiManager();
