@@ -57,6 +57,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   const [generateLevelsOnDemand, setGenerateLevelsOnDemand] = useState(false);
   const [aiGeneratedOpossums, setAiGeneratedOpossums] = useState(true);
   const [liveEnabled, setLiveEnabled] = useState(false);
+  const [youtubeEnabled, setYoutubeEnabled] = useState(false);
 
   // Check if gameplay is currently active
   const [isGameActive, setIsGameActive] = useState(false);
@@ -87,6 +88,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       if (existing.generateLevelsOnDemand !== undefined) setGenerateLevelsOnDemand(existing.generateLevelsOnDemand);
       if (existing.aiGeneratedOpossums !== undefined) setAiGeneratedOpossums(existing.aiGeneratedOpossums);
       if (existing.liveEnabled !== undefined) setLiveEnabled(existing.liveEnabled);
+      if (existing.youtubeEnabled !== undefined) setYoutubeEnabled(existing.youtubeEnabled);
 
       if (existing.apiKey) {
         setStatus("Connected");

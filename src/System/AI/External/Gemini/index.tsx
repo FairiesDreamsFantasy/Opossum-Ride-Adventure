@@ -45,6 +45,8 @@ import { GeminiShopping, GeminiShoppingModal } from "./Shopping";
 import { GeminiPlay, GeminiPlayBooksModal } from "./Play";
 import { GeminiYouTube, GeminiYouTubeModal } from "./YouTube";
 import { GeminiLive } from "./Live";
+import { GeminiGcp } from "./GCP";
+import { GeminiToolboxMenu } from "./Components/Menus";
 import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Feral";
 
 export * from "./Security";
@@ -54,6 +56,8 @@ export * from "./Shopping";
 export * from "./Play";
 export * from "./YouTube";
 export * from "./Live";
+export * from "./GCP";
+export * from "./Components/Menus";
 export * from "./AIErrorBoundary";
 
 /**
@@ -95,6 +99,10 @@ export interface GeminiConfig {
   generateLevelsOnDemand?: boolean;
   aiGeneratedOpossums?: boolean;
   liveEnabled?: boolean;
+  liveVoiceName?: string;
+  liveScreencastEnabled?: boolean;
+  liveSilenceThresholdSeconds?: number;
+  youtubeEnabled?: boolean;
 }
 
 export interface ModelOption {
@@ -172,7 +180,11 @@ class GeminiManager {
         selectedModel: config.selectedModel ?? "gemini-flash-latest",
         generateLevelsOnDemand: config.generateLevelsOnDemand ?? false,
         aiGeneratedOpossums: config.aiGeneratedOpossums ?? true,
-        liveEnabled: config.liveEnabled ?? false
+        liveEnabled: config.liveEnabled ?? false,
+        liveVoiceName: config.liveVoiceName ?? "Zephyr",
+        liveScreencastEnabled: config.liveScreencastEnabled ?? false,
+        liveSilenceThresholdSeconds: config.liveSilenceThresholdSeconds ?? 2.5,
+        youtubeEnabled: config.youtubeEnabled ?? false
       };
 
       if (config.apiKey) {
@@ -494,6 +506,38 @@ Respond strictly with a JSON object:
     this.notifyListeners();
   }
 
+  public setLiveVoiceName(name: string) {
+    if (this.config) {
+      this.config.liveVoiceName = name;
+    }
+    console.log(`Gemini Live Voice: ${name}`);
+    this.notifyListeners();
+  }
+
+  public setLiveScreencastEnabled(enabled: boolean) {
+    if (this.config) {
+      this.config.liveScreencastEnabled = enabled;
+    }
+    console.log(`Gemini Live Screencast: ${enabled ? "ENABLED" : "DISABLED"}`);
+    this.notifyListeners();
+  }
+
+  public setLiveSilenceThresholdSeconds(seconds: number) {
+    if (this.config) {
+      this.config.liveSilenceThresholdSeconds = seconds;
+    }
+    console.log(`Gemini Live Silence Threshold: ${seconds} seconds`);
+    this.notifyListeners();
+  }
+
+  public setYoutubeEnabled(enabled: boolean) {
+    if (this.config) {
+      this.config.youtubeEnabled = enabled;
+    }
+    console.log(`Gemini YouTube: ${enabled ? "ENABLED" : "DISABLED"}`);
+    this.notifyListeners();
+  }
+
   public setAIGeneratedOpossums(enabled: boolean) {
     if (this.config) {
       this.config.aiGeneratedOpossums = enabled;
@@ -585,6 +629,10 @@ Respond strictly with a JSON object:
       generateLevelsOnDemand: this.config?.generateLevelsOnDemand ?? false,
       aiGeneratedOpossums: this.config?.aiGeneratedOpossums ?? true,
       liveEnabled: this.config?.liveEnabled ?? false,
+      liveVoiceName: this.config?.liveVoiceName ?? "Zephyr",
+      liveScreencastEnabled: this.config?.liveScreencastEnabled ?? false,
+      liveSilenceThresholdSeconds: this.config?.liveSilenceThresholdSeconds ?? 2.5,
+      youtubeEnabled: this.config?.youtubeEnabled ?? false,
       isConnected: this.isReady()
     };
   }
@@ -675,6 +723,7 @@ Respond strictly with a JSON object:
   public readonly Play = GeminiPlay;
   public readonly YouTube = GeminiYouTube;
   public readonly Live = GeminiLive;
+  public readonly GCP = GeminiGcp;
 }
 
 export const GeminiSystem = new GeminiManager();
