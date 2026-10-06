@@ -16,7 +16,7 @@ export * from "./UI";
 export class GeminiLiveService {
   private static instance: GeminiLiveService;
   private status: LiveSessionStatus = "idle";
-  private isPushToTalkActive: boolean = false;
+  private isLiveActive: boolean = false;
   private listeners: (() => void)[] = [];
   private mediaStream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
@@ -49,7 +49,7 @@ export class GeminiLiveService {
   public getState(): GeminiLiveState {
     return {
       status: this.status,
-      isPushToTalkActive: this.isPushToTalkActive,
+      isLiveActive: this.isLiveActive,
       history: [] // History tracking can be added later if needed
     };
   }
@@ -58,34 +58,32 @@ export class GeminiLiveService {
     if (typeof window === "undefined") return;
 
     window.addEventListener("keydown", (e) => {
-      // Shift-C (Sacred Push-To-Talk Command)
+      // Shift-C (Sacred Gemini Command)
       // Check if input element is focused to prevent triggering during typing
       const isInputFocused = document.activeElement instanceof HTMLInputElement || 
                              document.activeElement instanceof HTMLTextAreaElement;
       
       if (!isInputFocused && e.shiftKey && e.code === "KeyC") {
-        this.startPushToTalk();
-      }
-    });
-
-    window.addEventListener("keyup", (e) => {
-      if (e.code === "KeyC") {
-        this.stopPushToTalk();
+        if (this.isLiveActive) {
+          this.stopLive();
+        } else {
+          this.startLive();
+        }
       }
     });
   }
 
-  private async startPushToTalk() {
+  private async startLive() {
     // Only proceed if Gemini is ready and Live is enabled in preferences
     const config = GeminiSystem.getConfig();
     if (!config?.liveEnabled || !config?.apiKey) {
       return;
     }
 
-    if (this.isPushToTalkActive) return;
+    if (this.isLiveActive) return;
 
-    console.log("Gemini Live: PTT START (Shift-C)");
-    this.isPushToTalkActive = true;
+    console.log("Gemini Live: START (Shift-C Toggle)");
+    this.isLiveActive = true;
     this.notifyListeners();
 
     try {
@@ -97,22 +95,22 @@ export class GeminiLiveService {
     } catch (err) {
       console.error("Gemini Live: Microphone access denied or error:", err);
       this.status = "error";
-      this.stopPushToTalk();
+      this.stopLive();
     }
     this.notifyListeners();
   }
 
-  private stopPushToTalk() {
-    if (!this.isPushToTalkActive) return;
+  private stopLive() {
+    if (!this.isLiveActive) return;
 
-    console.log("Gemini Live: PTT STOP");
-    this.isPushToTalkActive = false;
+    console.log("Gemini Live: STOP");
+    this.isLiveActive = false;
     this.status = "idle";
     this.notifyListeners();
   }
 
   public cleanup() {
-    this.stopPushToTalk();
+    this.stopLive();
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach(track => track.stop());
       this.mediaStream = null;

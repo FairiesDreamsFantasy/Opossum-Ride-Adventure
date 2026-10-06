@@ -18,6 +18,6 @@ export interface LiveMessage {
 
 export interface GeminiLiveState {
   status: LiveSessionStatus;
-  isPushToTalkActive: boolean;
+  isLiveActive: boolean;
   history: LiveMessage[];
 }
