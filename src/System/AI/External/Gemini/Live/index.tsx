@@ -5,6 +5,7 @@
 
 import { LiveSessionStatus, GeminiLiveState } from "./types";
 import { GeminiSystem } from "../index";
+import { getSharedAudioContext } from "../../../../Sound/TTS";
 
 export * from "./types";
 export * from "./UI";
@@ -73,6 +74,65 @@ export class GeminiLiveService {
     });
   }
 
+  private playChime(type: "start" | "stop") {
+    const ctx = getSharedAudioContext();
+    if (!ctx) return;
+    if (ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
+
+    const now = ctx.currentTime;
+    const gainNode = ctx.createGain();
+    gainNode.connect(ctx.destination);
+
+    if (type === "start") {
+      // Pleasant rising crystal-clean chime: C5 -> E5 -> G5
+      const freqs = [523.25, 659.25, 783.99]; // C5, E5, G5
+      freqs.forEach((freq, index) => {
+        const osc = ctx.createOscillator();
+        const noteGain = ctx.createGain();
+        
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + index * 0.08);
+        
+        // High register harmonic richness with gentle attack and ring
+        noteGain.gain.setValueAtTime(0, now + index * 0.08);
+        noteGain.gain.linearRampToValueAtTime(0.12, now + index * 0.08 + 0.02);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.08 + 0.35);
+        
+        osc.connect(noteGain);
+        noteGain.connect(gainNode);
+        
+        osc.start(now + index * 0.08);
+        osc.stop(now + index * 0.08 + 0.4);
+      });
+      
+      gainNode.gain.setValueAtTime(0.6, now);
+    } else {
+      // Gentle warm descending chime: G5 -> E5 -> C5 to indicate microphone is closed
+      const freqs = [783.99, 659.25, 523.25]; // G5, E5, C5
+      freqs.forEach((freq, index) => {
+        const osc = ctx.createOscillator();
+        const noteGain = ctx.createGain();
+        
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + index * 0.07);
+        
+        noteGain.gain.setValueAtTime(0, now + index * 0.07);
+        noteGain.gain.linearRampToValueAtTime(0.10, now + index * 0.07 + 0.02);
+        noteGain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.07 + 0.28);
+        
+        osc.connect(noteGain);
+        noteGain.connect(gainNode);
+        
+        osc.start(now + index * 0.07);
+        osc.stop(now + index * 0.07 + 0.3);
+      });
+      
+      gainNode.gain.setValueAtTime(0.5, now);
+    }
+  }
+
   private async startLive() {
     // Only proceed if Gemini is ready and Live is enabled in preferences
     const config = GeminiSystem.getConfig();
@@ -92,6 +152,7 @@ export class GeminiLiveService {
       }
       
       this.status = "active";
+      this.playChime("start");
     } catch (err) {
       console.error("Gemini Live: Microphone access denied or error:", err);
       this.status = "error";
@@ -106,6 +167,7 @@ export class GeminiLiveService {
     console.log("Gemini Live: STOP");
     this.isLiveActive = false;
     this.status = "idle";
+    this.playChime("stop");
     this.notifyListeners();
   }
 

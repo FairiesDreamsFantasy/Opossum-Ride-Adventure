@@ -25,7 +25,6 @@ import {
   InterstitialAd,
   PlayArea
 } from "./System/UI";
-import { GeminiLiveIndicator } from "./System/AI/External/Gemini/Live";
 
 export const App: React.FC = () => {
   // Navigation & Flow State
@@ -185,7 +184,6 @@ export const App: React.FC = () => {
   return (
     <>
       {renderContent()}
-      <GeminiLiveIndicator />
     </>
   );
 };
