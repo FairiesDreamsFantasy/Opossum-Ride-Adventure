@@ -44,6 +44,7 @@ import { GeminiFun, GeminiTeaParty } from "./Fun";
 import { GeminiShopping, GeminiShoppingModal } from "./Shopping";
 import { GeminiPlay, GeminiPlayBooksModal } from "./Play";
 import { GeminiYouTube, GeminiYouTubeModal } from "./YouTube";
+import { GeminiLive } from "./Live";
 import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Feral";
 
 export * from "./Security";
@@ -52,6 +53,7 @@ export * from "./Fun";
 export * from "./Shopping";
 export * from "./Play";
 export * from "./YouTube";
+export * from "./Live";
 export * from "./AIErrorBoundary";
 
 /**
@@ -92,6 +94,7 @@ export interface GeminiConfig {
   selectedModel?: string;
   generateLevelsOnDemand?: boolean;
   aiGeneratedOpossums?: boolean;
+  liveEnabled?: boolean;
 }
 
 export interface ModelOption {
@@ -168,7 +171,8 @@ class GeminiManager {
         instructionsFormat: config.instructionsFormat ?? "markdown",
         selectedModel: config.selectedModel ?? "gemini-flash-latest",
         generateLevelsOnDemand: config.generateLevelsOnDemand ?? false,
-        aiGeneratedOpossums: config.aiGeneratedOpossums ?? true
+        aiGeneratedOpossums: config.aiGeneratedOpossums ?? true,
+        liveEnabled: config.liveEnabled ?? false
       };
 
       if (config.apiKey) {
@@ -482,6 +486,14 @@ Respond strictly with a JSON object:
     this.notifyListeners();
   }
 
+  public setLiveEnabled(enabled: boolean) {
+    if (this.config) {
+      this.config.liveEnabled = enabled;
+    }
+    console.log(`Gemini Live: ${enabled ? "ENABLED" : "DISABLED"}`);
+    this.notifyListeners();
+  }
+
   public setAIGeneratedOpossums(enabled: boolean) {
     if (this.config) {
       this.config.aiGeneratedOpossums = enabled;
@@ -572,6 +584,7 @@ Respond strictly with a JSON object:
       fetchVisualsEnabled: this.config?.fetchVisualsEnabled ?? true,
       generateLevelsOnDemand: this.config?.generateLevelsOnDemand ?? false,
       aiGeneratedOpossums: this.config?.aiGeneratedOpossums ?? true,
+      liveEnabled: this.config?.liveEnabled ?? false,
       isConnected: this.isReady()
     };
   }
@@ -661,6 +674,7 @@ Respond strictly with a JSON object:
   public readonly Shopping = GeminiShopping;
   public readonly Play = GeminiPlay;
   public readonly YouTube = GeminiYouTube;
+  public readonly Live = GeminiLive;
 }
 
 export const GeminiSystem = new GeminiManager();

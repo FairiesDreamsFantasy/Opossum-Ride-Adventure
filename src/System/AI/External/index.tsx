@@ -56,6 +56,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   // Generation switches
   const [generateLevelsOnDemand, setGenerateLevelsOnDemand] = useState(false);
   const [aiGeneratedOpossums, setAiGeneratedOpossums] = useState(true);
+  const [liveEnabled, setLiveEnabled] = useState(false);
 
   // Check if gameplay is currently active
   const [isGameActive, setIsGameActive] = useState(false);
@@ -85,6 +86,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       if (existing.selectedModel) setSelectedModel(existing.selectedModel);
       if (existing.generateLevelsOnDemand !== undefined) setGenerateLevelsOnDemand(existing.generateLevelsOnDemand);
       if (existing.aiGeneratedOpossums !== undefined) setAiGeneratedOpossums(existing.aiGeneratedOpossums);
+      if (existing.liveEnabled !== undefined) setLiveEnabled(existing.liveEnabled);
 
       if (existing.apiKey) {
         setStatus("Connected");
@@ -130,7 +132,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       instructionsFormat,
       selectedModel,
       generateLevelsOnDemand,
-      aiGeneratedOpossums
+      aiGeneratedOpossums,
+      liveEnabled
     };
 
     const success = await GeminiSystem.initialize(config);
@@ -161,6 +164,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
     setSelectedModel("gemini-flash-latest");
     setGenerateLevelsOnDemand(false);
     setAiGeneratedOpossums(true);
+    setLiveEnabled(false);
 
     GeminiSystem.initialize({
       apiKey: "",
@@ -179,7 +183,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       instructionsFormat: "markdown",
       selectedModel: "gemini-flash-latest",
       generateLevelsOnDemand: false,
-      aiGeneratedOpossums: true
+      aiGeneratedOpossums: true,
+      liveEnabled: false
     });
     playProceduralSound("tick");
   };
@@ -755,6 +760,22 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                     </button>
                   </div>
                   
+                  {/* GEMINI LIVE TOGGLE */}
+                  <div className="flex items-center justify-between border-t border-green-900/40 pt-2">
+                    <label className="text-green-300 font-bold">Gemini Live (Shift-C):</label>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        const next = !liveEnabled;
+                        setLiveEnabled(next);
+                        GeminiSystem.setLiveEnabled(next);
+                      }}
+                      className={`px-2 py-1 rounded border min-h-[36px] ${liveEnabled ? 'border-green-500 text-green-200 bg-green-950 shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'border-green-900 text-green-800 bg-black'}`}
+                    >
+                      {liveEnabled ? "ON" : "OFF"}
+                    </button>
+                  </div>
+                  
                   {/* SMART MP3 TOGGLE: Shown only for Paid tier when switches are active */}
                   {isPaid && (
                     <div className="flex items-center justify-between border-t border-green-900/40 pt-2">
@@ -778,7 +799,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
               <div className="space-y-2 p-3 bg-black/30 rounded border border-green-950">
                 <h3 className="text-xs font-bold uppercase text-green-700 border-b border-green-950 pb-1">Adjustable Settings</h3>
                 <p className="text-[10px] text-green-600 italic">
-                  Insert API key and activate "Set" or "Test" to reveal adjustable function controls (Cloud TTS, Smart Visuals, Smart MP3).
+                  Insert API key and activate "Set" or "Test" to reveal adjustable function controls (Cloud TTS, Smart Visuals, Smart MP3, Gemini Live).
                 </p>
               </div>
             )}
