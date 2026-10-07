@@ -274,10 +274,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
           <p className="text-green-400 font-sans text-sm md:text-base">
             {registry.metadata.viewOptionsNotice}
           </p>
-          <div className="text-center font-mono text-xs tracking-wider text-green-400 py-3 border-y border-green-900/60 my-4  flex flex-col gap-1.5 items-center justify-center">
-            <div>Version: {VersionRegistry.current}</div>
-            <div>Date: {VersionRegistry.date}</div>
-            <div>Time: {VersionRegistry.time}</div>
+          <div className="text-center font-mono text-xs tracking-wider py-3 border-y border-green-900/60 my-4 flex flex-col sm:flex-row gap-3 items-center justify-center bg-zinc-950/20 px-4 rounded-lg">
+            <div className="bg-black text-red-500 border border-red-900/40 px-3 py-1.5 rounded font-bold uppercase shadow-sm">
+              Version: <span className="font-extrabold">{VersionRegistry.current}</span>
+            </div>
+            <div className="bg-black text-[#FFD700] border border-amber-900/40 px-3 py-1.5 rounded font-bold uppercase shadow-sm">
+              Date: <span className="font-extrabold">{VersionRegistry.date}</span>
+            </div>
+            <div className="bg-black text-[#90EE90] border border-green-900/40 px-3 py-1.5 rounded font-bold uppercase shadow-sm">
+              Time: <span className="font-extrabold">{VersionRegistry.time}</span>
+            </div>
           </div>
         </div>
 
