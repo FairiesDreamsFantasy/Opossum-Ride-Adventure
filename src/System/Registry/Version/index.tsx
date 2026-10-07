@@ -10,9 +10,24 @@
  */
 export const VersionRegistry = {
   current: "0.1.0.7.7",
-  date: "10/06/2026",
-  time: "12:55:37 CST",
-  timestamp: "10/06/2026 12:55:37 CST",
+  get date(): string {
+    const d = new Date();
+    const cst = new Date(d.getTime() - 6 * 3600 * 1000);
+    const mm = String(cst.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(cst.getUTCDate()).padStart(2, '0');
+    return `${mm}/${dd}/${cst.getUTCFullYear()}`;
+  },
+  get time(): string {
+    const d = new Date();
+    const cst = new Date(d.getTime() - 6 * 3600 * 1000);
+    const hh = String(cst.getUTCHours()).padStart(2, '0');
+    const mm = String(cst.getUTCMinutes()).padStart(2, '0');
+    const ss = String(cst.getUTCSeconds()).padStart(2, '0');
+    return `${hh}:${mm}:${ss} CST`;
+  },
+  get timestamp(): string {
+    return `${this.date} ${this.time}`;
+  },
   buildTimestamp: 1791310537000,
   stage: "Stable Production",
   build: "2026.10.06",

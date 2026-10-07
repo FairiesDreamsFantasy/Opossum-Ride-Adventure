@@ -28,10 +28,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
   const [saveState, setSaveState] = useState<GameSaveState | null>(null);
   const { isMobilePortraitPhone } = useMobilePortraitPhone();
 
+  const [currentCstDate, setCurrentCstDate] = useState(VersionRegistry.date);
+  const [currentCstTime, setCurrentCstTime] = useState(VersionRegistry.time);
+
   useEffect(() => {
     loadGameSave().then((data) => {
       setSaveState(data);
     });
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentCstDate(VersionRegistry.date);
+      setCurrentCstTime(VersionRegistry.time);
+    }, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   // Procedural retro vector landscape animation loop
@@ -279,10 +290,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
               Version: <span className="font-extrabold">{VersionRegistry.current}</span>
             </div>
             <div className="bg-black text-[#FFD700] border border-amber-900/40 px-3 py-1.5 rounded font-bold uppercase shadow-sm">
-              Date: <span className="font-extrabold">{VersionRegistry.date}</span>
+              Date: <span className="font-extrabold">{currentCstDate}</span>
             </div>
             <div className="bg-black text-[#90EE90] border border-green-900/40 px-3 py-1.5 rounded font-bold uppercase shadow-sm">
-              Time: <span className="font-extrabold">{VersionRegistry.time}</span>
+              Time: <span className="font-extrabold">{currentCstTime}</span>
             </div>
           </div>
         </div>
