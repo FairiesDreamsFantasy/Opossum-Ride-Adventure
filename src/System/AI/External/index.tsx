@@ -14,7 +14,10 @@ import {
   AITier, 
   SystemInstructionFormat, 
   AVAILABLE_GEMINI_MODELS,
-  TTSVoice
+  TTSVoice,
+  GeminiShoppingModal,
+  GeminiPlayBooksModal,
+  GeminiYouTubeModal
 } from "./Gemini";
 
 export interface ExternalAIModalProps {
@@ -24,6 +27,9 @@ export interface ExternalAIModalProps {
 export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => {
   const [apiKey, setApiKey] = useState("");
   const [strength, setStrength] = useState<"Light" | "Medium" | "Heavy">("Light");
+  const [showShoppingModal, setShowShoppingModal] = useState(false);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [showYouTubeModal, setShowYouTubeModal] = useState(false);
   const [cloudTTS, setCloudTTS] = useState(true);
   const [ttsVoice, setTtsVoice] = useState<TTSVoice>("Kore");
   const [smartVisuals, setSmartVisuals] = useState(true);
@@ -52,6 +58,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
   // Generation switches
   const [generateLevelsOnDemand, setGenerateLevelsOnDemand] = useState(false);
   const [aiGeneratedOpossums, setAiGeneratedOpossums] = useState(true);
+  const [liveEnabled, setLiveEnabled] = useState(false);
+  const [youtubeEnabled, setYoutubeEnabled] = useState(false);
 
   // Check if gameplay is currently active
   const [isGameActive, setIsGameActive] = useState(false);
@@ -82,6 +90,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       if (existing.selectedModel) setSelectedModel(existing.selectedModel);
       if (existing.generateLevelsOnDemand !== undefined) setGenerateLevelsOnDemand(existing.generateLevelsOnDemand);
       if (existing.aiGeneratedOpossums !== undefined) setAiGeneratedOpossums(existing.aiGeneratedOpossums);
+      if (existing.liveEnabled !== undefined) setLiveEnabled(existing.liveEnabled);
+      if (existing.youtubeEnabled !== undefined) setYoutubeEnabled(existing.youtubeEnabled);
 
       if (existing.apiKey) {
         setStatus("Connected");
@@ -128,7 +138,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       instructionsFormat,
       selectedModel,
       generateLevelsOnDemand,
-      aiGeneratedOpossums
+      aiGeneratedOpossums,
+      liveEnabled
     };
 
     const success = await GeminiSystem.initialize(config);
@@ -161,6 +172,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
     setSelectedModel("gemini-flash-latest");
     setGenerateLevelsOnDemand(false);
     setAiGeneratedOpossums(true);
+    setLiveEnabled(false);
 
     GeminiSystem.initialize({
       apiKey: "",
@@ -180,7 +192,8 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
       instructionsFormat: "markdown",
       selectedModel: "gemini-flash-latest",
       generateLevelsOnDemand: false,
-      aiGeneratedOpossums: true
+      aiGeneratedOpossums: true,
+      liveEnabled: false
     });
     playProceduralSound("tick");
   };
@@ -777,6 +790,22 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                     </button>
                   </div>
                   
+                  {/* GEMINI LIVE TOGGLE */}
+                  <div className="flex items-center justify-between border-t border-green-900/40 pt-2">
+                    <label className="text-green-300 font-bold">Gemini Live (Shift-C):</label>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        const next = !liveEnabled;
+                        setLiveEnabled(next);
+                        GeminiSystem.setLiveEnabled(next);
+                      }}
+                      className={`px-2 py-1 rounded border min-h-[36px] ${liveEnabled ? 'border-green-500 text-green-200 bg-green-950 shadow-[0_0_8px_rgba(34,197,94,0.3)]' : 'border-green-900 text-green-800 bg-black'}`}
+                    >
+                      {liveEnabled ? "ON" : "OFF"}
+                    </button>
+                  </div>
+                  
                   {/* SMART MP3 TOGGLE: Shown only for Paid tier when switches are active */}
                   {isPaid && (
                     <div className="flex items-center justify-between border-t border-green-900/40 pt-2">
@@ -800,7 +829,7 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
               <div className="space-y-2 p-3 bg-black/30 rounded border border-green-950">
                 <h3 className="text-xs font-bold uppercase text-green-700 border-b border-green-950 pb-1">Adjustable Settings</h3>
                 <p className="text-[10px] text-green-600 italic">
-                  Insert API key and activate "Set" or "Test" to reveal adjustable function controls (Cloud TTS, Smart Visuals, Smart MP3).
+                  Insert API key and activate "Set" or "Test" to reveal adjustable function controls (Cloud TTS, Smart Visuals, Smart MP3, Gemini Live).
                 </p>
               </div>
             )}
@@ -840,6 +869,86 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
             </div>
           </div>
 
+          {/* PLAYER-CONTROLLED EXTERNAL SUBSYSTEMS: GOOGLE SHOPPING & PLAY BOOKS */}
+          <div className="p-4 bg-zinc-950/80 rounded border border-green-900/60 space-y-3">
+            <div className="border-b border-green-900/40 pb-2">
+              <h3 className="text-sm font-bold uppercase text-green-300">
+                Player-Controlled External Subsystems
+              </h3>
+              <p className="text-[10px] text-green-500">
+                Google Shopping &amp; Play Books explorers are player-driven, completely silent for native screen readers, and safe for active gameplay.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  playProceduralSound("tick");
+                  setShowShoppingModal(true);
+                }}
+                className="p-3 bg-stone-900 hover:bg-stone-800 border border-emerald-600/60 rounded-xl text-left transition flex items-center justify-between group min-h-[48px]"
+                aria-label="Open Google Shopping & Field Equipment Modal"
+              >
+                <div>
+                  <div className="text-xs font-bold text-emerald-300 group-hover:text-emerald-200">
+                    Google Shopping &amp; Field Gear
+                  </div>
+                  <div className="text-[10px] text-stone-400">
+                    Marsupial care supplies &amp; FTC fair-price monitored
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded bg-emerald-950 border border-emerald-700 text-emerald-300">
+                  Open
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playProceduralSound("tick");
+                  setShowBooksModal(true);
+                }}
+                className="p-3 bg-stone-900 hover:bg-stone-800 border border-indigo-600/60 rounded-xl text-left transition flex items-center justify-between group min-h-[48px]"
+                aria-label="Open Google Play Books & Literature Library Modal"
+              >
+                <div>
+                  <div className="text-xs font-bold text-indigo-300 group-hover:text-indigo-200">
+                    Google Play Books Library
+                  </div>
+                  <div className="text-[10px] text-stone-400">
+                    Marsupial biology treatises, Zion &amp; forest stories
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded bg-indigo-950 border border-indigo-700 text-indigo-300">
+                  Open
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  playProceduralSound("tick");
+                  setShowYouTubeModal(true);
+                }}
+                className="p-3 bg-stone-900 hover:bg-stone-800 border border-amber-600/60 rounded-xl text-left transition flex items-center justify-between group min-h-[48px]"
+                aria-label="Open The Zion Way & Babylon-Free YouTube Explorer Modal"
+              >
+                <div>
+                  <div className="text-xs font-bold text-amber-300 group-hover:text-amber-200">
+                    The Zion Way YouTube Explorer
+                  </div>
+                  <div className="text-[10px] text-stone-400">
+                    Nyabinghi drumming, Ital livity &amp; Babylon-Free wisdom
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded bg-amber-950 border border-amber-700 text-amber-300">
+                  Open
+                </span>
+              </button>
+            </div>
+          </div>
+
           <div className="flex justify-center gap-4 pt-2">
             <button 
               type="button"
@@ -861,6 +970,28 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
           </div>
         </section>
       </div>
+
+      {/* On-Demand Player-Controlled Modals */}
+      {showShoppingModal && (
+        <GeminiShoppingModal
+          isOpen={showShoppingModal}
+          onClose={() => setShowShoppingModal(false)}
+        />
+      )}
+
+      {showBooksModal && (
+        <GeminiPlayBooksModal
+          isOpen={showBooksModal}
+          onClose={() => setShowBooksModal(false)}
+        />
+      )}
+
+      {showYouTubeModal && (
+        <GeminiYouTubeModal
+          isOpen={showYouTubeModal}
+          onClose={() => setShowYouTubeModal(false)}
+        />
+      )}
     </div>
   );
 };

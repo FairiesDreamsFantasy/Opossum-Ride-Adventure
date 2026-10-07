@@ -87,7 +87,7 @@ export const PrimaryRiderSelection: React.FC<PrimaryRiderSelectionProps> = ({
             <div
               key={`quilt-tile-${index}`}
               aria-hidden="true"
-              className={`border p-3 rounded-lg flex items-center justify-center min-h-[96px] transition-opacity select-none ${
+              className={`border p-3 rounded-lg flex items-center justify-center min-h-[96px] transition-opacity  ${
                 isEvenCheck
                   ? "bg-zinc-950/40 border-green-950/30 text-green-950/40"
                   : "bg-red-950/10 border-red-950/20 text-red-950/30"

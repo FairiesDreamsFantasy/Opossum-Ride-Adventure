@@ -274,7 +274,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStartGame, onLearnGa
           <p className="text-green-400 font-sans text-sm md:text-base">
             {registry.metadata.viewOptionsNotice}
           </p>
-          <div className="text-center font-mono text-xs tracking-wider text-green-400 py-3 border-y border-green-900/60 my-4 select-none flex flex-col gap-1.5 items-center justify-center">
+          <div className="text-center font-mono text-xs tracking-wider text-green-400 py-3 border-y border-green-900/60 my-4  flex flex-col gap-1.5 items-center justify-center">
             <div>Version: {VersionRegistry.current}</div>
             <div>Date: {VersionRegistry.date}</div>
             <div>Time: {VersionRegistry.time}</div>

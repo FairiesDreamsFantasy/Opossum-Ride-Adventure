@@ -27,7 +27,7 @@ export const LandscapeLeftDeck: React.FC<LandscapeLeftDeckProps> = ({
   return (
     <div
       id="Mobile_Landscape_Left_Deck"
-      className="flex flex-col items-center justify-center p-2 select-none"
+      className="flex flex-col items-center justify-center p-2 "
     >
       <div className="text-[9px] font-mono text-amber-500/80 font-bold uppercase tracking-wider mb-2">
         D-Pad

@@ -23,12 +23,23 @@ import {
   Palette,
   Music,
   QrCode,
-  Network
+  Network,
+  ShoppingBag,
+  BookOpen,
+  Youtube
 } from "lucide-react";
 import { DOMEngine } from "../../../DOM";
 import { VisualPaletteType } from "../../../Visuals";
 import { ExternalAIModal } from "../../../AI/External";
-import { GeminiSystem } from "../../../AI/External/Gemini";
+import { 
+  GeminiSystem, 
+  GeminiShoppingModal, 
+  GeminiPlayBooksModal,
+  GeminiYouTubeModal,
+  GeminiYouTubeNewsModal,
+  GeminiLiveModal,
+  GeminiToolboxMenu
+} from "../../../AI/External/Gemini";
 import { ChalkboardModeSettingsModal } from "../../../UI/Modal/Chalkboard_Mode_Settings";
 import { WiiControllerManager } from "../../../Keyboards_and_Controllers/Controller/Wii";
 import { DecentralizedNetworkModal } from "../../../UI/Modal/Decentralized_Network";
@@ -101,6 +112,11 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
   onSetCustomTrack
 }) => {
   const [showAIModal, setShowAIModal] = useState(false);
+  const [showShoppingModal, setShowShoppingModal] = useState(false);
+  const [showBooksModal, setShowBooksModal] = useState(false);
+  const [showYouTubeModal, setShowYouTubeModal] = useState(false);
+  const [showNewsModal, setShowNewsModal] = useState(false);
+  const [showLiveModal, setShowLiveModal] = useState(false);
   const [showChalkboardModal, setShowChalkboardModal] = useState(false);
   const [tempChalkboardCfg, setTempChalkboardCfg] = useState<ChalkboardColorConfig>(chalkboardConfig);
   const [musicMenuMode, setMusicMenuMode] = useState<"none" | "main" | "list">("none");
@@ -132,8 +148,10 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
   const menuBarRef = useRef<HTMLDivElement | null>(null);
   const headerBtnsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const menuKeys = ["toolbox", "visual", "accessibility", "view", "layout"];
   const hasApiKey = !!GeminiSystem.getConfig()?.apiKey;
+  const menuKeys = hasApiKey 
+    ? ["gemini", "toolbox", "visual", "accessibility", "view", "layout"] 
+    : ["toolbox", "visual", "accessibility", "view", "layout"];
   const isVisualsOff = activeVisualPref === "Visuals OFF";
   const isChalkboard = activeVisualPref === "Chalkboard Only";
 
@@ -289,11 +307,51 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
       tabIndex={0}
       onKeyDown={handleMenuBarKeyDown} 
       onKeyUp={(e) => e.stopPropagation()}
-      className="flex flex-col bg-zinc-950 border border-green-900 rounded-md shadow-lg overflow-hidden select-none outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400"
+      className="flex flex-col bg-zinc-950 border border-green-900 rounded-md shadow-lg overflow-hidden  outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400"
     >
       {/* External AI Modal */}
       {showAIModal && (
         <ExternalAIModal onClose={() => setShowAIModal(false)} />
+      )}
+
+      {/* Gemini Shopping Modal */}
+      {showShoppingModal && (
+        <GeminiShoppingModal
+          isOpen={showShoppingModal}
+          onClose={() => setShowShoppingModal(false)}
+        />
+      )}
+
+      {/* Gemini Play Books Modal */}
+      {showBooksModal && (
+        <GeminiPlayBooksModal
+          isOpen={showBooksModal}
+          onClose={() => setShowBooksModal(false)}
+        />
+      )}
+
+      {/* The Zion Way YouTube Modal */}
+      {showYouTubeModal && (
+        <GeminiYouTubeModal
+          isOpen={showYouTubeModal}
+          onClose={() => setShowYouTubeModal(false)}
+        />
+      )}
+
+      {/* YouTube News & Live Broadcasts Modal */}
+      {showNewsModal && (
+        <GeminiYouTubeNewsModal
+          isOpen={showNewsModal}
+          onClose={() => setShowNewsModal(false)}
+        />
+      )}
+
+      {/* Gemini Live Preferences Modal */}
+      {showLiveModal && (
+        <GeminiLiveModal
+          isOpen={showLiveModal}
+          onClose={() => setShowLiveModal(false)}
+        />
       )}
 
       {/* Change Chalkboard Colors Modal */}
@@ -325,81 +383,54 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
       {/* Top Header Row */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-3 border-b border-green-900/30">
         <div className="flex flex-wrap items-center gap-2 md:gap-4">
-          
-          {/* 0: Toolbox Header */}
-          <button
-            ref={(el) => { headerBtnsRef.current[0] = el; }}
-            onClick={() => {
-              setActiveMenu(activeMenu === 'toolbox' ? null : 'toolbox');
-              setActiveSubMenu(null);
-              setFocusedHeaderIdx(0);
-            }}
-            aria-pressed={activeMenu === 'toolbox'}
-            className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${activeMenu === 'toolbox' ? 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-green-500 hover:bg-green-950'}`}
-          >
-            <Wrench size={12} className="text-green-500" />
-            Toolbox {activeMenu === 'toolbox' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
+          {menuKeys.map((key, index) => {
+            let icon = <Wrench size={12} className="text-green-500" />;
+            let label = "Toolbox";
+            if (key === "gemini") {
+              icon = <Sparkles size={12} className="text-amber-400 animate-pulse" />;
+              label = "Gemini Toolbox";
+            } else if (key === "visual") {
+              icon = <Eye size={12} className="text-green-500" />;
+              label = "Visuals Settings";
+            } else if (key === "accessibility") {
+              icon = <Accessibility size={12} className="text-green-500" />;
+              label = "Accessibility";
+            } else if (key === "view") {
+              icon = <Settings size={12} className="text-green-500" />;
+              label = "View";
+            } else if (key === "layout") {
+              icon = <Keyboard size={12} className="text-green-500" />;
+              label = "Layout";
+            }
 
-          {/* 1: Visuals Settings Header */}
-          <button
-            ref={(el) => { headerBtnsRef.current[1] = el; }}
-            onClick={() => {
-              setActiveMenu(activeMenu === 'visual' ? null : 'visual');
-              setActiveSubMenu(null);
-              setFocusedHeaderIdx(1);
-            }}
-            aria-pressed={activeMenu === 'visual'}
-            className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${activeMenu === 'visual' ? 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-green-500 hover:bg-green-950'}`}
-          >
-            <Eye size={12} className="text-green-500" />
-            Visuals Settings {activeMenu === 'visual' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
+            const isSelected = activeMenu === key;
 
-          {/* 2: Accessibility Header */}
-          <button
-            ref={(el) => { headerBtnsRef.current[2] = el; }}
-            onClick={() => {
-              setActiveMenu(activeMenu === 'accessibility' ? null : 'accessibility');
-              setActiveSubMenu(null);
-              setFocusedHeaderIdx(2);
-            }}
-            aria-pressed={activeMenu === 'accessibility'}
-            className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${activeMenu === 'accessibility' ? 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-green-500 hover:bg-green-950'}`}
-          >
-            <Accessibility size={12} className="text-green-500" />
-            Accessibility {activeMenu === 'accessibility' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
-
-          {/* 3: View Header */}
-          <button
-            ref={(el) => { headerBtnsRef.current[3] = el; }}
-            onClick={() => {
-              setActiveMenu(activeMenu === 'view' ? null : 'view');
-              setActiveSubMenu(null);
-              setFocusedHeaderIdx(3);
-            }}
-            aria-pressed={activeMenu === 'view'}
-            className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${activeMenu === 'view' ? 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-green-500 hover:bg-green-950'}`}
-          >
-            <Settings size={12} className="text-green-500" />
-            View {activeMenu === 'view' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
-
-          {/* 4: Layout Header */}
-          <button
-            ref={(el) => { headerBtnsRef.current[4] = el; }}
-            onClick={() => {
-              setActiveMenu(activeMenu === 'layout' ? null : 'layout');
-              setActiveSubMenu(null);
-              setFocusedHeaderIdx(4);
-            }}
-            aria-pressed={activeMenu === 'layout'}
-            className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${activeMenu === 'layout' ? 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' : 'text-green-500 hover:bg-green-950'}`}
-          >
-            <Keyboard size={12} className="text-green-500" />
-            Layout {activeMenu === 'layout' ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-          </button>
+            return (
+              <button
+                key={key}
+                ref={(el) => { headerBtnsRef.current[index] = el; }}
+                onClick={() => {
+                  setActiveMenu(activeMenu === key ? null : key);
+                  setActiveSubMenu(null);
+                  setFocusedHeaderIdx(index);
+                }}
+                aria-pressed={isSelected}
+                className={`flex items-center gap-2 font-mono uppercase font-bold px-3 py-1.5 rounded transition ${headerTextClass} ${
+                  isSelected 
+                    ? key === "gemini" 
+                      ? 'bg-amber-950 text-white shadow-[0_0_8px_rgba(245,158,11,0.4)] border border-amber-600/30'
+                      : 'bg-green-900 text-white shadow-[0_0_8px_rgba(34,197,94,0.4)]' 
+                    : key === "gemini"
+                      ? 'text-amber-500 hover:bg-amber-950/40'
+                      : 'text-green-500 hover:bg-green-950'
+                }`}
+              >
+                {icon}
+                <span>{label}</span>
+                {isSelected ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+            );
+          })}
         </div>
         
         <div className="flex items-center gap-2 px-2 py-1 bg-green-950/40 rounded border border-green-900/20">
@@ -412,6 +443,17 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
       {activeMenu && (
         <div ref={dropdownContainerRef} className="bg-black/80 p-4 flex flex-col gap-4 border-t border-green-900/20">
           
+          {/* GEMINI TOOLBOX MENU */}
+          {activeMenu === 'gemini' && (
+            <GeminiToolboxMenu
+              onOpenShopping={() => setShowShoppingModal(true)}
+              onOpenYouTube={() => setShowYouTubeModal(true)}
+              onOpenNews={() => setShowNewsModal(true)}
+              onOpenPreferences={() => setShowLiveModal(true)}
+              itemTextClass={itemTextClass}
+            />
+          )}
+
           {/* TOOLBOX MENU */}
           {activeMenu === 'toolbox' && (
             <div className="flex flex-col gap-3">
@@ -436,6 +478,44 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                   <Sparkles size={12} className="text-amber-400" />
                   <span>{hasApiKey ? "Edit/Check AI" : "Insert AI"}</span>
                 </button>
+
+                {!hasApiKey && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setShowShoppingModal(true);
+                        if (speakWords) speakWords("Opening Google Shopping modal");
+                      }}
+                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-emerald-950 text-emerald-200 border-emerald-600 hover:bg-emerald-900 shadow-[0_0_8px_rgba(16,185,129,0.3)] min-h-[44px] ${itemTextClass}`}
+                      aria-label="Open Google Shopping & Field Supplies"
+                    >
+                      <ShoppingBag size={12} className="text-emerald-400" />
+                      <span>Shopping</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowBooksModal(true);
+                      }}
+                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-indigo-950 text-indigo-200 border-indigo-600 hover:bg-indigo-900 shadow-[0_0_8px_rgba(99,102,241,0.3)] min-h-[44px] ${itemTextClass}`}
+                      aria-label="Open Google Play Books & Literature Library"
+                    >
+                      <BookOpen size={12} className="text-indigo-400" />
+                      <span>Play Books</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setShowYouTubeModal(true);
+                      }}
+                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold bg-amber-950 text-amber-200 border-amber-600 hover:bg-amber-900 shadow-[0_0_8px_rgba(245,158,11,0.3)] min-h-[44px] ${itemTextClass}`}
+                      aria-label="Open The Zion Way & Babylon-Free YouTube Explorer"
+                    >
+                      <Youtube size={12} className="text-amber-400" />
+                      <span>Zion YouTube</span>
+                    </button>
+                  </>
+                )}
 
                 <button
                   onClick={() => {

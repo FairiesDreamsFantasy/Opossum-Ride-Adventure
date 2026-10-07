@@ -84,100 +84,108 @@ export const App: React.FC = () => {
   }, [currentLevelId]);
 
   // View state router
-  switch (gameState) {
-    case GameState.LANDING:
-      return (
-        <LandingPage
-          onStartGame={() => setGameState(GameState.BOOTING)}
-          onLearnGameSounds={() => setGameState(GameState.LEARN_GAME_SOUNDS)}
-        />
-      );
+  const renderContent = () => {
+    switch (gameState) {
+      case GameState.LANDING:
+        return (
+          <LandingPage
+            onStartGame={() => setGameState(GameState.BOOTING)}
+            onLearnGameSounds={() => setGameState(GameState.LEARN_GAME_SOUNDS)}
+          />
+        );
 
-    case GameState.BOOTING:
-      return (
-        <BootingScreen
-          onBootComplete={() => setGameState(GameState.RIDER_SELECTION)}
-        />
-      );
+      case GameState.BOOTING:
+        return (
+          <BootingScreen
+            onBootComplete={() => setGameState(GameState.RIDER_SELECTION)}
+          />
+        );
 
-    case GameState.LEARN_GAME_SOUNDS:
-      return (
-        <LearnGameSounds
-          onStartGame={() => setGameState(GameState.BOOTING)}
-          onBackToLanding={() => setGameState(GameState.LANDING)}
-        />
-      );
+      case GameState.LEARN_GAME_SOUNDS:
+        return (
+          <LearnGameSounds
+            onStartGame={() => setGameState(GameState.BOOTING)}
+            onBackToLanding={() => setGameState(GameState.LANDING)}
+          />
+        );
 
-    case GameState.RIDER_SELECTION:
-      return (
-        <RiderSelection
-          onSelectRider={(rider) => {
-            setSelectedRider(rider);
-            setGameState(GameState.SELECTION);
-          }}
-          onBack={() => setGameState(GameState.LANDING)}
-        />
-      );
+      case GameState.RIDER_SELECTION:
+        return (
+          <RiderSelection
+            onSelectRider={(rider) => {
+              setSelectedRider(rider);
+              setGameState(GameState.SELECTION);
+            }}
+            onBack={() => setGameState(GameState.LANDING)}
+          />
+        );
 
-    case GameState.SELECTION:
-      return (
-        <OpossumSelection
-          selectedRider={selectedRider}
-          onSelectOpossum={(opossum) => {
-            setSelectedOpossum(opossum);
-            setGameState(GameState.INTERSTITIAL);
-          }}
-          onBack={() => setGameState(GameState.RIDER_SELECTION)}
-        />
-      );
+      case GameState.SELECTION:
+        return (
+          <OpossumSelection
+            selectedRider={selectedRider}
+            onSelectOpossum={(opossum) => {
+              setSelectedOpossum(opossum);
+              setGameState(GameState.INTERSTITIAL);
+            }}
+            onBack={() => setGameState(GameState.RIDER_SELECTION)}
+          />
+        );
 
-    case GameState.INTERSTITIAL:
-      return (
-        <InterstitialAd
-          onAdComplete={() => setGameState(GameState.PLAYING)}
-        />
-      );
+      case GameState.INTERSTITIAL:
+        return (
+          <InterstitialAd
+            onAdComplete={() => setGameState(GameState.PLAYING)}
+          />
+        );
 
-    case GameState.PLAYING:
-    default:
-      return (
-        <PlayArea
-          selectedOpossum={selectedOpossum}
-          defaultRider={selectedRider}
-          onExitGame={() => setGameState(GameState.LANDING)}
-          layout={layout}
-          setLayout={setLayout}
-          currentLevelId={currentLevelId}
-          setCurrentLevelId={setCurrentLevelId}
-          currentLevel={currentLevel}
-          setCurrentLevel={setCurrentLevel}
-          chatterNotifications={chatterNotifications}
-          setChatterNotifications={setChatterNotifications}
-          announceDoors={announceDoors}
-          setAnnounceDoors={setAnnounceDoors}
-          announceReverb={announceReverb}
-          setAnnounceReverb={setAnnounceReverb}
-          extendedInfo={extendedInfo}
-          setExtendedInfo={setExtendedInfo}
-          announceSteering={announceSteering}
-          setAnnounceSteering={setAnnounceSteering}
-          announceMooseSmash={announceMooseSmash}
-          setAnnounceMooseSmash={setAnnounceMooseSmash}
-          musicEnabled={musicEnabled}
-          setMusicEnabled={setMusicEnabled}
-          viewMode={viewMode}
-          setViewMode={setViewMode}
-          pixelation={pixelation}
-          setPixelation={setPixelation}
-          palette={palette}
-          setPalette={setPalette}
-          is3D={is3D}
-          setIs3D={setIs3D}
-          wireframe={wireframe}
-          setWireframe={setWireframe}
-        />
-      );
-  }
+      case GameState.PLAYING:
+      default:
+        return (
+          <PlayArea
+            selectedOpossum={selectedOpossum}
+            defaultRider={selectedRider}
+            onExitGame={() => setGameState(GameState.LANDING)}
+            layout={layout}
+            setLayout={setLayout}
+            currentLevelId={currentLevelId}
+            setCurrentLevelId={setCurrentLevelId}
+            currentLevel={currentLevel}
+            setCurrentLevel={setCurrentLevel}
+            chatterNotifications={chatterNotifications}
+            setChatterNotifications={setChatterNotifications}
+            announceDoors={announceDoors}
+            setAnnounceDoors={setAnnounceDoors}
+            announceReverb={announceReverb}
+            setAnnounceReverb={setAnnounceReverb}
+            extendedInfo={extendedInfo}
+            setExtendedInfo={setExtendedInfo}
+            announceSteering={announceSteering}
+            setAnnounceSteering={setAnnounceSteering}
+            announceMooseSmash={announceMooseSmash}
+            setAnnounceMooseSmash={setAnnounceMooseSmash}
+            musicEnabled={musicEnabled}
+            setMusicEnabled={setMusicEnabled}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            pixelation={pixelation}
+            setPixelation={setPixelation}
+            palette={palette}
+            setPalette={setPalette}
+            is3D={is3D}
+            setIs3D={setIs3D}
+            wireframe={wireframe}
+            setWireframe={setWireframe}
+          />
+        );
+    }
+  };
+
+  return (
+    <>
+      {renderContent()}
+    </>
+  );
 };
 
 export default App;

@@ -37,7 +37,7 @@ export const LandscapeHUD: React.FC<LandscapeHUDProps> = ({
   return (
     <div
       id="Mobile_Landscape_HUD"
-      className="w-full flex items-center justify-between px-3 py-1 bg-stone-950/80 border-b border-amber-900/40 text-amber-300 text-[10px] font-mono select-none"
+      className="w-full flex items-center justify-between px-3 py-1 bg-stone-950/80 border-b border-amber-900/40 text-amber-300 text-[10px] font-mono "
     >
       <div className="flex items-center gap-3">
         <span className="font-bold text-amber-400 uppercase">

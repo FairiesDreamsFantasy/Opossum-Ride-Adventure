@@ -86,7 +86,7 @@ export const BootingScreen: React.FC<BootingScreenProps> = ({ onBootComplete }) 
   const percentageStr = Math.round(progress.completionPercentage * 100);
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-green-400 font-mono flex flex-col justify-between p-6 md:p-12 relative overflow-hidden select-none">
+    <div className="min-h-screen bg-zinc-950 text-green-400 font-mono flex flex-col justify-between p-6 md:p-12 relative overflow-hidden ">
       {/* Subtle math coordinate grid overlay */}
       <div 
         className="absolute inset-0 opacity-[0.03] pointer-events-none" 

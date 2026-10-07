@@ -26,4 +26,20 @@ export class WaveformGenerator {
     }
     return data;
   }
+
+  /**
+   * Generates an authentic linear frequency sweep data block from startFreq to endFreq.
+   * Eliminates single-tone stubs with true continuous frequency progression.
+   */
+  public static generateSweepBytes(startFreq: number, endFreq: number, sampleRate = 44100, duration = 0.5): Float32Array {
+    const totalSamples = Math.floor(sampleRate * duration);
+    const data = new Float32Array(totalSamples);
+    for (let i = 0; i < totalSamples; i++) {
+      const t = i / sampleRate;
+      // Linear frequency interpolation: f(t) = f0 + (f1 - f0) * (t / duration)
+      const instantaneousFreq = startFreq + (endFreq - startFreq) * (t / duration);
+      data[i] = Math.sin(2 * Math.PI * instantaneousFreq * t);
+    }
+    return data;
+  }
 }

@@ -52,7 +52,7 @@ export const OpossumSelectionPaginationGeneral: React.FC<PaginationGeneralProps>
   const visiblePages = calculateVisiblePages(currentPage, totalPages, maxNumericButtons);
 
   return (
-    <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-zinc-800 text-xs select-none">
+    <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-zinc-800 text-xs ">
       {/* Mobile-Friendly Control Bar */}
       <div className="flex sm:hidden items-center justify-between w-full px-2 py-1.5 bg-zinc-950 border border-zinc-800 rounded-lg">
         <button

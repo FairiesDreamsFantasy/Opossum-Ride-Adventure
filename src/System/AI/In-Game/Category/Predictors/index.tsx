@@ -45,7 +45,7 @@ export const TrajectoryPredictorView: React.FC<{
   const projection = projectTrajectory(playerZ, playerSpeed, opponentZ, opponentSpeed);
 
   return (
-    <div id="TrajectoryPredictor" className="p-3 bg-zinc-950 border border-green-950 rounded text-xs select-none mt-2">
+    <div id="TrajectoryPredictor" className="p-3 bg-zinc-950 border border-green-950 rounded text-xs  mt-2">
       <span className="text-green-500 font-mono block mb-1 font-semibold uppercase tracking-wider">
         Trajectory Projection (Collision Vector Estimator)
       </span>

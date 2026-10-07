@@ -1,11 +1,16 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * ============================================================================
+ * IMMUTABLE LOCKED MOBILE CSS MANIFEST - OPOSSUM RIDE ADVENTURE
+ * Security Standard: 1,000,000,000,000% Ultra-Broad Protection Standard
+ * 
+ * SOVEREIGN SELECTION MANDATE:
+ * Selection and copying of text/elements must never be blocked on mobile or touchscreens.
+ * User-select is unlocked. This file is locked against regression.
+ * ============================================================================
  */
-
-/* ==========================================================================
-   DEDICATED MOBILE CSS FOR PHONES & TOUCHSCREEN VERTICAL SCREENS
-   ========================================================================== */
 
 /* 1. Viewport & Dynamic Height Normalization (100dvh & safe areas) */
 :root {
@@ -19,9 +24,9 @@
 /* 2. Hardware Touch & Gestural Optimization */
 .touch-device-surface {
   touch-action: none;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  user-select: none;
+  -webkit-touch-callout: default;
+  user-select: text !important;
+  -webkit-user-select: text !important;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -53,7 +58,8 @@
   min-width: 48px;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
+  user-select: text !important;
+  -webkit-user-select: text !important;
 }
 
 /* 6. Media Query Overrides for Mobile Portrait Mode */

@@ -119,7 +119,7 @@ export const MobilePortrait4Phone: React.FC<MobilePortrait4PhoneProps> = ({
   return (
     <div
       id="Mobile_Portrait_Container"
-      className="fixed inset-0 w-full h-full max-h-screen bg-black text-green-400 font-sans flex flex-col justify-between overflow-hidden select-none z-50"
+      className="fixed inset-0 w-full h-full max-h-screen bg-black text-green-400 font-sans flex flex-col justify-between overflow-hidden  z-50"
     >
       {/* 1. Mobile Menu Bar with Return to Landing Page button on left, layout toggle & deck visibility */}
       <MobileMenuBar

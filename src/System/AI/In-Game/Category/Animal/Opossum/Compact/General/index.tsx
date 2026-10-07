@@ -27,10 +27,6 @@ export interface CompactOpossumAIState {
   smashComboCount: number;
   lastSmashTimestamp: number;
   lastBreathingSoundTime: number;
-  // Aliases for backward compatibility
-  isStomping?: boolean;
-  stompComboCount?: number;
-  lastStompTimestamp?: number;
 }
 
 export interface SmashDetectionResult {
@@ -41,17 +37,12 @@ export interface SmashDetectionResult {
   scoreAwarded: number;
 }
 
-export type StompDetectionResult = SmashDetectionResult;
-
 export class CompactOpossumAIPhysics {
   public static readonly GRAVITY = -9.81 * 2.2; // Scaled for authentic physical parabolic trajectory
   public static readonly JUMP_TAKEOFF_VELOCITY = 14.5;
   public static readonly HIGH_LEAP_REBOUND_VELOCITY = 11.8;
-  public static readonly STOMP_BOUNCE_VELOCITY = 11.8;
   public static readonly SMASH_RADIUS_TOLERANCE = 28.0; // Units in 2D/3D coordinate space
-  public static readonly STOMP_RADIUS_TOLERANCE = 28.0;
-  public static readonly VERTICAL_SMASH_WINDOW = 35.0; // Maximum Z height offset for heavy landing smash registration
-  public static readonly VERTICAL_STOMP_WINDOW = 35.0;
+  public static readonly VERTICAL_SMASH_WINDOW = 35.0; // Maximum Z height offset for heavy landing registration
   public static readonly STANDARD = "100,000,000,000% Ultra-Broad Protection Standard";
 
   /**
@@ -72,10 +63,7 @@ export class CompactOpossumAIPhysics {
       isLandingHard: false,
       smashComboCount: 0,
       lastSmashTimestamp: 0,
-      lastBreathingSoundTime: 0,
-      isStomping: false,
-      stompComboCount: 0,
-      lastStompTimestamp: 0
+      lastBreathingSoundTime: 0
     };
   }
 
@@ -140,11 +128,8 @@ export class CompactOpossumAIPhysics {
         // Apply natural bounce restitution from heavy downward landing to compact opossum
         state.velocityZ = this.HIGH_LEAP_REBOUND_VELOCITY;
         state.isLandingHard = true;
-        state.isStomping = true;
         state.smashComboCount = (state.smashComboCount || 0) + 1;
-        state.stompComboCount = state.smashComboCount;
         state.lastSmashTimestamp = currentTimeMs;
-        state.lastStompTimestamp = currentTimeMs;
 
         // Trigger decoupled compact sound (excited click + snuffle, NO crafted elegant chatter)
         playCompactOpossumSound("click", 1.15);
@@ -170,17 +155,6 @@ export class CompactOpossumAIPhysics {
     };
   }
 
-  // Alias for backward compatibility
-  public static evaluateStompCollision(
-    state: CompactOpossumAIState,
-    feralPigs: FeralPigEntity[],
-    currentTimeMs: number,
-    audioCtx?: AudioContext,
-    audioDest?: AudioNode
-  ): SmashDetectionResult {
-    return this.evaluateSmashCollision(state, feralPigs, currentTimeMs, audioCtx, audioDest);
-  }
-
   /**
    * Advances integration timestep for physics simulation using velocity verlet / Euler integration.
    */
@@ -199,7 +173,6 @@ export class CompactOpossumAIPhysics {
         state.isAirborne = false;
         state.isJumping = false;
         state.isLandingHard = false;
-        state.isStomping = false;
 
         // Landing footstep audio on ground impact
         playCompactOpossumMovement("clawClick", 0.95);
