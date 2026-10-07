@@ -6,24 +6,23 @@
 /**
  * Version Registry
  * Dedicated module for managing application and game engine versioning.
- * Strictly formatted in Central Standard Time (CST) only.
+ * Dynamically localized to the player's local timezone worldwide.
  */
 export const VersionRegistry = {
   current: "0.1.0.7.7",
   get date(): string {
     const d = new Date();
-    const cst = new Date(d.getTime() - 6 * 3600 * 1000);
-    const mm = String(cst.getUTCMonth() + 1).padStart(2, '0');
-    const dd = String(cst.getUTCDate()).padStart(2, '0');
-    return `${mm}/${dd}/${cst.getUTCFullYear()}`;
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${mm}/${dd}/${d.getFullYear()}`;
   },
   get time(): string {
     const d = new Date();
-    const cst = new Date(d.getTime() - 6 * 3600 * 1000);
-    const hh = String(cst.getUTCHours()).padStart(2, '0');
-    const mm = String(cst.getUTCMinutes()).padStart(2, '0');
-    const ss = String(cst.getUTCSeconds()).padStart(2, '0');
-    return `${hh}:${mm}:${ss} CST`;
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    const tz = d.toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ').pop();
+    return `${hh}:${mm}:${ss} ${tz}`;
   },
   get timestamp(): string {
     return `${this.date} ${this.time}`;
