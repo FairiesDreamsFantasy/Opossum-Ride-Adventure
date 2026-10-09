@@ -1,10 +1,13 @@
 name: Automate Game Build for cPanel
 
-# Trigger automated GitHub cloud compilation on push
+# Trigger automated GitHub cloud compilation on push to active branches
 on:
   push:
     branches:
       - main
+      - WorkspaceSync
+      - Stable
+      - QualityControl
       - stable-cpanel-deployment
   workflow_dispatch:
 
@@ -20,14 +23,14 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Build Production Game Bundle
         run: npm run build
@@ -36,6 +39,6 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Automated Build: Compile clean production game bundle for cPanel"
-          branch: main
+          branch: ${{ github.ref_name }}
           file_pattern: "dist/** .cpanel.yml"
           skip_ci: true

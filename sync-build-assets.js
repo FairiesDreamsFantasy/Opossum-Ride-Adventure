@@ -19,6 +19,9 @@ function copyDirectory(srcDir, destDir) {
     if (entry.isDirectory()) {
       copyDirectory(srcPath, destPath);
     } else {
+      if (entry.name.endsWith('.zip')) {
+        continue;
+      }
       // Prevent overwriting fresh builds with old stubs
       if (entry.name === 'index.js' || entry.name === 'style.css') {
         console.log(`Skipping legacy overwrite: ${srcPath}`);
@@ -36,27 +39,37 @@ if (fs.existsSync('dist')) {
     console.log('Removed bloated nested dist/Opossum_Ride_Adventure directory');
   }
 
-  // 2. Sync public/Assets into dist/Assets
+  // 2. Remove any legacy zip archives from dist to prevent server thrashing
+  const distEntries = fs.readdirSync('dist');
+  for (const f of distEntries) {
+    if (f.endsWith('.zip')) {
+      fs.rmSync(path.join('dist', f), { force: true });
+      console.log(`Removed legacy shadow zip archive: ${f}`);
+    }
+  }
+
+  // 3. Sync public/Assets into dist/Assets (excluding any zip files)
   if (fs.existsSync('public/Assets')) {
     copyDirectory('public/Assets', 'dist/Assets');
   }
 
-  // 3. Ensure CSS availability at Assets/CSS/style.css
+  // 4. Ensure CSS availability at Assets/CSS/style.css
   if (fs.existsSync('dist/CSS/style.css')) {
     copyFile('dist/CSS/style.css', 'dist/Assets/CSS/style.css');
   }
 
-  // 4. Sync production .htaccess and VERSION.txt
+  // 5. Sync production .htaccess and VERSION.txt
   copyFile('public/.htaccess', 'dist/.htaccess');
   copyFile('public/VERSION.txt', 'dist/VERSION.txt');
 
-  // 5. Ensure index.html references the clean production assets with ROBUST CACHE BUSTING
+  // 6. Ensure index.html references the clean production assets with ROBUST CACHE BUSTING
   const indexPath = 'dist/index.html';
   if (fs.existsSync(indexPath)) {
     let html = fs.readFileSync(indexPath, 'utf8');
 
     const buildTimestamp = Date.now();
-    const versionParam = `v=0.1.0.7.6-${buildTimestamp}`;
+    const currentVersion = fs.existsSync('VERSION.txt') ? fs.readFileSync('VERSION.txt', 'utf8').trim() : '0.1.0.7.7';
+    const versionParam = `v=${currentVersion}-${buildTimestamp}`;
     console.log(`Applying Cache Busting parameter: ${versionParam}`);
 
     // Pre-normalize ALL possible path types to a clean standard

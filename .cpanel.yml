@@ -1,23 +1,15 @@
 ---
 deployment:
   tasks:
-    # 1. Define paths scientifically
-    - export LIVE_PATH=/home/fairiesd/public_html/Arcade/Opossum_Ride_Adventure
-    - export RELEASE_BASE=${LIVE_PATH}_releases
-    - export RELEASE_PATH=${RELEASE_BASE}/$(date +%Y%m%d%H%M%S)
+    # 1. Direct deployment path for cPanel Git Controller
+    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Opossum_Ride_Adventure
     
-    # 2. Prepare the new atomic release directory
-    - /bin/mkdir -p $RELEASE_PATH
+    # 2. Ensure target deployment directory exists
+    - /bin/mkdir -p $DEPLOYPATH
     
-    # 3. Copy artifacts into the isolated release directory
-    - /bin/cp -rf dist/* $RELEASE_PATH/
-    - /bin/cp -rf dist/.htaccess $RELEASE_PATH/ 2>/dev/null || true
-    - /bin/chmod -R 755 $RELEASE_PATH
+    # 3. Synchronize compiled production game build files
+    - /bin/cp -rf dist/* $DEPLOYPATH/
+    - /bin/cp -rf dist/.htaccess $DEPLOYPATH/ 2>/dev/null || true
     
-    # 4. Atomic swap: Update the symlink to point to the new release
-    # Ensure the parent directory exists
-    - /bin/mkdir -p $(dirname $LIVE_PATH)
-    # Remove existing directory if it's not a symlink to allow the swap, otherwise proceed
-    - '[ -d $LIVE_PATH ] && [ ! -L $LIVE_PATH ] && /bin/rm -rf $LIVE_PATH || true'
-    # Update the symlink atomically
-    - /bin/ln -sfn $RELEASE_PATH $LIVE_PATH
+    # 4. Set appropriate permissions for web server reading
+    - /bin/chmod -R 755 $DEPLOYPATH
