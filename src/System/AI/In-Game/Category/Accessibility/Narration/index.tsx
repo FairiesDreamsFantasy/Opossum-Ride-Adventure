@@ -117,11 +117,15 @@ export class InGameLocalNarrationEngine {
       outerEarDesc = `${possessive} outer ears feature yellow with red diamonds spaced 0.1 inches apart facing the rider`;
     }
 
+    const coatPatternDesc = (pattern && pattern !== "none" && patternLabel !== "solid color" && patternLabel !== "Plain / Solid No Pattern")
+      ? `organized in a ${patternLabel}`
+      : "solid coat with no patterns";
+
     const baseIntro = `You are riding ${op.name}, an esteemed ${op.gender || op.sex || "Female"} opossum mount.`;
-    const details = `${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Fur: ${fur}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Inner ear lining: ${innerEars}. ${possessive} face skin is ${skinLabel}. ${outerEarDesc}, set in a ${earLengthDesc} ${earOrientDesc}. ${possessive} head orientation is ${op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck")}.`;
+    const details = `${sub} stands at a shoulder height of ${shoulderHeight}, with a body width of ${width} inches and a length of ${length} inches. Coat: ${fur} (${coatPatternDesc}). ${possessive} face skin is ${skinLabel}. Eyes: ${eyes}. Nose: ${nose}. Tail: ${tail}. Ears: ${outerEarDesc}, set in a ${earLengthDesc} ${earOrientDesc}, and lined with a delicate ${innerEars} inner-ear lining. ${possessive} head orientation is ${op.headOrientation || (isMale ? "perched upright with noble focus" : "perched on top of her neck")}.`;
 
     if (op.description && typeof op.description === "string" && op.description.trim().length > 30) {
-      return `${baseIntro} ${op.description} Details: ${outerEarDesc}, lined with a delicate ${innerEars} inner-ear lining.`;
+      return `${baseIntro} ${op.description} Details: ${outerEarDesc}, set in a ${earLengthDesc} ${earOrientDesc}, and lined with a delicate ${innerEars} inner-ear lining.`;
     }
 
     return `${baseIntro} ${details}`;

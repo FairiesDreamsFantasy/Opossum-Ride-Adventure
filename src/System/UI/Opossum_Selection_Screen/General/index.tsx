@@ -126,6 +126,10 @@ export const getOpossumAestheticDescription = (opossum: OpossumCharacter) => {
     ? `For adornment, she proudly wears handcrafted accessories: ${accessory}.`
     : "She wears no physical jewelry, displaying her natural grace and elegant form.";
 
-  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat which is organized as a ${patternLabel}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLengthTerm} and set in a ${earOrientTerm} orientation, ${outerEarDesc}, and lined with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
+  const coatPatternSentence = (pattern && pattern !== "none" && patternLabel !== "Plain / Solid No Pattern" && patternLabel !== "Solid Plain")
+    ? `which is organized as a ${patternLabel}`
+    : "which is a solid plain coat with no patterns";
+
+  return `Her physical skin displays a beautiful ${skinLabel} tone under her ${furThickness} ${opossum.color} coat ${coatPatternSentence}. ${faceText} Her paws are colored ${pawCol} with soft ${pawPadCol} paw pads underneath for perfect silent footing. Her ears are ${earLengthTerm} and set in a ${earOrientTerm} orientation, ${outerEarDesc}, and lined with a delicate ${opossum.innerEarColor} inner-ear lining. ${tailText} ${accText}`;
 };
 
