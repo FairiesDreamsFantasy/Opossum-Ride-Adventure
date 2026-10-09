@@ -4,7 +4,7 @@
   "version": "0.1.0.7.7",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/server-sentinel.js && vite",
     "build": "vite build && node sync-build-assets.js",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
