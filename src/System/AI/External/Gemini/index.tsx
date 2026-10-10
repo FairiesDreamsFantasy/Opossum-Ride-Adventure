@@ -284,6 +284,49 @@ class GeminiManager {
   }
 
   /**
+   * Executes a live interactive AI query with telemetry context and multimodal reasoning.
+   */
+  public async askLive(prompt: string, context: string): Promise<string> {
+    if (!this.ai || !this.config?.apiKey) {
+      return `[Offline Mode] You are riding securely through the sanctuary. (Prompt received: "${prompt}")`;
+    }
+
+    try {
+      this.incrementQuota();
+      const model = this.config.selectedModel || "gemini-flash-latest";
+      
+      const systemInstruction = `You are the mystical, wise voice of Opossum Ride Adventure, assisting a fairy or elf rider. You possess complete telemetry knowledge of the sanctuary. Keep responses immersive, vivid, helpful, and concise (under 50 words) so they can be spoken aloud seamlessly.`;
+      
+      const response = await this.ai.models.generateContent({
+        model,
+        contents: [
+          {
+            role: "user",
+            parts: [
+              { text: `Telemetry Context: ${context}` },
+              { text: `Rider Speech / Question: ${prompt}` }
+            ]
+          }
+        ],
+        config: {
+          systemInstruction,
+          temperature: 0.7,
+          maxOutputTokens: 150
+        }
+      });
+
+      const answer = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (answer) {
+        return answer.trim();
+      }
+      return "The sanctuary winds whisper softly, but the connection was brief. Please try speaking again.";
+    } catch (error: any) {
+      console.error("Gemini Live Query Error:", error);
+      return "I encountered a minor atmospheric interference while contacting the Gemini Live servers.";
+    }
+  }
+
+  /**
    * Refreshes the cached system manifest based on active fetch toggles
    */
   public refreshSystemManifest(): SystemFetchManifest {
