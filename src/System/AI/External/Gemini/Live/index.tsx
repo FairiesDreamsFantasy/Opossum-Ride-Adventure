@@ -1,19 +1,18 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * Opossum Ride Adventure - Gemini Live Voice & Audio Engine
+ * Production-grade voice interaction with speech recognition, telemetry injection, and synthesized audio responses.
  */
 
-import { LiveSessionStatus, GeminiLiveState } from "./types";
+import { LiveSessionStatus, GeminiLiveState, LiveMessage } from "./types";
 import { GeminiSystem } from "../index";
-import { getSharedAudioContext } from "../../../../Sound/TTS";
+import { getSharedAudioContext, speakWords } from "../../../../Sound/TTS";
 
 export * from "./types";
 export * from "./UI";
 
-/**
- * Gemini Live Service
- * Orchestrates real-time voice interaction using Gemini Live API and Push-To-Talk (Shift-C).
- */
 export class GeminiLiveService {
   private static instance: GeminiLiveService;
   private status: LiveSessionStatus = "idle";
@@ -21,10 +20,12 @@ export class GeminiLiveService {
   private listeners: (() => void)[] = [];
   private mediaStream: MediaStream | null = null;
   private audioContext: AudioContext | null = null;
-  private processor: ScriptProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
-  private websocket: WebSocket | null = null;
   private vadLoopId: number | null = null;
+  private recognition: any | null = null;
+  private lastCapturedText: string = "";
+  private history: LiveMessage[] = [];
+  private isProcessingQuery: boolean = false;
 
   public static getInstance(): GeminiLiveService {
     if (!GeminiLiveService.instance) {
@@ -52,7 +53,7 @@ export class GeminiLiveService {
     return {
       status: this.status,
       isLiveActive: this.isLiveActive,
-      history: [] // History tracking can be added later if needed
+      history: [...this.history]
     };
   }
 
@@ -60,14 +61,12 @@ export class GeminiLiveService {
     if (typeof window === "undefined") return;
 
     window.addEventListener("keydown", (e) => {
-      // Shift-C (Sacred Gemini Command)
-      // Check if input element is focused to prevent triggering during typing
       const isInputFocused = document.activeElement instanceof HTMLInputElement || 
                              document.activeElement instanceof HTMLTextAreaElement;
       
       if (!isInputFocused && e.shiftKey && e.code === "KeyC") {
         if (this.isLiveActive) {
-          this.stopLive();
+          this.stopLive(true);
         } else {
           this.startLive();
         }
@@ -87,7 +86,6 @@ export class GeminiLiveService {
     gainNode.connect(ctx.destination);
 
     if (type === "start") {
-      // Pleasant rising crystal-clean chime: C5 -> E5 -> G5
       const freqs = [523.25, 659.25, 783.99]; // C5, E5, G5
       freqs.forEach((freq, index) => {
         const osc = ctx.createOscillator();
@@ -106,11 +104,9 @@ export class GeminiLiveService {
         osc.start(now + index * 0.08);
         osc.stop(now + index * 0.08 + 0.4);
       });
-      
       gainNode.gain.setValueAtTime(0.6, now);
     } else {
-      // Dual chimes indicating auto toggled off: G5 -> C5 in rapid succession
-      const freqs = [783.99, 523.25]; // G5, C5 (high to low classic Google Assistant era dual chime)
+      const freqs = [783.99, 523.25]; // G5, C5
       freqs.forEach((freq, index) => {
         const osc = ctx.createOscillator();
         const noteGain = ctx.createGain();
@@ -128,7 +124,6 @@ export class GeminiLiveService {
         osc.start(now + index * 0.12);
         osc.stop(now + index * 0.12 + 0.35);
       });
-      
       gainNode.gain.setValueAtTime(0.6, now);
     }
   }
@@ -149,14 +144,13 @@ export class GeminiLiveService {
       const dataArray = new Uint8Array(bufferLength);
 
       let lastSoundTime = Date.now();
-      const speakingThreshold = 18; // Scientific RMS amplitude threshold
+      const speakingThreshold = 18;
 
       const checkVolume = () => {
         if (!this.isLiveActive) return;
 
         analyser.getByteFrequencyData(dataArray);
 
-        // Calculate average amplitude (RMS)
         let sum = 0;
         for (let i = 0; i < bufferLength; i++) {
           sum += dataArray[i];
@@ -165,17 +159,16 @@ export class GeminiLiveService {
 
         const now = Date.now();
         if (average > speakingThreshold) {
-          lastSoundTime = now; // User is speaking, reset the silence timer
+          lastSoundTime = now;
         }
 
         const config = GeminiSystem.getConfig();
         const silenceThresholdMs = (config?.liveSilenceThresholdSeconds ?? 2.5) * 1000;
 
         if (now - lastSoundTime > silenceThresholdMs) {
-          console.log(`Gemini Live: Silence detected for ${config?.liveSilenceThresholdSeconds ?? 2.5}s. Auto-off.`);
-          this.stopLive();
+          console.log(`Gemini Live: Silence detected for ${config?.liveSilenceThresholdSeconds ?? 2.5}s. Auto-off processing query.`);
+          this.stopLive(true);
         } else {
-          // Keep scanning recursively
           this.vadLoopId = requestAnimationFrame(checkVolume);
         }
       };
@@ -200,6 +193,7 @@ export class GeminiLiveService {
   private async startLive() {
     const config = GeminiSystem.getConfig();
     if (!config?.liveEnabled || !config?.apiKey) {
+      speakWords("Gemini live is disabled or API key is not configured.");
       return;
     }
 
@@ -207,6 +201,7 @@ export class GeminiLiveService {
 
     console.log("Gemini Live: START (Shift-C Toggle)");
     this.isLiveActive = true;
+    this.status = "connecting";
     this.notifyListeners();
 
     try {
@@ -217,38 +212,138 @@ export class GeminiLiveService {
       this.status = "active";
       this.playChime("start");
       this.startSilenceDetection(this.mediaStream);
+
+      // Initialize browser SpeechRecognition for live voice-to-text transcript
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        try {
+          this.recognition = new SpeechRecognition();
+          this.recognition.continuous = true;
+          this.recognition.interimResults = true;
+          this.recognition.lang = "en-US";
+
+          this.recognition.onresult = (event: any) => {
+            let interim = "";
+            let final = "";
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+              if (event.results[i].isFinal) {
+                final += event.results[i][0].transcript;
+              } else {
+                interim += event.results[i][0].transcript;
+              }
+            }
+            const currentTranscript = final || interim;
+            if (currentTranscript) {
+              this.lastCapturedText = currentTranscript;
+              console.log("Gemini Live Captured Speech:", currentTranscript);
+            }
+          };
+
+          this.recognition.onerror = (e: any) => {
+            console.warn("Speech recognition notice:", e.error);
+          };
+
+          this.recognition.start();
+        } catch (recErr) {
+          console.warn("Speech recognition unavailable, falling back to ambient mode:", recErr);
+        }
+      }
     } catch (err) {
       console.error("Gemini Live: Microphone access denied or error:", err);
       this.status = "error";
-      this.stopLive();
+      speakWords("Microphone access was denied. Unable to capture live voice.");
+      this.stopLive(false);
     }
     this.notifyListeners();
   }
 
-  private stopLive() {
+  private async stopLive(processQuery: boolean = true) {
     if (!this.isLiveActive) return;
 
     console.log("Gemini Live: STOP");
     this.isLiveActive = false;
-    this.status = "idle";
+    this.status = processQuery ? "processing" : "idle";
     this.stopSilenceDetection();
     this.playChime("stop");
 
-    // Strictly release stream tracks to turn off recording light
+    if (this.recognition) {
+      try {
+        this.recognition.stop();
+      } catch (e) {}
+      this.recognition = null;
+    }
+
     if (this.mediaStream) {
       this.mediaStream.getTracks().forEach((track) => track.stop());
       this.mediaStream = null;
     }
 
     this.notifyListeners();
+
+    if (processQuery) {
+      await this.executeLiveQuery();
+    }
+  }
+
+  private getEnvironmentContext(): string {
+    try {
+      const activeArena = (window as any).__OPOSSUM_ACTIVE_ARENA__ || "Grand Arena & Foyer";
+      const riddenOpossum = (window as any).__OPOSSUM_RIDDEN_NAME__ || "Melissa the Opossum";
+      const riderName = (window as any).__OPOSSUM_RIDER_NAME__ || "Fairy Rider";
+      const stageId = (window as any).__OPOSSUM_STAGE_ID__ || "1";
+      return `Current Stage: ${stageId}, Environment/Arena: ${activeArena}, Rider: ${riderName}, Mount: ${riddenOpossum}.`;
+    } catch (e) {
+      return "Player is riding an esteemed opossum mount through a magnificent arena.";
+    }
+  }
+
+  private async executeLiveQuery() {
+    if (this.isProcessingQuery) return;
+    this.isProcessingQuery = true;
+    this.status = "processing";
+    this.notifyListeners();
+
+    try {
+      const userPrompt = this.lastCapturedText.trim() || "Describe my current game environment and surroundings.";
+      this.lastCapturedText = "";
+
+      this.history.push({
+        role: "user",
+        text: userPrompt,
+        timestamp: Date.now()
+      });
+
+      const envTelemetry = this.getEnvironmentContext();
+      console.log("Gemini Live Dispatching Query:", userPrompt, "Telemetry:", envTelemetry);
+
+      const responseText = await GeminiSystem.askLive(userPrompt, envTelemetry);
+      console.log("Gemini Live Spoken Response:", responseText);
+
+      this.history.push({
+        role: "model",
+        text: responseText,
+        timestamp: Date.now()
+      });
+
+      this.status = "idle";
+      this.notifyListeners();
+
+      // Immediately speak the answer aloud to the player
+      speakWords(responseText, true);
+    } catch (error: any) {
+      console.error("Gemini Live query execution error:", error);
+      this.status = "error";
+      speakWords("Notice: Unable to complete live voice interaction at this time.");
+      this.notifyListeners();
+    } finally {
+      this.isProcessingQuery = false;
+      this.status = "idle";
+      this.notifyListeners();
+    }
   }
 
   public cleanup() {
-    this.stopLive();
-    if (this.websocket) {
-      this.websocket.close();
-      this.websocket = null;
-    }
+    this.stopLive(false);
   }
 }
 
