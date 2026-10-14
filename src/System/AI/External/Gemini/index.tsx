@@ -146,6 +146,110 @@ export const AVAILABLE_TTS_VOICES: { id: TTSVoice; label: string }[] = [
   { id: "Fenrir", label: "Fenrir (Primal)" }
 ];
 
+export interface RateLimitPolicy {
+  capacity: number;              // Max burst tokens in bucket
+  refillRatePerSec: number;      // Tokens refilled per second
+  minCooldownMs: number;         // Minimum time between consecutive external calls
+  maxOutputTokens: number;       // Bound on model output tokens
+  cacheTTLMs: number;            // In-memory query memoization lifetime
+  quotaFloorPercent: number;     // Halt when remaining quota is under this percentage
+}
+
+export const STRENGTH_POLICIES: Record<"Light" | "Medium" | "Heavy", RateLimitPolicy> = {
+  Light: {
+    capacity: 4,
+    refillRatePerSec: 4 / 60,       // 4 calls/min
+    minCooldownMs: 15000,           // 15 seconds cooldown between API hits
+    maxOutputTokens: 80,
+    cacheTTLMs: 300000,             // 5 minutes caching
+    quotaFloorPercent: 10           // Cease at 10% remaining to guarantee no overruns
+  },
+  Medium: {
+    capacity: 12,
+    refillRatePerSec: 12 / 60,      // 12 calls/min
+    minCooldownMs: 5000,            // 5 seconds cooldown
+    maxOutputTokens: 150,
+    cacheTTLMs: 120000,             // 2 minutes caching
+    quotaFloorPercent: 5            // Cease at 5% remaining
+  },
+  Heavy: {
+    capacity: 25,
+    refillRatePerSec: 25 / 60,      // 25 calls/min
+    minCooldownMs: 2000,            // 2 seconds cooldown
+    maxOutputTokens: 300,
+    cacheTTLMs: 30000,              // 30 seconds caching
+    quotaFloorPercent: 2            // Cease at 2% remaining
+  }
+};
+
+export class TokenBucketRateLimiter {
+  private tokens: number;
+  private lastRefillTime: number;
+  private lastRequestTime: number;
+  private currentStrength: "Light" | "Medium" | "Heavy";
+
+  constructor(initialStrength: "Light" | "Medium" | "Heavy" = "Light") {
+    this.currentStrength = initialStrength;
+    const policy = STRENGTH_POLICIES[initialStrength];
+    this.tokens = policy.capacity;
+    this.lastRefillTime = Date.now();
+    this.lastRequestTime = 0;
+  }
+
+  public setStrength(strength: "Light" | "Medium" | "Heavy"): void {
+    this.currentStrength = strength;
+    const policy = STRENGTH_POLICIES[strength];
+    this.tokens = Math.min(this.tokens, policy.capacity);
+    console.log(`[Quota Protection] AI Strength switched to ${strength} (Capacity: ${policy.capacity}, Cooldown: ${policy.minCooldownMs}ms, MaxTokens: ${policy.maxOutputTokens}).`);
+  }
+
+  public getPolicy(): RateLimitPolicy {
+    return STRENGTH_POLICIES[this.currentStrength];
+  }
+
+  public getStrength(): "Light" | "Medium" | "Heavy" {
+    return this.currentStrength;
+  }
+
+  public tryConsume(): { allowed: boolean; reason?: string; waitSec?: number } {
+    const now = Date.now();
+    const policy = STRENGTH_POLICIES[this.currentStrength];
+
+    // Check minimum cooldown
+    const elapsedSinceLast = now - this.lastRequestTime;
+    if (elapsedSinceLast < policy.minCooldownMs) {
+      const waitSec = Math.ceil((policy.minCooldownMs - elapsedSinceLast) / 1000);
+      return { allowed: false, reason: `Throttled by ${this.currentStrength} Cooldown`, waitSec };
+    }
+
+    // Refill tokens
+    const elapsedSinceRefillSec = (now - this.lastRefillTime) / 1000;
+    this.tokens = Math.min(policy.capacity, this.tokens + elapsedSinceRefillSec * policy.refillRatePerSec);
+    this.lastRefillTime = now;
+
+    if (this.tokens < 1.0) {
+      const waitSec = Math.ceil((1.0 - this.tokens) / policy.refillRatePerSec);
+      return { allowed: false, reason: "Token Bucket Depleted", waitSec };
+    }
+
+    this.tokens -= 1.0;
+    this.lastRequestTime = now;
+    return { allowed: true };
+  }
+
+  public getStatus() {
+    const policy = STRENGTH_POLICIES[this.currentStrength];
+    return {
+      strength: this.currentStrength,
+      availableTokens: Number(this.tokens.toFixed(2)),
+      capacity: policy.capacity,
+      cooldownMs: policy.minCooldownMs,
+      maxOutputTokens: policy.maxOutputTokens,
+      quotaFloorPercent: policy.quotaFloorPercent
+    };
+  }
+}
+
 class GeminiManager {
   private ai: any = null;
   private config: GeminiConfig | null = null;
@@ -157,6 +261,8 @@ class GeminiManager {
   private readonly MAX_QUOTA = 1000; // Refined precise quota for scientific tracking
   private listeners: (() => void)[] = [];
   private cachedManifest: SystemFetchManifest | null = null;
+  private rateLimiter: TokenBucketRateLimiter = new TokenBucketRateLimiter("Light");
+  private memoizationCache: Map<string, { result: any; timestamp: number }> = new Map();
 
   /**
    * Subscribes to quota / usage changes.
@@ -195,6 +301,7 @@ class GeminiManager {
       this.config = {
         ...config,
         tier,
+        strength: config.strength || "Light",
         smartMP3: isPaid ? config.smartMP3 : false,
         visualsMode: defaultVisualsMode,
         ttsVoice: config.ttsVoice || "Kore",
@@ -215,6 +322,8 @@ class GeminiManager {
         youtubeEnabled: config.youtubeEnabled ?? false
       };
 
+      this.rateLimiter.setStrength(this.config.strength);
+
       if (config.apiKey) {
         // Initialize cleanly for browser client-side execution without restricted headers
         this.ai = new GoogleGenAI({ 
@@ -225,7 +334,7 @@ class GeminiManager {
         this.refreshSystemManifest();
       }
       
-      console.log(`Gemini Subsystem: Scientific Refinement Initialized (${tier} Tier, Model: ${this.config.selectedModel}, Visuals Mode: ${defaultVisualsMode}, TTS Voice: ${this.config.ttsVoice}).`);
+      console.log(`Gemini Subsystem: Scientific Refinement Initialized (${tier} Tier, Model: ${this.config.selectedModel}, Strength: ${this.config.strength}, Visuals Mode: ${defaultVisualsMode}, TTS Voice: ${this.config.ttsVoice}).`);
       this.notifyListeners();
       return true;
     } catch (error) {
@@ -241,9 +350,22 @@ class GeminiManager {
   public async generateSpeech(text: string): Promise<string | null> {
     if (!this.ai || !this.config?.apiKey || !this.config.cloudTTS) return null;
 
+    // Check Quota Ceiling and Rate Limiter
+    const quota = this.getQuotaStatus();
+    const policy = this.rateLimiter.getPolicy();
+    if (quota.percent <= policy.quotaFloorPercent || quota.current <= 0) {
+      console.warn(`[Quota Protection] Hard ceiling active (${quota.percent}%). Speech generation paused.`);
+      return null;
+    }
+
+    const consumption = this.rateLimiter.tryConsume();
+    if (!consumption.allowed) {
+      console.warn(`[Quota Protection] Speech generation rate limited (${consumption.reason}).`);
+      return null;
+    }
+
     try {
       const voice = this.config.ttsVoice || "Kore";
-      // Prefer lite model for speed unless user specifically chose the flagship
       const model = this.config.selectedModel?.includes("tts") 
         ? this.config.selectedModel 
         : "gemini-3.8-flash-lite-tts";
@@ -286,6 +408,28 @@ class GeminiManager {
       return `[Offline Mode] You are riding securely through the sanctuary. (Prompt received: "${prompt}")`;
     }
 
+    const quota = this.getQuotaStatus();
+    const policy = this.rateLimiter.getPolicy();
+
+    // Protection 1: Hard Quota Ceiling
+    if (quota.percent <= policy.quotaFloorPercent || quota.current <= 0) {
+      return `[Quota Shield Active: Quota is below ${policy.quotaFloorPercent}%. External network requests paused to protect your key.]`;
+    }
+
+    // Protection 2: Deterministic Memoization Cache (0 tokens burnt for repeated prompts)
+    const cacheKey = `askLive:${prompt.trim()}:${context.trim()}`;
+    const cached = this.memoizationCache.get(cacheKey);
+    if (cached && (Date.now() - cached.timestamp) < policy.cacheTTLMs) {
+      console.log(`[Quota Protection] Memoized response returned for prompt (0 tokens consumed).`);
+      return cached.result;
+    }
+
+    // Protection 3: Token Bucket Rate Limiter
+    const consumption = this.rateLimiter.tryConsume();
+    if (!consumption.allowed) {
+      return `[Rate Limit Shield: ${consumption.reason}. Please wait ${consumption.waitSec}s to prevent quota spikes.]`;
+    }
+
     try {
       this.incrementQuota();
       const model = this.config.selectedModel || "gemini-flash-latest";
@@ -306,13 +450,15 @@ class GeminiManager {
         config: {
           systemInstruction,
           temperature: 0.7,
-          maxOutputTokens: 150
+          maxOutputTokens: policy.maxOutputTokens
         }
       });
 
       const answer = response.text || response.candidates?.[0]?.content?.parts?.[0]?.text;
       if (answer) {
-        return answer.trim();
+        const cleanAnswer = answer.trim();
+        this.memoizationCache.set(cacheKey, { result: cleanAnswer, timestamp: Date.now() });
+        return cleanAnswer;
       }
       return "The sanctuary winds whisper softly, but the connection was brief. Please try speaking again.";
     } catch (error: any) {
@@ -711,6 +857,18 @@ Respond strictly with a JSON object:
     }
     console.log(`Gemini Tier set to: ${tier}`);
     this.notifyListeners();
+  }
+
+  public setStrength(strength: "Light" | "Medium" | "Heavy") {
+    if (this.config) {
+      this.config.strength = strength;
+    }
+    this.rateLimiter.setStrength(strength);
+    this.notifyListeners();
+  }
+
+  public getRateLimiterStatus() {
+    return this.rateLimiter.getStatus();
   }
 
   public recordUsage(inputTokens: number = 120, outputTokens: number = 80) {

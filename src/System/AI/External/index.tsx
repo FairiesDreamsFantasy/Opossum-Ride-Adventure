@@ -733,16 +733,21 @@ export const ExternalAIModal: React.FC<ExternalAIModalProps> = ({ onClose }) => 
                 <h3 className="text-xs font-bold uppercase text-green-500 border-b border-green-900 pb-1">Adjustable Settings</h3>
                 <div className="space-y-2 text-[10px]">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="ai_strength">AI Strength:</label>
+                    <label htmlFor="ai_strength" className="text-green-300 font-semibold">AI Strength & Quota Shield:</label>
                     <select 
                       id="ai_strength"
                       value={strength}
-                      onChange={(e) => setStrength(e.target.value as any)}
-                      className="bg-black border border-green-800 rounded px-1 text-white"
+                      onChange={(e) => {
+                        const val = e.target.value as "Light" | "Medium" | "Heavy";
+                        setStrength(val);
+                        GeminiSystem.setStrength(val);
+                        playProceduralSound("tick");
+                      }}
+                      className="bg-black border border-green-700 rounded px-2 py-1 text-green-200 text-[10px] focus:outline-none focus:border-green-400"
                     >
-                      <option value="Light">Light</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Heavy">Heavy</option>
+                      <option value="Light">Light (Zero-Spike Safe / 15s Cooldown)</option>
+                      <option value="Medium">Medium (Balanced / 5s Cooldown)</option>
+                      <option value="Heavy">Heavy (Full Power / 2s Cooldown)</option>
                     </select>
                   </div>
                   <div className="flex items-center justify-between">
