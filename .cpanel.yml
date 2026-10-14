@@ -1,0 +1,15 @@
+---
+deployment:
+  tasks:
+    # 1. Direct deployment path for cPanel Git Controller
+    - export DEPLOYPATH=/home/fairiesd/public_html/Arcade/Opossum_Ride_Adventure
+    
+    # 2. Ensure target deployment directory exists
+    - /bin/mkdir -p $DEPLOYPATH
+    
+    # 3. Synchronize compiled production game build files
+    - /bin/cp -rf dist/* $DEPLOYPATH/
+    - /bin/cp -rf dist/.htaccess $DEPLOYPATH/ 2>/dev/null || true
+    
+    # 4. Set appropriate permissions for web server reading
+    - /bin/chmod -R 755 $DEPLOYPATH
