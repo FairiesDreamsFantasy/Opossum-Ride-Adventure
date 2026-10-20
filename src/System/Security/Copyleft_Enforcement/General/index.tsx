@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export interface CopyleftPlatformCheckResult {
+  export interface CopyleftPlatformCheckResult {
   isCompliant: boolean;
-  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "NINTENDO_SWITCH_DRM_CARTRIDGE" | "UNKNOWN";
+  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "NINTENDO_SWITCH_DRM_CARTRIDGE" | "SERVER_SIDE_DRM" | "UNKNOWN";
   detectedSignature?: string;
   enforcementMessage?: string;
   canRideOpossum?: boolean;
@@ -23,6 +23,10 @@ export const COPYLEFT_MESSAGES = {
   // Downloaded Digital Copy with DRM / unauthorized packaging
   DIGITAL_DOWNLOAD_DRM:
     "Unfortunately, you must've got the wrong copy of this game. Please visit our website to play our game that is 'DRM-Free', or find a home brew network where this game is available. You can always report a problem with this copy.",
+
+  // Server-Side DRM & Remote Cloud License Wall
+  SERVER_SIDE_DRM:
+    "Warning: This game appears to be modified to rely on unauthorized server-side DRM or remote cloud license verification by a disgruntled website owner or third party. In accordance with the GNU GPL v3 and our core philosophy, Opossum Ride Adventure is strictly DRM-Free and operates entirely offline and locally without cloud telemetry, accounts, or remote auth walls. Please visit arcade.fairiesdreamsfantasy.com/Opossum_Ride_Adventure/ to play the authentic, DRM-Free version.",
 
   // Closed Proprietary Console Wrapper
   CLOSED_CONSOLE_DRM:
@@ -92,6 +96,24 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
       platformType: "DIGITAL_DOWNLOAD_DRM",
       detectedSignature: "Digital Download Unauthorized DRM Wrapper",
       enforcementMessage: COPYLEFT_MESSAGES.DIGITAL_DOWNLOAD_DRM
+    };
+  }
+
+  // Server-Side DRM & Remote Cloud License Wall Detection
+  const hasServerSideDRM = 
+    !!win.__SERVER_DRM__ ||
+    !!win.__CLOUD_LICENSE_SERVER__ ||
+    !!win.__REMOTE_AUTH_WALL__ ||
+    !!win.__LICENSE_GATE__ ||
+    href.includes("license_check=true") ||
+    href.includes("cloud_drm=active");
+
+  if (hasServerSideDRM) {
+    return {
+      isCompliant: false,
+      platformType: "SERVER_SIDE_DRM",
+      detectedSignature: "Unauthorized Server-Side DRM / Remote License Wall",
+      enforcementMessage: COPYLEFT_MESSAGES.SERVER_SIDE_DRM
     };
   }
 
