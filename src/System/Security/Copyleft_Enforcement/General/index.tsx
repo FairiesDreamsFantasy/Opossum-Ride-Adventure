@@ -167,10 +167,51 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
   };
 }
 
+export const PIRATED_SWITCH_CARTRIDGE_CONFIG = {
+  // 1. Shrunk Opossum Dimensions
+  largeJillShoulderHeightInches: 24, // 24 inches high for scale for large Jills
+  jackShoulderHeightInches: 12,      // 12 inches short for Jack opossums
+  
+  // 2. Character & Perspective
+  lockedCharacter: "George",
+  forcedViewMode: "POV",
+  canRideOpossums: false,
+  walkAlongsideOnly: true,
+
+  // 3. Mount Humiliation
+  mountType: "Donkey (Christianity / Babylonian Mount)",
+  arenaType: "Babylonian Arenas",
+
+  // 4. Environment & Manor Degradation
+  manorScale: "Normal size rooms and normal size path",
+  flooringType: "Khaki and gray striped flooring",
+  wallColor: "#FFFFFF", // White walls
+  hasTeaRoom: false,
+  diningArea: "Babylonian Dining Area",
+  doors: "Swinging wooden household doors",
+  porchScale: "Normal porch",
+  porchFigures: "Small figures of opossums on west of door at 5 feet away",
+  skyStyle: "DAYTIME", // Day time sky, not typical night time sky design
+
+  // 5. UI Restrictions
+  allowScreenshots: false,
+  showAccessibilityMenu: false,
+  showViewMenu: false,
+  showDedicatedHUD: false, // Dedicated HUD is not included, only visual HUD via canvas
+  menuAdjustedToSize: true
+};
+
+export function isPiratedSwitchCartridge(): boolean {
+  const result = evaluateCopyleftCompliance();
+  return result.platformType === "NINTENDO_SWITCH_DRM_CARTRIDGE";
+}
+
 export const CopyleftEnforcementGeneral = {
-  version: "1.1.0",
+  version: "1.2.0",
   standard: "GNU GPL v3 Section 6 Anti-Tivoization Hard Enforcement",
   evaluate: evaluateCopyleftCompliance,
+  isPiratedSwitchCartridge,
+  piratedSwitchConfig: PIRATED_SWITCH_CARTRIDGE_CONFIG,
   messages: COPYLEFT_MESSAGES,
   defaultEnforcementMessage: COPYLEFT_MESSAGES.CLOSED_CONSOLE_DRM
 };

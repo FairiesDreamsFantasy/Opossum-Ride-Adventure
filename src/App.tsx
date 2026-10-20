@@ -49,11 +49,14 @@ export const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.LANDING);
 
   // Character Configuration State
+  const isPiratedCart = copyleftResult.platformType === "NINTENDO_SWITCH_DRM_CARTRIDGE";
+  const georgeRider = RIDER_CHARACTERS.find(r => r.id === "george") || RIDER_CHARACTERS[0];
+
   const [selectedOpossum, setSelectedOpossum] = useState<OpossumCharacter>(
     OPOSSUM_CHARACTERS[0]
   );
   const [selectedRider, setSelectedRider] = useState<RiderCharacter>(
-    FAIRY_RIDER || RIDER_CHARACTERS[0]
+    isPiratedCart ? georgeRider : (FAIRY_RIDER || RIDER_CHARACTERS[0])
   );
 
   // Gameplay & Accessibility Preferences
@@ -128,6 +131,28 @@ export const App: React.FC = () => {
         );
 
       case GameState.RIDER_SELECTION:
+        if (isPiratedCart) {
+          // Pirated Nintendo Switch cart limits character to George as POV only
+          return (
+            <div className="min-h-screen bg-black text-amber-300 flex flex-col items-center justify-center p-6 text-center font-mono">
+              <div className="max-w-md w-full border border-amber-600 bg-zinc-950 p-6 rounded-lg space-y-4">
+                <h2 className="text-lg font-bold uppercase text-amber-400">Locked Character: George (POV Mode)</h2>
+                <p className="text-xs text-zinc-300">
+                  Physical Nintendo Switch DRM Cartridge detected. Character selection is restricted to George as POV only.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedRider(georgeRider);
+                    setGameState(GameState.SELECTION);
+                  }}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-black font-bold uppercase rounded cursor-pointer text-xs"
+                >
+                  Proceed with George
+                </button>
+              </div>
+            </div>
+          );
+        }
         return (
           <RiderSelection
             onSelectRider={(rider) => {
@@ -141,12 +166,12 @@ export const App: React.FC = () => {
       case GameState.SELECTION:
         return (
           <OpossumSelection
-            selectedRider={selectedRider}
+            selectedRider={isPiratedCart ? georgeRider : selectedRider}
             onSelectOpossum={(opossum) => {
               setSelectedOpossum(opossum);
               setGameState(GameState.INTERSTITIAL);
             }}
-            onBack={() => setGameState(GameState.RIDER_SELECTION)}
+            onBack={() => setGameState(isPiratedCart ? GameState.LANDING : GameState.RIDER_SELECTION)}
           />
         );
 
@@ -162,7 +187,7 @@ export const App: React.FC = () => {
         return (
           <PlayArea
             selectedOpossum={selectedOpossum}
-            defaultRider={selectedRider}
+            defaultRider={isPiratedCart ? georgeRider : selectedRider}
             onExitGame={() => setGameState(GameState.LANDING)}
             layout={layout}
             setLayout={setLayout}
@@ -184,8 +209,8 @@ export const App: React.FC = () => {
             setAnnounceMooseSmash={setAnnounceMooseSmash}
             musicEnabled={musicEnabled}
             setMusicEnabled={setMusicEnabled}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
+            viewMode={isPiratedCart ? GameViewMode.POV : viewMode}
+            setViewMode={isPiratedCart ? () => {} : setViewMode}
             pixelation={pixelation}
             setPixelation={setPixelation}
             palette={palette}
