@@ -25,29 +25,35 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
   const userAgent = (navigator.userAgent || "").toLowerCase();
   const win = window as any;
 
-  // 1. Detection of closed Nintendo Switch proprietary browser/webview wrappers
-  const isNintendoClosed = 
-    userAgent.includes("nintendo switch") || 
-    userAgent.includes("nintendobrowser") ||
+  // 1. Detection of closed Nintendo Switch native app/store wrappers & proprietary SDK shims
+  const isNintendoNativeWrapper = 
     !!win.Nintendo || 
-    !!win.nx;
+    !!win.nx || 
+    !!win.webkit?.messageHandlers?.nintendo ||
+    (userAgent.includes("nintendo switch") && !userAgent.includes("mozilla"));
 
-  // 2. Detection of closed Sony PlayStation proprietary wrappers
-  const isPlayStationClosed = 
-    userAgent.includes("playstation") || 
-    userAgent.includes("playstation 4") || 
-    userAgent.includes("playstation 5") ||
+  // 2. Detection of closed Sony PlayStation native store app wrappers & SDK shims
+  const isPlayStationNativeWrapper = 
     !!win.PlayStation ||
-    !!win.psn;
+    !!win.psn ||
+    !!win.webkit?.messageHandlers?.playstation ||
+    (userAgent.includes("playstation") && !userAgent.includes("mozilla"));
 
-  // 3. Detection of closed Microsoft Xbox proprietary app wrappers
-  const isXboxClosed = 
-    userAgent.includes("xbox") || 
-    userAgent.includes("xbox one") || 
-    userAgent.includes("xbox series") ||
-    !!win.Xbox;
+  // 3. Detection of closed Microsoft Xbox native store app wrappers & UWP DRM containers
+  const isXboxNativeWrapper = 
+    !!win.Xbox ||
+    !!win.Windows?.Xbox ||
+    userAgent.includes("ms-appx") ||
+    userAgent.includes("packagedapp");
 
-  // 4. Verify legitimate open homebrew devices (Linux-based retro handhelds, custom kernels)
+  // 4. Detection of unauthorized binary wrapping frameworks (attempting to turn open web into closed binaries)
+  const isClosedBinaryWrapper = 
+    !!win.electron || 
+    !!win.__TAURI__ || 
+    !!win.cordova || 
+    !!win.Capacitor;
+
+  // 5. Verify legitimate open homebrew devices (Linux-based retro handhelds, custom kernels)
   const isHomebrew = 
     userAgent.includes("homebrew") || 
     userAgent.includes("retroarch") ||
@@ -62,9 +68,16 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
     };
   }
 
-  // Hard enforcement trip if a closed corporate DRM console wrapper is identified
-  if (isNintendoClosed || isPlayStationClosed || isXboxClosed) {
-    const signature = isNintendoClosed ? "Nintendo Closed DRM" : isPlayStationClosed ? "PlayStation Closed DRM" : "Xbox Closed DRM";
+  // Hard enforcement trip ONLY if an unauthorized closed DRM wrapper / store container is detected
+  if (isNintendoNativeWrapper || isPlayStationNativeWrapper || isXboxNativeWrapper || isClosedBinaryWrapper) {
+    const signature = isNintendoNativeWrapper
+      ? "Nintendo Native DRM Wrapper"
+      : isPlayStationNativeWrapper
+      ? "PlayStation Native DRM Wrapper"
+      : isXboxNativeWrapper
+      ? "Xbox Native DRM Container"
+      : "Closed Binary Wrapper DRM";
+
     return {
       isCompliant: false,
       platformType: "CLOSED_PROPRIETARY_DRM_CONSOLE",
@@ -73,7 +86,7 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
     };
   }
 
-  // Standard open web browser on PC (Linux, Windows, macOS, BSD)
+  // Permitted: Standard open web browsers on PC (Linux, Windows, macOS, BSD) or open console browsers (e.g. Edge on Xbox)
   return {
     isCompliant: true,
     platformType: "PC_OPEN_BROWSER"
