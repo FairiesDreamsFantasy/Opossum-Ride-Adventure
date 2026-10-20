@@ -29,9 +29,20 @@ import { evaluateCopyleftCompliance, CopyleftEnforcementNotice } from "./System/
 
 export const App: React.FC = () => {
   // Hard Copyleft Platform Verification (Anti-Tivoization & DRM Lockout Guard)
-  const copyleftResult = evaluateCopyleftCompliance();
+  const [copyleftResult] = useState(() => evaluateCopyleftCompliance());
+  const [switchCartAcknowledged, setSwitchCartAcknowledged] = useState(false);
+
   if (!copyleftResult.isCompliant) {
-    return <CopyleftEnforcementNotice result={copyleftResult} />;
+    if (copyleftResult.platformType === "NINTENDO_SWITCH_DRM_CARTRIDGE" && !switchCartAcknowledged) {
+      return (
+        <CopyleftEnforcementNotice 
+          result={copyleftResult} 
+          onAcknowledge={() => setSwitchCartAcknowledged(true)}
+        />
+      );
+    } else if (copyleftResult.platformType !== "NINTENDO_SWITCH_DRM_CARTRIDGE") {
+      return <CopyleftEnforcementNotice result={copyleftResult} />;
+    }
   }
 
   // Navigation & Flow State

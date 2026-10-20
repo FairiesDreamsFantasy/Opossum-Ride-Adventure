@@ -5,12 +5,17 @@
 
 export interface CopyleftPlatformCheckResult {
   isCompliant: boolean;
-  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "UNKNOWN";
+  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "NINTENDO_SWITCH_DRM_CARTRIDGE" | "UNKNOWN";
   detectedSignature?: string;
   enforcementMessage?: string;
+  canRideOpossum?: boolean;
 }
 
 export const COPYLEFT_MESSAGES = {
+  // Nintendo Switch Physical Cartridge with DRM
+  NINTENDO_SWITCH_DRM_CARTRIDGE:
+    "DRM-infected cart ahead! This game appears to be illegally distributed to this platform, and violated the GPL and software freedom. This game may be playable, but you won't able to ride our crafted opossums, but only walk alongside them via POV. Please use a home brew device, DRM-Free cartridge, or visit arcade.fairiesdreamsfantasy.com/Opossum_Ride_Adventure/ to play our game for free. We don't permit distribution of our games to walled gardens. If you are a legitimate developer who has used home brew tools to distribute this game via physical media, please ensure your physical media like your cartridge is DRM-Free for the best experience. Thank you!!",
+
   // Physical Optical Disc with DRM
   PHYSICAL_OPTICAL_DISC_DRM:
     "Warning: This game appears to be compromized by DRM implemented by a disgruntled developer or company. If you somehow got this disc that violates copy left, you should always report a problem with proper professionals available in your area. This is an unauthorized DRM-Enabled copy of this material.",
@@ -90,7 +95,22 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
     };
   }
 
-  // 3. Detection of closed Nintendo Switch native app/store wrappers & proprietary SDK shims
+  // 3. Detection of Nintendo Switch Physical Cartridge with DRM
+  const isSwitchCartridgeEnvironment =
+    (userAgent.includes("nintendo switch") || !!win.Nintendo || !!win.nx || !!win.__NINTENDO_CARTRIDGE__) &&
+    (href.includes("/switch_cart") || href.includes("/gamecard") || !!win.__SWITCH_CARTRIDGE_DRM__ || !!win.__NX_CARD_ROM__ || userAgent.includes("lotcheck"));
+
+  if (isSwitchCartridgeEnvironment) {
+    return {
+      isCompliant: false,
+      platformType: "NINTENDO_SWITCH_DRM_CARTRIDGE",
+      detectedSignature: "Nintendo Switch Physical DRM Cartridge",
+      enforcementMessage: COPYLEFT_MESSAGES.NINTENDO_SWITCH_DRM_CARTRIDGE,
+      canRideOpossum: false
+    };
+  }
+
+  // 4. Detection of closed Nintendo Switch native app/store wrappers & proprietary SDK shims
   const isNintendoNativeWrapper = 
     !!win.Nintendo || 
     !!win.nx || 
