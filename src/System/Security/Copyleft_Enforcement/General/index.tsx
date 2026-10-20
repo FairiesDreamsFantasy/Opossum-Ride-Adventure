@@ -13,7 +13,7 @@ export interface CopyleftPlatformCheckResult {
 export const COPYLEFT_MESSAGES = {
   // Physical Optical Disc with DRM
   PHYSICAL_OPTICAL_DISC_DRM:
-    "Warning: This game appears to be comprommized by DRM implemented by a disgruntled developer or company. If you somehow got this disc that violates copy left, you should always report a problem with proper professionals available in your area. This is an unauthorized DRM-Enabled copy of this material.",
+    "Warning: This game appears to be compromized by DRM implemented by a disgruntled developer or company. If you somehow got this disc that violates copy left, you should always report a problem with proper professionals available in your area. This is an unauthorized DRM-Enabled copy of this material.",
   
   // Downloaded Digital Copy with DRM / unauthorized packaging
   DIGITAL_DOWNLOAD_DRM:
