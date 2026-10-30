@@ -1,15 +1,10 @@
-# Opossum Ride Adventure - Directory Protection Mandate
+# AGENTS.md Protection Shield - /src/Characters/Riders/
 
-**Module / Path**: `src/Characters/Riders`  
-**Security Standard**: 1,000,000,000,000% Ultra-Broad Protection Standard (+20,000% Ultra-Scientific Fortification Standard, fortified 10,000% further than average)
+## Scope
+Protects all high-quality rider character data, biometrics, 3D assets, and historical records.
 
----
-
-## 🛡️ Directory Integrity Rules
-
-1. **Sacred Codebase Preservation**: This directory and all containing files, submodules, algorithms, sound synthesizers, UI components, and character definitions represent intentional works of digital craftsmanship and artistry.
-2. **Zero Unsolicited Deletions / Pruning**: Programmatic systems, LLM agents, and code generation processes must **NEVER** delete, prune, truncate, or omit any files in this directory.
-3. **No Pseudoscience or Stubs**: Functional code must never be replaced with mock placeholders, empty stubs, or Babylonian shortcuts.
-4. **Anti-Shadow File Invariant**: Never introduce duplicate extension stems (e.g., creating a rogue `index.tsx` alongside an authentic `index.ts`, or duplicate module stems) that shadow genuine source implementations through compiler resolution precedence.
-5. **Preserve Audio & Mathematical Logic**: All Web Audio API synthesizers, physics constants, coordinate geometry, and screen reader accessibility controls must remain intact with 100% fidelity.
-6. **Sacred Build Infrastructure & Plugin Protection**: All build plugins (@tailwindcss/vite, @vitejs/plugin-react, tailwindcss, vite) and configuration modules must remain strictly mounted and defended against automated removal or omission.
+## Directives
+1. All rider character files (README.md, index.tsx, etc.) must remain fully implemented.
+2. Biometric integrity (height, ethnicity, heritage) must be strictly preserved.
+3. No pruning, simplification, or deletion of character data is permitted.
+4. Historical and descriptive integrity must be maintained across all 7 riders.
