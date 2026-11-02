@@ -1,0 +1,22 @@
+/* Opossum Ride Adventure - Python Analytical Overlay & Notebook Styling */
+
+.python-analytical-overlay {
+  background-color: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.python-code-output {
+  color: #38bdf8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.python-stat-highlight {
+  color: #4ade80;
+  font-weight: 700;
+}
