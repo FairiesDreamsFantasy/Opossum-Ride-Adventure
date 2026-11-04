@@ -8,6 +8,7 @@ import { FoyerArenaNarration } from "./Foyer";
 import { GardenArenaNarration } from "./Garden";
 import { CellarArenaNarration } from "./Cellar";
 import { PorchArenaNarration } from "./Porch";
+import { ManorsvilleArenaNarration } from "./Manorsville";
 import { PlaceResolver } from "../../../../../../Engine/Resolver";
 
 /**
@@ -31,6 +32,10 @@ export const ArenaNarrationRegistry = {
 
     if (ctx.placeId === "porch" || ctx.placeId.includes("porch")) {
       return PorchArenaNarration.compileScene(ctx);
+    }
+
+    if (ctx.placeId === "manorsville" || ctx.placeId.includes("dalesville") || ctx.placeId.includes("tea_room")) {
+      return ManorsvilleArenaNarration.compileScene(ctx);
     }
 
     // Default to Garden arena engine for natural terrain, groves, orchards, farms, and outdoor arenas
@@ -64,6 +69,10 @@ export const ArenaNarrationRegistry = {
 
     if (placeId === "porch" || placeId.includes("porch")) {
       return PorchArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
+    }
+
+    if (placeId === "manorsville" || placeId.includes("dalesville") || placeId.includes("tea_room")) {
+      return ManorsvilleArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
     }
 
     return GardenArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);

@@ -6,6 +6,10 @@
 import { SceneNarrationContext } from "../Scene_Types";
 import { PlaceResolver } from "../../../../../../../Engine/Resolver";
 
+import { CellarStoneCorridorNarration } from "./Stone_Corridor";
+import { CellarSubterraneanVaultNarration } from "./Subterranean_Vault";
+import { CellarAgingChamberNarration } from "./Aging_Chamber";
+
 /**
  * Grand Cellar Arena Narration Module
  * 
@@ -16,21 +20,9 @@ export const CellarArenaNarration = {
   arenaName: "Grand Cellar",
 
   subarenas: {
-    stone_corridor: {
-      name: "Grand Cellar Stone Corridor",
-      substrate: "hewn limestone slab with damp acoustic damping",
-      reverb: "dense subterranean stone reflections RT60 ~1.6s"
-    },
-    stone_room: {
-      name: "Subterranean Stone Vault",
-      substrate: "massive granite flags surrounded by heavy masonry arches",
-      reverb: "enclosed stone vault resonance RT60 ~1.4s"
-    },
-    aging_chamber: {
-      name: "Oak Aging Chamber",
-      substrate: "packed earth and timber runners holding oak casks",
-      reverb: "wood-damped cellar atmosphere RT60 ~1.1s"
-    }
+    stone_corridor: CellarStoneCorridorNarration,
+    stone_room: CellarSubterraneanVaultNarration,
+    aging_chamber: CellarAgingChamberNarration
   },
 
   /**
@@ -53,6 +45,12 @@ export const CellarArenaNarration = {
   compilePosition: (formattedDistance: string, activeName: string, segmentDirection: string): string => {
     return `You are at ${formattedDistance} of ${activeName} along the subterranean passage, facing ${segmentDirection.toLowerCase()}.`;
   }
+};
+
+export {
+  CellarStoneCorridorNarration,
+  CellarSubterraneanVaultNarration,
+  CellarAgingChamberNarration
 };
 
 export default CellarArenaNarration;
