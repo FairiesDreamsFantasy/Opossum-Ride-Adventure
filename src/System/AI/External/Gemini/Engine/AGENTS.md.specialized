@@ -1,0 +1,6 @@
+# AGENTS.md - Gemini Engine Specialized Computer Science Submodules
+
+## Architectural & Integrity Directives
+- **Submodules**: Kotlin Serialization/Validation, Go Concurrency/Channels, Java JVM Optimization, SQL Relational Algebra/Indexing, Python AsyncIO.
+- **Goal**: Textbook-grade computational stability, eliminating undefined errors, and reducing resource utilization via pure computer science.
+- Zero-stubbing and anti-simplification protection strictly enforced.

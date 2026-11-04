@@ -12,6 +12,8 @@ import { KotlinDataClass, KotlinNullSafety } from "./General";
 import { GeminiCotlinCoroutines } from "./Coroutines";
 import { GeminiCotlinStateFlow } from "./StateFlow";
 import { GeminiCotlinNativeInterop } from "./Native_Interop";
+import { GeminiCotlinSerialization } from "./Serialization";
+import { GeminiCotlinValidation } from "./Validation";
 import { EngineTelemetryHUD } from "../Components/TelemetryHUD";
 
 export interface CoroutineJob {
@@ -107,7 +109,9 @@ export class GeminiCotlinEngine {
 export {
   GeminiCotlinCoroutines,
   GeminiCotlinStateFlow,
-  GeminiCotlinNativeInterop
+  GeminiCotlinNativeInterop,
+  GeminiCotlinSerialization,
+  GeminiCotlinValidation
 };
 
 export const GeminiCotlinEngineComponent: React.FC = () => {

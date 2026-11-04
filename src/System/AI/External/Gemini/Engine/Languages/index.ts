@@ -9,6 +9,10 @@ import { GeminiCSharpEngineBridge } from "./CSharp";
 import { GeminiAssemblyEngineBridge } from "./Assembly";
 import { GeminiWebAssemblyEngineBridge } from "./WebAssembly";
 import { GeminiPythonEngineBridge } from "./Python";
+import { GeminiGOEngine } from "../GO";
+import { GeminiJavaEngine } from "../Java";
+import { GeminiSQLEngine } from "../SQL";
+import { GeminiCotlinEngine } from "../Cotlin";
 
 export const GeminiPolyglotEngineLanguages = {
   C: GeminiCEngineBridge,
@@ -16,7 +20,11 @@ export const GeminiPolyglotEngineLanguages = {
   CSharp: GeminiCSharpEngineBridge,
   Assembly: GeminiAssemblyEngineBridge,
   WebAssembly: GeminiWebAssemblyEngineBridge,
-  Python: GeminiPythonEngineBridge
+  Python: GeminiPythonEngineBridge,
+  GO: GeminiGOEngine,
+  Java: GeminiJavaEngine,
+  SQL: GeminiSQLEngine,
+  Cotlin: GeminiCotlinEngine
 };
 
 export {
@@ -25,7 +33,11 @@ export {
   GeminiCSharpEngineBridge,
   GeminiAssemblyEngineBridge,
   GeminiWebAssemblyEngineBridge,
-  GeminiPythonEngineBridge
+  GeminiPythonEngineBridge,
+  GeminiGOEngine,
+  GeminiJavaEngine,
+  GeminiSQLEngine,
+  GeminiCotlinEngine
 };
 
 export default GeminiPolyglotEngineLanguages;
