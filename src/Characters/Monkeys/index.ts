@@ -35,3 +35,6 @@ export * from "./Animations";
 export { ColtGrayCharacter, ColtMonkeyCharacter } from "./Colt_Gray";
 export { JaredAndrewsCharacter, JaredMonkeyCharacter } from "./Jared_Andrews";
 export { KendraCurtisCharacter } from "./Kendra_Curtis";
+
+export { MonkeyBrachiationKernelCPP } from "./C_Plus_Plus";
+export { MonkeyOpponentLockRust } from "./Rust";

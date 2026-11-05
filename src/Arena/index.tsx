@@ -256,4 +256,10 @@ export const INITIAL_PLACES: Record<string, PlaceDefinition> = {
 
 export * from "./Index";
 
+export { ArenaAcousticsKernelCPP } from "./C_Plus_Plus";
+export { ArenaBufferPoolRust } from "./Rust";
+export { ArenaTransitionStateMachine_CSharp, ArenaTransitionFSM_CSharpInstance } from "./C_Sharp";
+export { ArenaTerrainModelerPython } from "./Python";
+export { ArenaGroundRaycastWASM } from "./Web_Assembly";
+
 
