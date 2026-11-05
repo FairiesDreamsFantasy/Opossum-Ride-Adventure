@@ -23,3 +23,11 @@ export * from "./Moose_and_Monkeys_Not_Included_In_the_Garden";
 export * from "./General";
 export * from "./Engine";
 export * from "./Drift_Guard";
+
+import { GeminiInGameAIRustPath } from "./Rust";
+import { GeminiInGameAIPythonLogic } from "./Python";
+
+export {
+  GeminiInGameAIRustPath,
+  GeminiInGameAIPythonLogic
+};

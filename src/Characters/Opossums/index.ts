@@ -77,6 +77,9 @@ export {
   IsaacOpossum
 };
 
+export { OpossumBiometricKernelCPP } from "./C_Plus_Plus";
+export { OpossumStateGuardRust } from "./Rust";
+
 export const OPOSSUM_CHARACTERS: OpossumCharacter[] = [
   {
     id: OpossumId.MELISSA,

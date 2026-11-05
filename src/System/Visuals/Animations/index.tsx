@@ -4,6 +4,9 @@
  */
 
 import { GOLDEN_RATIO, ANIMATION_TIMINGS, SPRING_PRESETS } from "./General";
+import { GeminiVisualsCPPSIMD } from "./C_Plus_Plus";
+import { GeminiVisualsRustBuffer } from "./Rust";
+import { GeminiVisualsPythonOptimizer } from "./Python";
 
 /**
  * High-Precision Scientific Visual Animation Mathematics
@@ -69,7 +72,16 @@ export const VisualAnimationsEngine = {
     GOLDEN_RATIO,
     ANIMATION_TIMINGS,
     SPRING_PRESETS
-  }
+  },
+  C_Plus_Plus: GeminiVisualsCPPSIMD,
+  Rust: GeminiVisualsRustBuffer,
+  Python: GeminiVisualsPythonOptimizer
+};
+
+export {
+  GeminiVisualsCPPSIMD,
+  GeminiVisualsRustBuffer,
+  GeminiVisualsPythonOptimizer
 };
 
 export * from "./General";

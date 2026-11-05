@@ -57,6 +57,8 @@ import { SFX_Master_Volume_Control_Logic } from "./SFX/Master_Volume_Control";
 import { TTS_Panner_Logic } from "./TTS/Panner";
 import { TTS_DSP_Logic } from "./TTS/DSP";
 import { TTS_Master_Volume_Control_Logic } from "./TTS/Master_Volume_Control";
+import { GeminiSoundCPPDSP } from "./C_Plus_Plus";
+import { GeminiSoundRustBuffer } from "./Rust";
 
 /**
  * Master Procedural Sound System v4.0
@@ -825,3 +827,8 @@ export class ProceduralSoundSystem {
 
 export * from "./General";
 export * from "./Engine";
+
+export {
+  GeminiSoundCPPDSP,
+  GeminiSoundRustBuffer
+};

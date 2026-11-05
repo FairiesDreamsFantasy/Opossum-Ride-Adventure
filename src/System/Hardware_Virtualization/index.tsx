@@ -94,3 +94,6 @@ export class VirtualHardwareController {
     return `Virtual Hypervisor Subsystem v2.0.0; Threads: ${this.cachedMetrics.activeVirtualCores}; Safe Virtualization Pipeline Active`;
   }
 }
+
+export { HardwareResourceGovernorCPP } from "./C_Plus_Plus";
+export { HardwareOSBridgeCSharp } from "./C_Sharp";

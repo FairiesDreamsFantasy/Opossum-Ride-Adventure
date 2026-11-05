@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ArenaNarrationRegistry } from "../../../In-Game/Category/Accessibility/Narration/Arena/Registry";
+import { ArenaNarrationRegistry } from "../../../../../In-Game/Category/Accessibility/Narration/Arena";
 import { GeminiArenaGenerativeNarrationRegistry } from "./Arena";
 
 export const GeminiHybridNarrationRouter = {

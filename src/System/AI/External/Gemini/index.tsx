@@ -49,6 +49,8 @@ import { GeminiGcp } from "./GCP";
 import { GeminiToolboxMenu } from "./Components/Menus";
 import { GeminiMaps } from "./Maps";
 import { FeralPigManager, FeralPigEntity } from "../../../../Characters/Pigs/Feral";
+import { GeminiExternalPythonValidator } from "./Python";
+import { GeminiExternalGOOrchestrator } from "./GO";
 
 export * from "./Security";
 export * from "./Safety";
@@ -999,6 +1001,8 @@ Respond strictly with a JSON object:
   public readonly Live = GeminiLive;
   public readonly GCP = GeminiGcp;
   public readonly Maps = GeminiMaps;
+  public readonly PythonValidator = GeminiExternalPythonValidator;
+  public readonly GOOrchestrator = GeminiExternalGOOrchestrator;
 }
 
 export const GeminiSystem = new GeminiManager();

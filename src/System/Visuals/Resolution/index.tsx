@@ -1,4 +1,6 @@
 import React from "react";
+import { GeminiVisualsCPPResolution } from "./C_Plus_Plus";
+import { GeminiVisualsRustResLock } from "./Rust";
 
 /**
  * Resolution System Module
@@ -40,7 +42,14 @@ export const ResolutionSystem = {
    */
   calculateDiagonalPixels: (width: number, height: number): number => {
     return Math.hypot(width, height);
-  }
+  },
+  C_Plus_Plus: GeminiVisualsCPPResolution,
+  Rust: GeminiVisualsRustResLock
+};
+
+export {
+  GeminiVisualsCPPResolution,
+  GeminiVisualsRustResLock
 };
 
 export const ResolutionLayer: React.FC<{ children: React.ReactNode }> = ({ children }) => {

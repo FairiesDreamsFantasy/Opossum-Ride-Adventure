@@ -264,3 +264,6 @@ if (typeof window !== "undefined") {
     }
   });
 }
+
+export { TTSPhonemeKernelCPP } from "./C_Plus_Plus";
+export { TTSWasmBufferRouter } from "./Web_Assembly";

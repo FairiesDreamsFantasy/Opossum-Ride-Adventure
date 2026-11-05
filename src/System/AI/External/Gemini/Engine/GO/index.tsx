@@ -90,6 +90,8 @@ export class GeminiGoEngine {
 
 export { GeminiGOConcurrency, GeminiGOChannels };
 
+export const GeminiGOEngine = GeminiGoEngine;
+
 export const GeminiGoEngineComponent: React.FC = () => {
   return null;
 };

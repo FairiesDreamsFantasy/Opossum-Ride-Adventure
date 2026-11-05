@@ -31,7 +31,7 @@ export class PhysicsWasmBridge {
     this.isInitializing = true;
 
     try {
-      if (typeof window !== 'undefined' && window.fetch) {
+      if (typeof window !== 'undefined' && typeof window.fetch === 'function') {
         const response = await fetch('/Assets/Web_Assembly/index.wasm');
         if (response.ok) {
           const bytes = await response.arrayBuffer();

@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { GeminiBlocksCPPMesh } from "./C_Plus_Plus";
+
 export * from "./Bridges";
 export * from "./Buildings";
 export * from "./Flyover";
@@ -17,3 +19,7 @@ export * from "./Road";
 export * from "./Tunnels";
 export * from "./World";
 // Add other blocks as they are refined
+
+export {
+  GeminiBlocksCPPMesh
+};

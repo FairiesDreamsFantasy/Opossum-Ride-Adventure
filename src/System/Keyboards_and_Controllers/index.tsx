@@ -13,8 +13,16 @@ export const Keyboards_and_ControllersRegistry = {
   timestamp: "2026-07-07T13:16:02.915Z"
 };
 
+import { GeminiInputCSharpInterop } from "./C_Sharp";
+import { GeminiInputRustPolling } from "./Rust";
+
 export * from "./Engine";
 export * from "./General";
 export * from "./Touchscreen";
 export * from "./Device_Detection";
+
+export {
+  GeminiInputCSharpInterop,
+  GeminiInputRustPolling
+};
 
