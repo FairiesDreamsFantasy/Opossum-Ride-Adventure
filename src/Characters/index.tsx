@@ -18,3 +18,9 @@ export * from "./Owls";
 export * from "./Sheep";
 export * from "./Pigs";
 export * from "./General";
+
+export { FaunaBoidsKernelCPP } from "./C_Plus_Plus";
+export { FaunaMemoryPoolRust } from "./Rust";
+export { FaunaBehaviorFSM_CSharp } from "./C_Sharp";
+export { FaunaPopulationModelerPython } from "./Python";
+export { FaunaSpatialProximityWASM } from "./Web_Assembly";
