@@ -21,3 +21,5 @@ export const ItemsRegistry = {
   timestamp: new Date().toISOString()
 };
 
+export { ItemsCollisionTreeCPP } from "./C_Plus_Plus";
+

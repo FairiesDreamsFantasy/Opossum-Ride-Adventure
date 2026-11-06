@@ -264,3 +264,5 @@ export class HighPrecisionEngineSimulator {
     return { forceDrag, frictionCoefficient };
   }
 }
+
+export { EngineKinematicsKernelCPP } from "./C_Plus_Plus";

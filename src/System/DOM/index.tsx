@@ -37,3 +37,5 @@ export const DOMEngine = {
     });
   },
 };
+
+export { DOMEventDebouncerWASM } from "./Web_Assembly";

@@ -6,3 +6,5 @@
 export * from "./persistence";
 export * from "./Drawing_Utils";
 export * from "./General";
+
+export { UtilitiesFnvHashRust } from "./Rust";

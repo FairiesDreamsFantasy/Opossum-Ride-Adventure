@@ -29,3 +29,5 @@ export const SystemMaintenance = {
     engineStatus: MaintenanceEngine.getState().engineStatus
   })
 };
+
+export { MaintenanceMemorySentinelRust } from "./Rust";

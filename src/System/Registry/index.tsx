@@ -62,3 +62,5 @@ export const SystemRegistry = {
 
 export { MathematicsRegistry };
 
+export { SystemRegistryContractCSharp } from "./C_Sharp";
+

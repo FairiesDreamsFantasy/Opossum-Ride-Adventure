@@ -31,3 +31,6 @@ export const SystemAccessibility = {
   announce: (text: string, context?: "OPOSSUM_SELECTION" | "INTERSTITIAL_AD" | "GAMEPLAY_STATUS" | "USER_COMMAND") =>
     ScreenReader.announceText(text, context)
 };
+
+export { AccessibilitySpeechQueueCPP } from "./C_Plus_Plus";
+export { AccessibilityAriaSynchronizerWASM } from "./Web_Assembly";

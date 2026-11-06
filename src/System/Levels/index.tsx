@@ -22,3 +22,5 @@ export const SystemLevels = {
   getParallax: (scrollX: number, layer: number) => SystemLevelEngine.calculateParallaxOffset(scrollX, layer),
   getDayCycle: (elapsed: number) => SystemLevelEngine.calculateDayNightCyclePercentage(elapsed)
 };
+
+export { LevelsGraphSolverCPP } from "./C_Plus_Plus";

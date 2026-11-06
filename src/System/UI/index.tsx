@@ -6,3 +6,5 @@ export * from "./Ads";
 export * from "./Booting";
 export * from "./Learn_Game_Sounds";
 
+export { UiDrawCallBatcherCSharp } from "./C_Sharp";
+

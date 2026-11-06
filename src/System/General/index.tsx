@@ -40,3 +40,5 @@ export const OpossumRideAdventureSystemRegistry = {
   version: "1.0.0",
   audit: runSystemCoherenceAudit
 };
+
+export { GeneralHarmonicKernelCPP } from "./C_Plus_Plus";
