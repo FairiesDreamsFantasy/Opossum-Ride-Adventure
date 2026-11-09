@@ -133,6 +133,8 @@ export interface ModelOption {
 
 export const AVAILABLE_GEMINI_MODELS: ModelOption[] = [
   { id: "gemini-flash-latest", name: "Gemini Flash Latest", description: "Default ultra-fast next-generation reasoning, multimodal speed & 5000% scientific procedural generation", tierRequirement: "Free" },
+  { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", description: "Standard multimodal speed & procedural level generation", tierRequirement: "Free" },
+  { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", description: "Advanced complex spatial geometry & high-precision STEM reasoning", tierRequirement: "Free" },
   { id: "gemini-3.1-flash-lite", name: "Gemini 3.1 Flash Lite", description: "Ultra-low latency micro-inferences & fast state updates", tierRequirement: "Free" },
   { id: "gemini-3.8-flash", name: "Gemini 3.8 Flash", description: "High-precision STEM reasoning & atmospheric physics simulation", tierRequirement: "Free" },
   { id: "gemini-3.8-flash-lite-tts", name: "Gemini 3.8 Flash Lite TTS", description: "High-efficiency, low-latency, cost-optimized audio generation", tierRequirement: "Free" },
