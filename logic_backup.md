@@ -3,9 +3,9 @@
 **Game Title:** Opossum Ride Adventure  
 **License:** GNU General Public License v3 (GPL v3) & Creative Commons Attribution-ShareAlike 4.0 (CC-BY-SA-4.0)  
 **Authorship & Sovereignty:** Fairies Dreams & Fantasy  
-**Version:** 0.1.0.7.8  
+**Version:** 0.1.0.7.9  
 **Branch Targets:** WorkspaceSync / Stable / Staging / System-Characters-Opossums-Protection-Shield / System-Sound-SFX-Opossum-Chatter-Shield / System-AI-InGame-Stabilization-Shield  
-**Milestone Release:** v0.1.0.7.8 - 19 Sacred Female Opossums Anti-Clicking Chatter DSP Upgrade & Character Protection Safeguards  
+**Milestone Release:** v0.1.0.7.9 - 24 Sacred Female Opossums Expansion (32 Total) & 8 Riders Master Standardization
 
 ---
 

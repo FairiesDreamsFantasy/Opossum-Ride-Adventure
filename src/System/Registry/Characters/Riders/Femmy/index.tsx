@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { FEMMY_GENERAL } from "../../../../../Characters/Riders/Femmy/General";
-import { FEMMY_DESCRIPTION } from "../../../../../Characters/Riders/Femmy/Description";
+import { FemmyRiderGeneralRegistry } from "./General";
+import { FEMMY_REGISTRY_POV } from "./POV";
 
 export const FemmyRiderRegistry = {
   id: "femmy",
@@ -18,8 +18,9 @@ export const FemmyRiderRegistry = {
   outfit: "Beige onesie with black horizontal stripes and rainbow circles",
   shoes: "Flat yellow shoes",
   category: "advocate",
-  General: FEMMY_GENERAL,
-  Description: FEMMY_DESCRIPTION
+  General: FemmyRiderGeneralRegistry,
+  POV: FEMMY_REGISTRY_POV
 };
 
+export { FemmyRiderGeneralRegistry, FEMMY_REGISTRY_POV };
 export default FemmyRiderRegistry;

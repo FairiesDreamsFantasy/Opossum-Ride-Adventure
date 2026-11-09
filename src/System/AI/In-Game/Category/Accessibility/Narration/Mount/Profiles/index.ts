@@ -22,6 +22,11 @@ import { SandraNarration } from "./Sandra";
 import { DaisyRoseNarration } from "./Daisy_Rose";
 import { CallieRoseNarration } from "./Callie_Rose";
 import { StaceyJasminNarration } from "./Stacey_Jasmin";
+import { DaleJasmineNarration } from "./Dale_Jasmine";
+import { QiJasmineNarration } from "./Qi_Jasmine";
+import { JamieJasmineNarration } from "./Jamie_Jasmine";
+import { JacintaOpossumNarration } from "./Jacinta_Opossum";
+import { CamrynOpossumNarration } from "./Camryn_Opossum";
 
 // Compact Crafted Opossum Profiles (Isolated in Compact/ subdirectory)
 import {
@@ -55,6 +60,11 @@ export {
   DaisyRoseNarration,
   CallieRoseNarration,
   StaceyJasminNarration,
+  DaleJasmineNarration,
+  QiJasmineNarration,
+  JamieJasmineNarration,
+  JacintaOpossumNarration,
+  CamrynOpossumNarration,
 
   // Compact Profiles
   DrakeKoneReynoldsNarration,

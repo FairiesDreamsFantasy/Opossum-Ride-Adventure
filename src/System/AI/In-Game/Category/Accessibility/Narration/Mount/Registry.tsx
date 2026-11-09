@@ -47,6 +47,11 @@ export const NarrationRegistry = {
       case OpossumId.SAFFORD_CHIN: return Profiles.SaffordChinNarration.compileRidden(op);
       case OpossumId.IVAN_OPOSSUM: return Profiles.IvanOpossumNarration.compileRidden(op);
       case OpossumId.ISAAC_OPOSSUM: return Profiles.IsaacOpossumNarration.compileRidden(op);
+      case OpossumId.DALE_JASMINE: return Profiles.DaleJasmineNarration.compileRidden(op);
+      case OpossumId.QI_JASMINE: return Profiles.QiJasmineNarration.compileRidden(op);
+      case OpossumId.JAMIE_JASMINE: return Profiles.JamieJasmineNarration.compileRidden(op);
+      case OpossumId.JACINTA_OPOSSUM: return Profiles.JacintaOpossumNarration.compileRidden(op);
+      case OpossumId.CAMRYN_OPOSSUM: return Profiles.CamrynOpossumNarration.compileRidden(op);
       
       default:
         // Dynamic fallback for AI-generated or unknown steeds (un-diluted standard)
@@ -88,6 +93,11 @@ export const NarrationRegistry = {
       case OpossumId.SAFFORD_CHIN: return Profiles.SaffordChinNarration.compileSelection(op);
       case OpossumId.IVAN_OPOSSUM: return Profiles.IvanOpossumNarration.compileSelection(op);
       case OpossumId.ISAAC_OPOSSUM: return Profiles.IsaacOpossumNarration.compileSelection(op);
+      case OpossumId.DALE_JASMINE: return Profiles.DaleJasmineNarration.compileSelection(op);
+      case OpossumId.QI_JASMINE: return Profiles.QiJasmineNarration.compileSelection(op);
+      case OpossumId.JAMIE_JASMINE: return Profiles.JamieJasmineNarration.compileSelection(op);
+      case OpossumId.JACINTA_OPOSSUM: return Profiles.JacintaOpossumNarration.compileSelection(op);
+      case OpossumId.CAMRYN_OPOSSUM: return Profiles.CamrynOpossumNarration.compileSelection(op);
       
       default:
         // Dynamic fallback for AI-generated or unknown steeds (un-diluted standard)
