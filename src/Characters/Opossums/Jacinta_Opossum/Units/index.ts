@@ -3,27 +3,70 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { JACINTA_OPOSSUM_DIMENSIONS } from "../Description/Dimensions";
+import { JACINTA_OPOSSUM_MORPHOMETRICS, MorphometricProfile } from "./Unit_I_Morphometrics";
+import { JACINTA_OPOSSUM_KINEMATIC_CONSTANTS, evaluateJacintaGaitState, calculateFroudeNumber, integrateSuspensionRK4 } from "./Unit_II_Kinematics";
+import { JACINTA_OPOSSUM_ACOUSTICS, AcousticVocalProfile, calculateBiquadBandpassCoefficients, evaluateChirpFrequency } from "./Unit_III_Acoustics";
+import { evaluateCubicBezier2D, evaluateCubicBezierDerivative, calculateBezierCurvature, getJacintaTailControlPoints } from "./Unit_IV_Geometry";
+import { JACINTA_OPOSSUM_LORE, LoreProfile } from "./Unit_V_Lore_Ecosystem";
 
-export const JACINTA_OPOSSUM_UNITS = {
-  morphometrics: {
-    shoulderHeightInches: JACINTA_OPOSSUM_DIMENSIONS.shoulderHeightInches,
-    shoulderHeightFormatted: JACINTA_OPOSSUM_DIMENSIONS.shoulderHeight,
-    bodyLengthInches: JACINTA_OPOSSUM_DIMENSIONS.length,
-    bodyWidthInches: JACINTA_OPOSSUM_DIMENSIONS.width,
-    headWidthInches: JACINTA_OPOSSUM_DIMENSIONS.headWidth,
-    headHeightInches: JACINTA_OPOSSUM_DIMENSIONS.headHeight,
-    furryFace: false
+export interface JacintaOpossumUnitsPackage {
+  UnitI_Morphometrics: MorphometricProfile;
+  UnitII_Kinematics: {
+    constants: typeof JACINTA_OPOSSUM_KINEMATIC_CONSTANTS;
+    evaluateGait: typeof evaluateJacintaGaitState;
+    froudeNumber: typeof calculateFroudeNumber;
+    suspensionRK4: typeof integrateSuspensionRK4;
+  };
+  UnitIII_Acoustics: {
+    profile: AcousticVocalProfile;
+    biquadCoefficients: typeof calculateBiquadBandpassCoefficients;
+    chirpEvaluator: typeof evaluateChirpFrequency;
+  };
+  UnitIV_Geometry: {
+    evaluateSpline: typeof evaluateCubicBezier2D;
+    splineDerivative: typeof evaluateCubicBezierDerivative;
+    curvature: typeof calculateBezierCurvature;
+    tailControlPoints: typeof getJacintaTailControlPoints;
+  };
+  UnitV_Lore: LoreProfile;
+}
+
+export const JACINTA_OPOSSUM_UNITS: JacintaOpossumUnitsPackage = {
+  UnitI_Morphometrics: JACINTA_OPOSSUM_MORPHOMETRICS,
+  UnitII_Kinematics: {
+    constants: JACINTA_OPOSSUM_KINEMATIC_CONSTANTS,
+    evaluateGait: evaluateJacintaGaitState,
+    froudeNumber: calculateFroudeNumber,
+    suspensionRK4: integrateSuspensionRK4
   },
-  kinematics: {
-    baseGaitFrequency: 1.82,
-    strideLengthMeters: 1.42
+  UnitIII_Acoustics: {
+    profile: JACINTA_OPOSSUM_ACOUSTICS,
+    biquadCoefficients: calculateBiquadBandpassCoefficients,
+    chirpEvaluator: evaluateChirpFrequency
   },
-  acoustics: {
-    startFrequency: 1313.000000000000,
-    endFrequency: 454.500000000000,
-    offsetVsMelissaPercent: 1.0
-  }
+  UnitIV_Geometry: {
+    evaluateSpline: evaluateCubicBezier2D,
+    splineDerivative: evaluateCubicBezierDerivative,
+    curvature: calculateBezierCurvature,
+    tailControlPoints: getJacintaTailControlPoints
+  },
+  UnitV_Lore: JACINTA_OPOSSUM_LORE
+};
+
+export {
+  JACINTA_OPOSSUM_MORPHOMETRICS,
+  JACINTA_OPOSSUM_KINEMATIC_CONSTANTS,
+  evaluateJacintaGaitState,
+  calculateFroudeNumber,
+  integrateSuspensionRK4,
+  JACINTA_OPOSSUM_ACOUSTICS,
+  calculateBiquadBandpassCoefficients,
+  evaluateChirpFrequency,
+  evaluateCubicBezier2D,
+  evaluateCubicBezierDerivative,
+  calculateBezierCurvature,
+  getJacintaTailControlPoints,
+  JACINTA_OPOSSUM_LORE
 };
 
 export default JACINTA_OPOSSUM_UNITS;
