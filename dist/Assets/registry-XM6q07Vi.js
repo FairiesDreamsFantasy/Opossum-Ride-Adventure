@@ -1091,7 +1091,7 @@ Today, she is a poacher hunter because, most of her family has joined the milita
  */const K2={skin:"#5C3826"};/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
- */const J2={id:"femmy",name:"Femmy",skinColor:K2.skin,ethnicity:"Black",gender:"female",hair:"red hair",outfit:"beige onesie with black horizontal stripes and rainbow circles",shoes:"flat yellow shoes",height:"3 feet and 11 inches",heritage:"Babylon-Free, Rastafari",category:"advocate"};/**
+ */const J2={id:"femmy",name:"Femmy",skinColor:K2.skin,ethnicity:"Black",gender:"female",hair:"red hair",outfit:"beige onesie with black horizontal stripes and rainbow circles",shoes:"flat yellow shoes",height:"3 feet and 11 inches",heritage:"Babylon-Free, Rastafari",category:"primary"};/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */const _D=[H2,z2,W2,q2,j2,U2,$2,J2];/**

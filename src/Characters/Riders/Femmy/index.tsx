@@ -20,7 +20,7 @@ export const FEMMY: RiderCharacter = {
   shoes: "flat yellow shoes",
   height: "3 feet and 11 inches",
   heritage: "Babylon-Free, Rastafari",
-  category: "advocate"
+  category: "primary"
 };
 
 export { FEMMY_COLORS, FemmyPOV, FEMMY_POV, FEMMY_DESCRIPTION, FEMMY_GENERAL };

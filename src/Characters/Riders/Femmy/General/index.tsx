@@ -15,7 +15,7 @@ export const FEMMY_GENERAL = {
   eyeColor: "Green",
   outfit: "Beige onesie with black horizontal stripes (0.8cm thick borders) and 2-inch rainbow circles",
   shoes: "Flat yellow shoes",
-  category: "circus_actress_and_advocate",
+  category: "primary",
   babylonFree: true
 };
 

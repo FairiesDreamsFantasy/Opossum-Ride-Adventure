@@ -9,7 +9,7 @@ export const FemmyRiderGeneralRegistry = {
   ...FEMMY_GENERAL,
   isBabylonFree: true,
   faith: "Rastafarian",
-  category: "advocate"
+  category: "primary"
 };
 
 export default FemmyRiderGeneralRegistry;
