@@ -11,4 +11,5 @@ export * from "./George_Blake";
 export * from "./Angela_Blake";
 export * from "./Sean_White";
 export * from "./Shannon_White";
+export * from "./Femmy";
 export * from "./Index";

@@ -54,12 +54,31 @@
    - Vocation: Amusement park opossum ride operator providing safe rides for idren, dwarfs, and small riders
    - Lore: Born into the Rose passel, developed lactose intolerance growth restrictions (2'5" at age 8, maturing at 3'10.1"). Embraces Japanese culture, anime, writing, gaming, and farming.
 
-### Jasmin Passel
+### Jasmine Passel
 1. **Stacey Jasmin (Jill - Crafted)**
    - Shoulder Height: 5 feet, 8.999 inches | Length: 95.9988 inches (7.9999 feet) | Width: 38.5 inches
    - Fur: Purple base coat with yellow saddle (beagle pattern, 35% thicker fur) | Skin: Tan with yellowish undertone (0% furry face coverage)
    - Tail: Dark-pink | Ears: Upright purple with dark-pink inner lining | Eyes: Indigo | Nose: Dark-pink (no nostrils)
    - Accessories: White gold tiara with circular yellow moon gem
+2. **Dale Jasmine (Jill - Crafted)**
+   - Shoulder Height: 5 feet and 7.123 inches | Body Length (excl head & tail): 7.1234 inches | Width: 38.88 inches
+   - Head Width: 37.77 inches | Head Height: 44.88 inches | Fur: Lavender base with green 3.777-inch roses spaced by 3.001 inches
+   - Skin: Peach (0% furry face) | Nose: Pink (no nostrils) | Tail: Pink (20% longer for scale) | Paws: White, pink pads
+   - Ears: Lavender solid upright (medium-long), pink inner | Eyes: Light-Green | Accessories: Gold diamond necklace with 12.5-inch horizontal diamond charm
+   - Chatter Pitch: +0.008% higher than Stacey Jasmin (1278.6822864 Hz -> 442.6154064 Hz)
+   - Sistren of Stacey; Triplet of Qi & Jamie; Lunar Leadership; Food Safety Advocate; Rastafari only; Primary White.
+3. **Qi Jasmine (Jill - Crafted)**
+   - Shoulder Height: 5 feet and 7.123 inches | Body Length: 7.1234 inches | Width: 38.88 inches | Head Width: 37.77 inches | Head Height: 44.88 inches
+   - Fur: Blue base with green 4.8-inch diameter circles spaced by 1.88 inches | Skin: Peach (0% furry face) | Nose: Pink (no nostrils) | Tail: Pink
+   - Paws: Yellow, pink pads | Ears: Blue upright, pink inner | Eyes: Light-Blue | Accessories: Silver diamond necklace with 11.5-inch circular diamond charm
+   - Chatter Pitch: +0.002% higher than Dale Jasmine (1278.7078600 Hz -> 442.6242587 Hz)
+   - Sistren of Stacey; Triplet of Dale & Jamie; Lunar Leadership; Anti-Poaching Tech Specialist; Rastafari only; Primary White.
+4. **Jamie Jasmine (Jill - Crafted)**
+   - Shoulder Height: 5 feet and 7.123 inches | Body Length: 7.1234 inches | Width: 38.88 inches | Head Width: 37.77 inches | Head Height: 44.88 inches
+   - Fur: Solid Silver | Skin: Tan (0% furry face) | Nose: Red-Orange (no nostrils) | Tail: Red-Orange (20% longer for scale)
+   - Paws: Gold, red-orange pads | Ears: Silver upright (long), red-orange inner | Eyes: Indigo
+   - Chatter Pitch: +0.008% higher than Qi Jasmine (1278.8101567 Hz -> 442.6596686 Hz)
+   - Sistren of Stacey; Triplet of Dale & Qi; Weather Scientist & Anti-Poaching Decoy; Rastafari only; Primary White.
 
 ### Kone-Reynolds Family
 1. **Dagmar Kone-Reynolds (Jill)**: 5' 8.5" shoulder height, white with multi-colored diamond pattern.
@@ -84,12 +103,16 @@
 4. **A** - Arnold Rose
 5. **M** - Melvin Qin
 6. **S** - Safford Chin
+7. **Ivan Opossum**
+8. **Isaac Opossum**
 
-### Other Crafted Opossums
+### Other Crafted Opossums (Opossum Passel)
 - **Melissa (Jill)**: 5' 3" shoulder height, light gray.
 - **Ashley (Jill)**: 5' 3" shoulder height, yellow.
 - **Wanda (Jill)**: 5' 2.9999" shoulder height, light amber, indigo eyes.
 - **Sandra (Jill)**: 5' 3" shoulder height, lavender.
+- **Jacinta Opossum (Jill - Crafted)**: 5' 3" shoulder height, 86" length, 36" width, solid red coat, red outer ears, pink inner ears, red-orange nose (no nostrils), peach skin, dark-green eyes, white paws with red-orange pads. Twin sistren of Camryn, in-law of Melissa & Ashley. Gardener, scientist & poacher hunter. Chatter pitch +1.0% above Melissa (1313.0 Hz -> 454.5 Hz).
+- **Camryn Opossum (Jill - Crafted)**: 5' 3" shoulder height, 86" length, 36" width, solid light green coat, light-green outer ears, pink inner ears, pink nose (no nostrils), olive-undertone tan skin, blue eyes, gold paws with pink pads. Twin sistren of Jacinta, in-law of Melissa & Ashley. Scientist, gardener & poacher hunter. Chatter pitch +1.5% above Jacinta (1332.695 Hz -> 461.3175 Hz).
 
 ---
 
@@ -259,3 +282,42 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
   - Registered `{ label: "When Babylon Falls", id: "when_babylon_falls" }` in the active track selection list.
 - **Sound Engine Mapping (`src/System/Sound/index.tsx`)**:
   - Dispatches `playWhenBabylonFalls(ctx, dest)` on both `"babylon"` and `"when_babylon_falls"` track identifiers.
+
+---
+
+## 13. Roster Expansion: 24 Large Crafted Jills (32 Total Opossums) & 8 Riders Master Specification
+- **Sacred Jill Fleet Expansion (24 Large Crafted Jills)**:
+  1. Melissa (`melissa`)
+  2. Ashley (`ashley`)
+  3. Amara Qin (`amara_qin`)
+  4. Saffron Rose (`saffron_rose`)
+  5. Jalissa Chin (`jalissa_chin`)
+  6. Arden-Rosie Kone-Reynolds (`arden_rosie`)
+  7. Jahmella Rose (`jahmella_rose`)
+  8. Dagmar Kone-Reynolds (`dagmar_kone_reynolds`)
+  9. Agape Rose (`agape_rose`)
+  10. Roxanne Kone-Reynolds (`roxanne_kone_reynolds`)
+  11. Tiana Qin (`tiana_qin`)
+  12. Wanda Opossum (`wanda`)
+  13. Olivia Chin (`olivia_chin`)
+  14. Ruth Kone-Reynolds (`ruth_kone_reynolds`)
+  15. Kady Rose (`kady_rose`)
+  16. Sandra Opossum (`sandra`)
+  17. Daisy Rose (`daisy_rose`)
+  18. Callie Rose (`callie_rose`)
+  19. Stacey Jasmin (`stacey_jasmin`)
+  20. Dale Jasmine (`dale_jasmine`) - Lavender with green roses, $5\text{ ft } 7.123\text{ in}$ shoulder, $7.1234\text{ in}$ length, gold diamond necklace, food safety advocate, smooth nose (no nostrils).
+  21. Qi Jasmine (`qi_jasmine`) - Blue with green circles, $5\text{ ft } 7.123\text{ in}$ shoulder, $7.1234\text{ in}$ length, silver diamond necklace, anti-poaching tech, smooth nose (no nostrils).
+  22. Jamie Jasmine (`jamie_jasmine`) - Solid silver, $5\text{ ft } 7.123\text{ in}$ shoulder, $7.1234\text{ in}$ length, weather scientist decoy, smooth nose (no nostrils).
+  23. Jacinta Opossum (`jacinta_opossum`) - Solid red, $5\text{ ft } 3\text{ in}$ shoulder, $86\text{ in}$ length, twin of Camryn, gardener/scientist/poacher hunter, smooth nose (no nostrils).
+  24. Camryn Opossum (`camryn_opossum`) - Light green, $5\text{ ft } 3\text{ in}$ shoulder, $86\text{ in}$ length, olive-undertone tan skin, gold paws, twin of Jacinta, smooth nose (no nostrils).
+- **8 Packed Riders Master Roster**:
+  1. Fairy-Rider (`fairy-rider`)
+  2. Mary (`mary`)
+  3. Edward (`edward`)
+  4. George Blake (`george`)
+  5. Angela Blake (`angela`)
+  6. Sean White (`sean`)
+  7. Shannon White (`shannon`)
+  8. Femmy (`femmy`) - $3\text{ ft } 11\text{ in}$ height, Black ethnicity, dark-brown skin, red hair, green eyes, modest Rastafari beige onesie with black horizontal stripes and rainbow circles, flat yellow shoes. Circus actress, awareness advocate, poacher hunter hardware technician.
+- **Master Equilibrium**: 24 Jills + 8 Compact Jacks = 32 Total Opossums; 8 Packed Riders.

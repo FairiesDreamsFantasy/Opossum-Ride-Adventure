@@ -293,6 +293,56 @@ export const OPOSSUM_CHATTER_PITCH_VARIABLES: Record<OpossumId, ChatterPitchVari
     duration: 0.04,
     maxVolume: 0.20,
     waveform: "sawtooth"
+  },
+  [OpossumId.DALE_JASMINE]: {
+    pitchOffsetRatio: -0.036422920000,
+    startFreq: 1278.682286400000,
+    endFreq: 442.615406400000,
+    chirpCount: 6,
+    spacing: 0.08,
+    duration: 0.04,
+    maxVolume: 0.20,
+    waveform: "sawtooth"
+  },
+  [OpossumId.QI_JASMINE]: {
+    pitchOffsetRatio: -0.036402920000,
+    startFreq: 1278.707860045728,
+    endFreq: 442.624258708128,
+    chirpCount: 6,
+    spacing: 0.08,
+    duration: 0.04,
+    maxVolume: 0.20,
+    waveform: "sawtooth"
+  },
+  [OpossumId.JAMIE_JASMINE]: {
+    pitchOffsetRatio: -0.036322920000,
+    startFreq: 1278.810156674532,
+    endFreq: 442.659668648825,
+    chirpCount: 6,
+    spacing: 0.08,
+    duration: 0.04,
+    maxVolume: 0.20,
+    waveform: "sawtooth"
+  },
+  [OpossumId.JACINTA_OPOSSUM]: {
+    pitchOffsetRatio: 0.010000000000,
+    startFreq: 1313.000000000000,
+    endFreq: 454.500000000000,
+    chirpCount: 6,
+    spacing: 0.08,
+    duration: 0.04,
+    maxVolume: 0.20,
+    waveform: "sawtooth"
+  },
+  [OpossumId.CAMRYN_OPOSSUM]: {
+    pitchOffsetRatio: 0.025150000000,
+    startFreq: 1332.695000000000,
+    endFreq: 461.317500000000,
+    chirpCount: 6,
+    spacing: 0.08,
+    duration: 0.04,
+    maxVolume: 0.20,
+    waveform: "sawtooth"
   }
 };
 

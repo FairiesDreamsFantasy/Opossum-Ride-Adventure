@@ -10,6 +10,7 @@ import { GEORGE_BLAKE, GEORGE } from "./George_Blake";
 import { ANGELA_BLAKE, ANGELA } from "./Angela_Blake";
 import { SEAN_WHITE, SEAN } from "./Sean_White";
 import { SHANNON_WHITE, SHANNON } from "./Shannon_White";
+import { FEMMY } from "./Femmy";
 
 /**
  * Registry of all available Rider characters.
@@ -21,7 +22,8 @@ export const RIDER_CHARACTERS = [
   GEORGE_BLAKE,
   ANGELA_BLAKE,
   SEAN_WHITE,
-  SHANNON_WHITE
+  SHANNON_WHITE,
+  FEMMY
 ];
 
 export {
@@ -32,6 +34,7 @@ export {
   ANGELA_BLAKE,
   SEAN_WHITE,
   SHANNON_WHITE,
+  FEMMY,
   // Aliases for seamless legacy reference
   GEORGE,
   ANGELA,

@@ -158,6 +158,31 @@ export const OpossumChatterConfigs: Record<OpossumId, OpossumChatterConfig> = {
     pitchOffsetRatio: -0.043000000000,
     startFreq: 1152.000000000000,
     endFreq: 381.000000000000
+  },
+  [OpossumId.DALE_JASMINE]: {
+    pitchOffsetRatio: -0.036422920000,
+    startFreq: 1278.682286400000,
+    endFreq: 442.615406400000
+  },
+  [OpossumId.QI_JASMINE]: {
+    pitchOffsetRatio: -0.036402920000,
+    startFreq: 1278.707860045728,
+    endFreq: 442.624258708128
+  },
+  [OpossumId.JAMIE_JASMINE]: {
+    pitchOffsetRatio: -0.036322920000,
+    startFreq: 1278.810156674532,
+    endFreq: 442.659668648825
+  },
+  [OpossumId.JACINTA_OPOSSUM]: {
+    pitchOffsetRatio: 0.010000000000,
+    startFreq: 1313.000000000000,
+    endFreq: 454.500000000000
+  },
+  [OpossumId.CAMRYN_OPOSSUM]: {
+    pitchOffsetRatio: 0.025150000000,
+    startFreq: 1332.695000000000,
+    endFreq: 461.317500000000
   }
 };
 

@@ -146,6 +146,22 @@ To protect the standardization of the accessibility system, the following mandat
 *   **TypeScript Bridge (`PhysicsWasmBridge`)**: Located in `/src/System/Engine/Science/Physics/Web_Assembly/index.ts`, providing asynchronous loading of `/Assets/Web_Assembly/index.wasm` with native TypeScript fallback computations for 100% zero-failure reliability.
 *   **Asset Synchronization**: Integrated with `sync-build-assets.js` to ensure clean delivery to `dist/Assets/C/` and `dist/Assets/Web_Assembly/` across all production builds.
 
+---
+
+### 11. Expansion to 24 Sacred Large Jills (32 Total Opossums) & 8 Riders Protection Notice
+*   **Target Characters Added**:
+    1. **Dale Jasmine** (`dale_jasmine`): Lavender base with green roses ($3.777\text{-inch}$ diameter, spaced $3.001\text{ in}$ apart), $5\text{ ft } 7.123\text{ in}$ shoulder height, $7.1234\text{ in}$ body length, gold diamond necklace with horizontal $12.5\text{-inch}$ diamond charm, Rastafari only, Lunar Leadership, food safety advocate, smooth nose without nostrils. Elegant chatter $+0.008\%$ above Stacey Jasmin ($1278.6822864\text{ Hz} \to 442.6154064\text{ Hz}$).
+    2. **Qi Jasmine** (`qi_jasmine`): Blue base with green circles ($4.8\text{-inch}$ diameter, spaced $1.88\text{ in}$ apart), same dimensions as Dale Jasmine, silver diamond necklace with $11.5\text{-inch}$ circular diamond charm, Rastafari only, Lunar Leadership, anti-poaching technician, smooth nose without nostrils. Elegant chatter $+0.002\%$ above Dale Jasmine ($1278.7078600\text{ Hz} \to 442.6242587\text{ Hz}$).
+    3. **Jamie Jasmine** (`jamie_jasmine`): Solid silver coat, same dimensions as Dale & Qi Jasmine, red-orange nose/tail/pads, gold paws, Rastafari only, weather scientist & anti-poaching decoy, smooth nose without nostrils. Elegant chatter $+0.008\%$ above Qi Jasmine ($1278.8101567\text{ Hz} \to 442.6596686\text{ Hz}$).
+    4. **Jacinta Opossum** (`jacinta_opossum`): Solid red coat with red outer ears, pink inner ears, red-orange nose, $5\text{ ft } 3\text{ in}$ shoulder height, $86\text{ in}$ length, twin sistren of Camryn, in-laws of Melissa & Ashley Opossum, gardener/scientist/poacher hunter, smooth nose without nostrils. Elegant chatter $+1.0\%$ above Melissa Opossum ($1313.0000000\text{ Hz} \to 454.5000000\text{ Hz}$).
+    5. **Camryn Opossum** (`camryn_opossum`): Solid light green coat with light green outer ears, pink inner ears, olive-undertone tan skin, gold paws, twin sistren of Jacinta, in-laws of Melissa & Ashley Opossum, gardener/scientist/poacher hunter, smooth nose without nostrils. Elegant chatter $+1.5\%$ above Jacinta Opossum ($1332.6950000\text{ Hz} \to 461.3175000\text{ Hz}$).
+*   **New Rider Added**:
+    *   **Femmy** (`femmy`): $3\text{ ft } 11\text{ in}$ height, Black ethnicity, dark-brown skin, red hair, green eyes, modest Rastafari beige onesie with black horizontal stripes ($0.8\text{-cm}$ borders) and $2\text{-inch}$ rainbow circles, flat yellow shoes. Circus actress and anti-trafficking advocate working at poacher hunter computer provisioning factory. Zero "Babylonian" exposure.
+*   **Fleet Equilibrium**:
+    *   24 Large Crafted Jills + 8 Compact Crafted Jacks = 32 Total Crafted Opossums.
+    *   8 Packed Riders (Fairy-Rider, Mary, Edward, George Blake, Angela Blake, Sean White, Shannon White, Femmy).
+*   **Shield Matrix**: All character folders fortified with dedicated `AGENTS.md` shields under the 75,000,000,000% Ultra-Broad Protection Standard.
+
 
 
 

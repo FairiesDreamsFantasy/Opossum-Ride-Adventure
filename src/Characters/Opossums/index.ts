@@ -50,6 +50,16 @@ import { IvanOpossum } from "./Ivan_Opossum";
 import { IsaacOpossum } from "./Isaac_Opossum";
 import { IVAN_OPOSSUM_DESCRIPTION as ivanDesc } from "./Ivan_Opossum/Description";
 import { ISAAC_OPOSSUM_DESCRIPTION as isaacDesc } from "./Isaac_Opossum/Description";
+import { DaleJasmineOpossum } from "./Dale_Jasmine";
+import { QiJasmineOpossum } from "./Qi_Jasmine";
+import { JamieJasmineOpossum } from "./Jamie_Jasmine";
+import { JacintaOpossum } from "./Jacinta_Opossum";
+import { CamrynOpossum } from "./Camryn_Opossum";
+import { description as daleDesc } from "./Dale_Jasmine/Description";
+import { description as qiDesc } from "./Qi_Jasmine/Description";
+import { description as jamieDesc } from "./Jamie_Jasmine/Description";
+import { description as jacintaDesc } from "./Jacinta_Opossum/Description";
+import { description as camrynDesc } from "./Camryn_Opossum/Description";
 
 export { 
   MelissaOpossum, 
@@ -74,7 +84,12 @@ export {
   StaceyJasminOpossum,
   ArnoldRoseOpossum,
   IvanOpossum,
-  IsaacOpossum
+  IsaacOpossum,
+  DaleJasmineOpossum,
+  QiJasmineOpossum,
+  JamieJasmineOpossum,
+  JacintaOpossum,
+  CamrynOpossum
 };
 
 export { OpossumBiometricKernelCPP } from "./C_Plus_Plus";
@@ -422,6 +437,96 @@ export const OPOSSUM_CHARACTERS: OpossumCharacter[] = [
     headOrientation: "perched on top of her neck",
     description: staceyDesc,
     playChatter: StaceyJasminOpossum.playChatter
+  },
+  {
+    id: OpossumId.DALE_JASMINE,
+    name: "Dale Jasmine",
+    color: "Lavender with green roses",
+    width: 38.88,
+    length: 7.1234, // Body length excl head and tail
+    headWidth: 37.77,
+    headHeight: 44.88,
+    shoulderHeight: "5 feet and 7.123 inches",
+    noseColor: "Pink",
+    eyeColor: "Light-Green",
+    tailColor: "Pink",
+    innerEarColor: "Pink",
+    gender: "Female",
+    headOrientation: "perched on top of her neck",
+    description: daleDesc,
+    playChatter: DaleJasmineOpossum.playChatter
+  },
+  {
+    id: OpossumId.QI_JASMINE,
+    name: "Qi Jasmine",
+    color: "Blue with green circles",
+    width: 38.88,
+    length: 7.1234,
+    headWidth: 37.77,
+    headHeight: 44.88,
+    shoulderHeight: "5 feet and 7.123 inches",
+    noseColor: "Pink",
+    eyeColor: "Light-Blue",
+    tailColor: "Pink",
+    innerEarColor: "Pink",
+    gender: "Female",
+    headOrientation: "perched on top of her neck",
+    description: qiDesc,
+    playChatter: QiJasmineOpossum.playChatter
+  },
+  {
+    id: OpossumId.JAMIE_JASMINE,
+    name: "Jamie Jasmine",
+    color: "Silver",
+    width: 38.88,
+    length: 7.1234,
+    headWidth: 37.77,
+    headHeight: 44.88,
+    shoulderHeight: "5 feet and 7.123 inches",
+    noseColor: "Red-Orange",
+    eyeColor: "Indigo",
+    tailColor: "Red-Orange",
+    innerEarColor: "Red-Orange",
+    gender: "Female",
+    headOrientation: "perched on top of her neck",
+    description: jamieDesc,
+    playChatter: JamieJasmineOpossum.playChatter
+  },
+  {
+    id: OpossumId.JACINTA_OPOSSUM,
+    name: "Jacinta Opossum",
+    color: "Red",
+    width: 36,
+    length: 86,
+    headWidth: 36,
+    headHeight: 35,
+    shoulderHeight: "5 feet and 3 inches",
+    noseColor: "Red-Orange",
+    eyeColor: "Dark-Green",
+    tailColor: "Pink",
+    innerEarColor: "Pink",
+    gender: "Female",
+    headOrientation: "perched on top of her neck",
+    description: jacintaDesc,
+    playChatter: JacintaOpossum.playChatter
+  },
+  {
+    id: OpossumId.CAMRYN_OPOSSUM,
+    name: "Camryn Opossum",
+    color: "Light Green",
+    width: 36,
+    length: 86,
+    headWidth: 36,
+    headHeight: 35,
+    shoulderHeight: "5 feet and 3 inches",
+    noseColor: "Pink",
+    eyeColor: "Blue",
+    tailColor: "Pink",
+    innerEarColor: "Pink",
+    gender: "Female",
+    headOrientation: "perched on top of her neck",
+    description: camrynDesc,
+    playChatter: CamrynOpossum.playChatter
   }
 ];
 

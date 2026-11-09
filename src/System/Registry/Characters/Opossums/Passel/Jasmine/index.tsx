@@ -4,3 +4,6 @@
  */
 
 export * from "./Stacey";
+export * from "./Dale";
+export * from "./Qi";
+export * from "./Jamie";

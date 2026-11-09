@@ -30,7 +30,12 @@ export enum OpossumId {
   MELVIN_QIN = "melvin_qin",
   SAFFORD_CHIN = "safford_chin",
   IVAN_OPOSSUM = "ivan_opossum",
-  ISAAC_OPOSSUM = "isaac_opossum"
+  ISAAC_OPOSSUM = "isaac_opossum",
+  DALE_JASMINE = "dale_jasmine",
+  QI_JASMINE = "qi_jasmine",
+  JAMIE_JASMINE = "jamie_jasmine",
+  JACINTA_OPOSSUM = "jacinta_opossum",
+  CAMRYN_OPOSSUM = "camryn_opossum"
 }
 
 export interface OpossumCharacter {

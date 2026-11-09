@@ -8,3 +8,5 @@ export * from "./Melissa";
 export * from "./Ashley";
 export * from "./Sandra";
 export * from "./Wanda";
+export * from "./Jacinta";
+export * from "./Camryn";
