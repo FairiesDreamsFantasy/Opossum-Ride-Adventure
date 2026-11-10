@@ -17,11 +17,11 @@ export const OpossumsAttributesDesign = {
       pure_white: { hex: "#ffffff", label: "Pure White", opossums: ["amara_qin"] }
     },
     Peach_Apricot: {
-      apricot: { hex: "#ffedd5", label: "Peach Apricot", opossums: ["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose"] },
+      apricot: { hex: "#ffedd5", label: "Peach Apricot", opossums: ["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose", "dale_jasmine", "qi_jasmine", "jacinta_opossum"] },
       peach_yellow: { hex: "#ffe8cc", label: "Peach with a Yellowish Hue", opossums: ["melvin_qin"] }
     },
     Tan_Caramel: {
-      tan: { hex: "#d2b48c", label: "Tan / Light Brown", opossums: ["jahmella_rose"] },
+      tan: { hex: "#d2b48c", label: "Tan / Light Brown", opossums: ["jahmella_rose", "callie_rose", "stacey_jasmin", "jamie_jasmine", "camryn_opossum"] },
       light_caramel: { hex: "#d97706", label: "Light Caramel", opossums: ["tiana_qin"] },
       wheat_tan: { hex: "#f5deb3", label: "Wheat Tan", opossums: ["saffron_rose"] },
       light_brown: { hex: "#8d5524", label: "Light Brown Face Skin", opossums: ["olivia_chin", "sandra"] }
@@ -37,8 +37,8 @@ export const OpossumsAttributesDesign = {
       if (["safford_chin"].includes(id)) return { root: "Alabaster", tone: "cream" };
       if (["amara_qin"].includes(id)) return { root: "White", tone: "pure_white" };
       if (["melvin_qin"].includes(id)) return { root: "Peach_Apricot", tone: "peach_yellow" };
-      if (["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose", "daisy_rose", "arnold_rose"].includes(id)) return { root: "Peach_Apricot", tone: "apricot" };
-      if (["jahmella_rose", "callie_rose", "stacey_jasmin"].includes(id)) return { root: "Tan_Caramel", tone: "tan" };
+      if (["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose", "daisy_rose", "arnold_rose", "dale_jasmine", "qi_jasmine", "jacinta_opossum"].includes(id)) return { root: "Peach_Apricot", tone: "apricot" };
+      if (["jahmella_rose", "callie_rose", "stacey_jasmin", "jamie_jasmine", "camryn_opossum"].includes(id)) return { root: "Tan_Caramel", tone: "tan" };
       if (["tiana_qin"].includes(id)) return { root: "Tan_Caramel", tone: "light_caramel" };
       if (["saffron_rose"].includes(id)) return { root: "Tan_Caramel", tone: "wheat_tan" };
       if (["olivia_chin", "sandra"].includes(id)) return { root: "Tan_Caramel", tone: "light_brown" };
@@ -54,16 +54,16 @@ export const OpossumsAttributesDesign = {
    */
   With_Patterns: {
     diamond_pattern: { label: "Diamond Pattern", opossums: ["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "roxanne_kone_reynolds"] },
-    circle_pattern: { label: "Circle Pattern", opossums: ["jahmella_rose", "agape_rose", "rudy_kone_reynolds", "callie_rose"] },
-    flower_pattern: { label: "25-color Flower Pattern", opossums: ["ruth_kone_reynolds", "daisy_rose"] },
+    circle_pattern: { label: "Circle Pattern", opossums: ["jahmella_rose", "agape_rose", "rudy_kone_reynolds", "callie_rose", "qi_jasmine"] },
+    flower_pattern: { label: "Rose & Flower Pattern", opossums: ["ruth_kone_reynolds", "daisy_rose", "dale_jasmine"] },
     stripe_pattern: { label: "7 Silver Stripes Pattern", opossums: ["drake_kone_reynolds"] },
     saddle_pattern: { label: "Yellow Saddle Beagle Pattern", opossums: ["stacey_jasmin"] },
     spotted_pattern: { label: "Matte Dark-Brown Ovals Spotted Dog Pattern", opossums: ["arnold_rose"] },
-    none: { label: "Plain / Solid No Pattern", opossums: ["melissa", "ashley", "amara_qin", "saffron_rose", "jalissa_chin", "tiana_qin", "wanda", "olivia_chin", "kady_rose", "sandra", "eugene_rose", "melvin_qin", "safford_chin"] },
+    none: { label: "Plain / Solid No Pattern", opossums: ["melissa", "ashley", "amara_qin", "saffron_rose", "jalissa_chin", "tiana_qin", "wanda", "olivia_chin", "kady_rose", "sandra", "eugene_rose", "melvin_qin", "safford_chin", "jamie_jasmine", "jacinta_opossum", "camryn_opossum"] },
     getByOpossumId(id: string) {
       if (["dagmar_kone_reynolds", "arden_rosie_kone_reynolds", "roxanne_kone_reynolds"].includes(id)) return "diamond_pattern";
-      if (["jahmella_rose", "agape_rose", "rudy_kone_reynolds", "callie_rose"].includes(id)) return "circle_pattern";
-      if (["ruth_kone_reynolds", "daisy_rose"].includes(id)) return "flower_pattern";
+      if (["jahmella_rose", "agape_rose", "rudy_kone_reynolds", "callie_rose", "qi_jasmine"].includes(id)) return "circle_pattern";
+      if (["ruth_kone_reynolds", "daisy_rose", "dale_jasmine"].includes(id)) return "flower_pattern";
       if (["drake_kone_reynolds"].includes(id)) return "stripe_pattern";
       if (["stacey_jasmin"].includes(id)) return "saddle_pattern";
       if (["arnold_rose"].includes(id)) return "spotted_pattern";
@@ -101,6 +101,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Matte white base with dark-brown ovals spotted dog pattern",
     melvin_qin: "Light-tan",
     safford_chin: "Light-Blue",
+    dale_jasmine: "Lavender base with green 3.777-inch diameter rose pattern",
+    qi_jasmine: "Blue base with green 4.8-inch diameter circle pattern",
+    jamie_jasmine: "Silver",
+    jacinta_opossum: "Red",
+    camryn_opossum: "Light Green",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Light Gray";
     }
@@ -136,6 +141,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Pink",
     melvin_qin: "Brown",
     safford_chin: "Black",
+    dale_jasmine: "Pink",
+    qi_jasmine: "Pink",
+    jamie_jasmine: "Red-Orange",
+    jacinta_opossum: "Pink",
+    camryn_opossum: "Pink",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Pink";
     }
@@ -160,6 +170,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Pink",
     melvin_qin: "Solid Brown",
     safford_chin: "Solid Black",
+    dale_jasmine: "Solid Pink",
+    qi_jasmine: "Solid Pink",
+    jamie_jasmine: "Solid Red-Orange",
+    jacinta_opossum: "Solid Pink",
+    camryn_opossum: "Solid Pink",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Plain Solid";
     }
@@ -195,6 +210,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Brown",
     melvin_qin: "Brown",
     safford_chin: "Black",
+    dale_jasmine: "Pink",
+    qi_jasmine: "Pink",
+    jamie_jasmine: "Red-Orange",
+    jacinta_opossum: "Red-Orange",
+    camryn_opossum: "Pink",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Pink";
     }
@@ -230,6 +250,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "3 feet and 8 inches",
     melvin_qin: "3.5 feet",
     safford_chin: "3 feet, 10.0000088 inches",
+    dale_jasmine: "5 feet and 7.123 inches",
+    qi_jasmine: "5 feet and 7.123 inches",
+    jamie_jasmine: "5 feet and 7.123 inches",
+    jacinta_opossum: "5 feet and 3 inches",
+    camryn_opossum: "5 feet and 3 inches",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "5 feet and 3 inches";
     }
@@ -265,6 +290,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 28.0,
     melvin_qin: 34.0,
     safford_chin: 28.5,
+    dale_jasmine: 38.88,
+    qi_jasmine: 38.88,
+    jamie_jasmine: 38.88,
+    jacinta_opossum: 36.0,
+    camryn_opossum: 36.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 36.0;
     }
@@ -300,6 +330,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 58.0,
     melvin_qin: 68.0,
     safford_chin: 72.0,
+    dale_jasmine: 7.1234,
+    qi_jasmine: 7.1234,
+    jamie_jasmine: 7.1234,
+    jacinta_opossum: 86.0,
+    camryn_opossum: 86.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 86.0;
     }
@@ -335,6 +370,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 86.0,
     melvin_qin: 98.0,
     safford_chin: 104.0,
+    dale_jasmine: 31.9,
+    qi_jasmine: 31.9,
+    jamie_jasmine: 31.9,
+    jacinta_opossum: 125.8,
+    camryn_opossum: 125.8,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 125.8;
     }
@@ -370,6 +410,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 26.0,
     melvin_qin: 32.0,
     safford_chin: 27.0,
+    dale_jasmine: 37.77,
+    qi_jasmine: 37.77,
+    jamie_jasmine: 37.77,
+    jacinta_opossum: 36.0,
+    camryn_opossum: 36.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 36.0;
     }
@@ -405,6 +450,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 28.0,
     melvin_qin: 30.0,
     safford_chin: 28.0,
+    dale_jasmine: 44.88,
+    qi_jasmine: 44.88,
+    jamie_jasmine: 44.88,
+    jacinta_opossum: 35.0,
+    camryn_opossum: 35.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 35.0;
     }
@@ -440,6 +490,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 35.0,
     melvin_qin: 38.0,
     safford_chin: 36.0,
+    dale_jasmine: 54.88,
+    qi_jasmine: 54.88,
+    jamie_jasmine: 54.88,
+    jacinta_opossum: 43.0,
+    camryn_opossum: 43.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 43.0;
     }
@@ -475,6 +530,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 52.0,
     melvin_qin: 56.0,
     safford_chin: 62.0,
+    dale_jasmine: 82.0,
+    qi_jasmine: 82.0,
+    jamie_jasmine: 82.0,
+    jacinta_opossum: 75.0,
+    camryn_opossum: 75.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 75.0;
     }
@@ -510,6 +570,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 59.0,
     melvin_qin: 64.0,
     safford_chin: 70.0,
+    dale_jasmine: 90.0,
+    qi_jasmine: 90.0,
+    jamie_jasmine: 90.0,
+    jacinta_opossum: 81.0,
+    camryn_opossum: 81.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 81.0;
     }
@@ -545,6 +610,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Light-Brown",
     melvin_qin: "Dark-Green",
     safford_chin: "Light-brown",
+    dale_jasmine: "Light-Green",
+    qi_jasmine: "Light-Blue",
+    jamie_jasmine: "Indigo",
+    jacinta_opossum: "Dark-Green",
+    camryn_opossum: "Blue",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Blue";
     }
@@ -580,6 +650,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Conventional (1.0 factor)",
     melvin_qin: "Conventional (1.0 factor)",
     safford_chin: "Conventional (1.0 factor)",
+    dale_jasmine: "Conventional (1.0 factor)",
+    qi_jasmine: "Conventional (1.0 factor)",
+    jamie_jasmine: "Conventional (1.0 factor)",
+    jacinta_opossum: "Conventional (1.0 factor)",
+    camryn_opossum: "Conventional (1.0 factor)",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Conventional (1.0 factor)";
     }
@@ -615,6 +690,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 5.0, // 5% furry face
     melvin_qin: 50.0, // 50% furry face
     safford_chin: 2.0, // 2% furry face
+    dale_jasmine: 0.0,
+    qi_jasmine: 0.0,
+    jamie_jasmine: 0.0,
+    jacinta_opossum: 0.0,
+    camryn_opossum: 0.0,
     getByOpossumId(id: string): number {
       return (this as any)[id] !== undefined ? (this as any)[id] : 0.0;
     }
@@ -650,6 +730,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "None",
     melvin_qin: "None",
     safford_chin: "None",
+    dale_jasmine: "Gold diamond necklace with a large 12.5-inch horizontal diamond charm",
+    qi_jasmine: "Silver Diamond necklace with a circular diamond charm that is 11.5 inches in diameter",
+    jamie_jasmine: "None",
+    jacinta_opossum: "None",
+    camryn_opossum: "None",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "None";
     }
@@ -685,6 +770,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 18.0,
     melvin_qin: 20.0,
     safford_chin: 22.0,
+    dale_jasmine: 28.5,
+    qi_jasmine: 28.5,
+    jamie_jasmine: 28.5,
+    jacinta_opossum: 25.8,
+    camryn_opossum: 25.8,
     getByOpossumId(id: string): number {
       return (this as any)[id] || 25.8;
     }
@@ -720,6 +810,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Forward Leaning",
     melvin_qin: "Downward, side oriented like a dog of certain breed",
     safford_chin: "Upright",
+    dale_jasmine: "Upright",
+    qi_jasmine: "Upright",
+    jamie_jasmine: "Upright",
+    jacinta_opossum: "Upright",
+    camryn_opossum: "Upright",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Upright";
     }
@@ -755,6 +850,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Conventional",
     melvin_qin: "Conventional",
     safford_chin: "Conventional",
+    dale_jasmine: "Medium-Long",
+    qi_jasmine: "Conventional",
+    jamie_jasmine: "Long",
+    jacinta_opossum: "Conventional",
+    camryn_opossum: "Conventional",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Conventional";
     }
@@ -790,6 +890,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "White",
     melvin_qin: "White",
     safford_chin: "Black",
+    dale_jasmine: "White",
+    qi_jasmine: "Yellow",
+    jamie_jasmine: "Gold",
+    jacinta_opossum: "White",
+    camryn_opossum: "Gold",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Gray";
     }
@@ -825,6 +930,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Pink",
     melvin_qin: "Peach",
     safford_chin: "Black",
+    dale_jasmine: "Pink",
+    qi_jasmine: "Pink",
+    jamie_jasmine: "Red-Orange",
+    jacinta_opossum: "Red-Orange",
+    camryn_opossum: "Pink",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Pink";
     }
@@ -860,6 +970,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Matte White",
     melvin_qin: "Red",
     safford_chin: "Brown",
+    dale_jasmine: "Lavender",
+    qi_jasmine: "Blue",
+    jamie_jasmine: "Silver",
+    jacinta_opossum: "Red",
+    camryn_opossum: "Light-Green",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Light Gray";
     }
@@ -895,6 +1010,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Pink",
     melvin_qin: "Brown",
     safford_chin: "Brown",
+    dale_jasmine: "Pink",
+    qi_jasmine: "Pink",
+    jamie_jasmine: "Red-Orange",
+    jacinta_opossum: "Pink",
+    camryn_opossum: "Pink",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Pink";
     }
@@ -916,6 +1036,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Matte White",
     melvin_qin: "Solid Red",
     safford_chin: "Solid Brown",
+    dale_jasmine: "Solid Lavender",
+    qi_jasmine: "Solid Blue",
+    jamie_jasmine: "Solid Silver",
+    jacinta_opossum: "Solid Red",
+    camryn_opossum: "Solid Light Green",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Solid Plain";
     }
@@ -951,6 +1076,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Matte White",
     melvin_qin: "Light-tan",
     safford_chin: "Light-Blue",
+    dale_jasmine: "Lavender",
+    qi_jasmine: "Blue",
+    jamie_jasmine: "Silver",
+    jacinta_opossum: "Red",
+    camryn_opossum: "Light-Green",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Light Gray";
     }
@@ -970,6 +1100,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Dark-Brown",
     melvin_qin: "Light-tan",
     safford_chin: "Light-Blue",
+    dale_jasmine: "Hairless (0% Furry)",
+    qi_jasmine: "Hairless (0% Furry)",
+    jamie_jasmine: "Hairless (0% Furry)",
+    jacinta_opossum: "Hairless (0% Furry)",
+    camryn_opossum: "Hairless (0% Furry)",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Hairless (0% Furry)";
     }
@@ -1005,6 +1140,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Standard",
     melvin_qin: "Standard",
     safford_chin: "Standard",
+    dale_jasmine: "Standard",
+    qi_jasmine: "Standard",
+    jamie_jasmine: "Standard",
+    jacinta_opossum: "Standard",
+    camryn_opossum: "Standard",
     getByOpossumId(id: string): string {
       return (this as any)[id] || "Standard";
     }
@@ -1015,9 +1155,9 @@ export const OpossumsAttributesDesign = {
    * Percentage of furry tail look up.
    */
   Furry_Tail_Percentage: {
-    saffron_rose: 0, // 100% hairless, smooth gold skin with pink spiral pattern (0% furry tail coverage)
-    agape_rose: 2, // 2% gold fur layer
-    roxanne_kone_reynolds: 0.0001, // 0.0001% yellow fur
+    saffron_rose: 0,
+    agape_rose: 2,
+    roxanne_kone_reynolds: 0.0001,
     drake_kone_reynolds: 5,
     rudy_kone_reynolds: 7.128,
     eugene_rose: 0,
@@ -1027,9 +1167,14 @@ export const OpossumsAttributesDesign = {
     arnold_rose: 0,
     melvin_qin: 0,
     safford_chin: 0,
+    dale_jasmine: 0,
+    qi_jasmine: 0,
+    jamie_jasmine: 0,
+    jacinta_opossum: 0,
+    camryn_opossum: 0,
     getByOpossumId(id: string): number {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
-      return (this as any)[actualId] !== undefined ? (this as any)[actualId] : 0; // standard hairless tails
+      return (this as any)[actualId] !== undefined ? (this as any)[actualId] : 0;
     }
   },
 
@@ -1052,6 +1197,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Medium",
     melvin_qin: "Medium",
     safford_chin: "Medium",
+    dale_jasmine: "Medium",
+    qi_jasmine: "Medium",
+    jamie_jasmine: "Medium",
+    jacinta_opossum: "Medium",
+    camryn_opossum: "Medium",
     getByOpossumId(id: string): string {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
       return (this as any)[actualId] || "Medium";
@@ -1077,6 +1227,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Medium",
     melvin_qin: "Medium",
     safford_chin: "Medium",
+    dale_jasmine: "Medium",
+    qi_jasmine: "Medium",
+    jamie_jasmine: "Medium",
+    jacinta_opossum: "Medium",
+    camryn_opossum: "Medium",
     getByOpossumId(id: string): string {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
       return (this as any)[actualId] || "Medium";
@@ -1100,6 +1255,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Standard",
     melvin_qin: "Standard",
     safford_chin: "Standard",
+    dale_jasmine: "Standard",
+    qi_jasmine: "Standard",
+    jamie_jasmine: "Standard",
+    jacinta_opossum: "Standard",
+    camryn_opossum: "Standard",
     getByOpossumId(id: string): string {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
       return (this as any)[actualId] || "Standard";
@@ -1123,6 +1283,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Standard",
     melvin_qin: "Standard",
     safford_chin: "Standard",
+    dale_jasmine: "Standard",
+    qi_jasmine: "Standard",
+    jamie_jasmine: "Standard",
+    jacinta_opossum: "Standard",
+    camryn_opossum: "Standard",
     getByOpossumId(id: string): string {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
       return (this as any)[actualId] || "Standard";
@@ -1146,9 +1311,14 @@ export const OpossumsAttributesDesign = {
     daisy_rose: true,
     callie_rose: true,
     stacey_jasmin: true,
+    dale_jasmine: true,
+    qi_jasmine: true,
+    jamie_jasmine: true,
+    jacinta_opossum: true,
+    camryn_opossum: true,
     getByOpossumId(id: string): boolean {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
-      if (actualId === "melissa" || actualId === "ashley" || actualId === "sandra" || actualId === "drake_kone_reynolds" || actualId === "rudy_kone_reynolds" || actualId === "eugene_rose" || actualId === "arnold_rose" || actualId === "melvin_qin" || actualId === "safford_chin") return false;
+      if (["melissa", "ashley", "sandra", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose", "arnold_rose", "melvin_qin", "safford_chin"].includes(actualId)) return false;
       return true;
     }
   },
@@ -1170,9 +1340,14 @@ export const OpossumsAttributesDesign = {
     daisy_rose: true,
     callie_rose: true,
     stacey_jasmin: true,
+    dale_jasmine: true,
+    qi_jasmine: true,
+    jamie_jasmine: true,
+    jacinta_opossum: true,
+    camryn_opossum: true,
     getByOpossumId(id: string): boolean {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
-      if (actualId === "melissa" || actualId === "ashley" || actualId === "sandra" || actualId === "drake_kone_reynolds" || actualId === "rudy_kone_reynolds" || actualId === "eugene_rose" || actualId === "arnold_rose" || actualId === "melvin_qin" || actualId === "safford_chin") return false;
+      if (["melissa", "ashley", "sandra", "drake_kone_reynolds", "rudy_kone_reynolds", "eugene_rose", "arnold_rose", "melvin_qin", "safford_chin"].includes(actualId)) return false;
       return true;
     }
   },
@@ -1194,6 +1369,11 @@ export const OpossumsAttributesDesign = {
     arnold_rose: "Standard",
     melvin_qin: "Standard",
     safford_chin: "Standard",
+    dale_jasmine: "Standard",
+    qi_jasmine: "Standard",
+    jamie_jasmine: "Standard",
+    jacinta_opossum: "Standard",
+    camryn_opossum: "Standard",
     getByOpossumId(id: string): string {
       const actualId = id === "arden_rosie" ? "arden_rosie_kone_reynolds" : id;
       return (this as any)[actualId] || "Standard";
@@ -1331,6 +1511,61 @@ export const OpossumsAttributesDesign = {
       headHeight: 43,
       noseColor: "#db2777",
       earColor: "#7c3aed",
+      earOrientation: "upright"
+    },
+    dale_jasmine: {
+      bodyColor: "#e6e6fa",
+      outlineColor: "#a855f7",
+      scale: 1.1,
+      bodyPattern: "flowers",
+      bodyPatternColors: ["#228b22"],
+      headHeight: 44.88,
+      noseColor: "#ffc0cb",
+      earColor: "#e6e6fa",
+      earOrientation: "upright",
+      hasNecklace: true,
+      necklaceColor: "#ffd700"
+    },
+    qi_jasmine: {
+      bodyColor: "#0000ff",
+      outlineColor: "#1d4ed8",
+      scale: 1.1,
+      bodyPattern: "circles",
+      bodyPatternColors: ["#228b22"],
+      headHeight: 44.88,
+      noseColor: "#ffc0cb",
+      earColor: "#0000ff",
+      earOrientation: "upright",
+      hasNecklace: true,
+      necklaceColor: "#c0c0c0"
+    },
+    jamie_jasmine: {
+      bodyColor: "#c0c0c0",
+      outlineColor: "#9ca3af",
+      scale: 1.1,
+      headHeight: 44.88,
+      noseColor: "#ff4500",
+      earColor: "#c0c0c0",
+      earOrientation: "upright"
+    },
+    jacinta_opossum: {
+      bodyColor: "#ef4444",
+      outlineColor: "#dc2626",
+      scale: 1.0,
+      headHeight: 35,
+      noseColor: "#ff4500",
+      earColor: "#ef4444",
+      faceColor: "#ffdab9",
+      earOrientation: "upright"
+    },
+    camryn_opossum: {
+      bodyColor: "#90ee90",
+      outlineColor: "#16a34a",
+      scale: 1.0,
+      headHeight: 35,
+      noseColor: "#ffc0cb",
+      earColor: "#90ee90",
+      faceColor: "#d2b48c",
       earOrientation: "upright"
     },
     getByOpossumId(id: string): any {
