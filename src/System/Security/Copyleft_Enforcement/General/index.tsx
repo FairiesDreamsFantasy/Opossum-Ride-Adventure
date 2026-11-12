@@ -5,7 +5,7 @@
 
   export interface CopyleftPlatformCheckResult {
   isCompliant: boolean;
-  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "NINTENDO_SWITCH_DRM_CARTRIDGE" | "SERVER_SIDE_DRM" | "UNKNOWN";
+  platformType: "PC_OPEN_BROWSER" | "HOMEBREW_DEVICE" | "CLOSED_PROPRIETARY_DRM_CONSOLE" | "PHYSICAL_OPTICAL_DISC_DRM" | "DIGITAL_DOWNLOAD_DRM" | "NINTENDO_SWITCH_DRM_CARTRIDGE" | "SERVER_SIDE_DRM" | "VHS_TAPE_DRM" | "AUDIO_CASSETTE_DRM" | "UNKNOWN";
   detectedSignature?: string;
   enforcementMessage?: string;
   canRideOpossum?: boolean;
@@ -27,6 +27,14 @@ export const COPYLEFT_MESSAGES = {
   // Server-Side DRM & Remote Cloud License Wall
   SERVER_SIDE_DRM:
     "Warning: This game appears to be modified to rely on unauthorized server-side DRM or remote cloud license verification by a disgruntled website owner or third party. In accordance with the GNU GPL v3 and our core philosophy, Opossum Ride Adventure is strictly DRM-Free and operates entirely offline and locally without cloud telemetry, accounts, or remote auth walls. Please visit arcade.fairiesdreamsfantasy.com/Opossum_Ride_Adventure/ to play the authentic, DRM-Free version.",
+
+  // VHS-Based Tape Media with DRM
+  VHS_TAPE_DRM:
+    "Unfortunately, this game can't be loaded, due to use of DRM. Most likely you got an illegal copy of this material. If you somehow purchased this material with no intention, you should always contact your local professionals for help, such as law enforcement in your local area.",
+
+  // Audio-Based Cassette Media with DRM
+  AUDIO_CASSETTE_DRM:
+    "Unfortunately, you got a non-legitimate copy of this game. If you believed you bought this copy that is not right, and you believed a seller is to blame, contact your local law enforcement for help.",
 
   // Closed Proprietary Console Wrapper
   CLOSED_CONSOLE_DRM:
@@ -114,6 +122,57 @@ export function evaluateCopyleftCompliance(): CopyleftPlatformCheckResult {
       platformType: "SERVER_SIDE_DRM",
       detectedSignature: "Unauthorized Server-Side DRM / Remote License Wall",
       enforcementMessage: COPYLEFT_MESSAGES.SERVER_SIDE_DRM
+    };
+  }
+
+  // VHS Tape Media DRM Detection (Analog signal scrambling, Macrovision, line-21 burst locks)
+  const isVHSTapeEnvironment = 
+    href.includes("/vhs") ||
+    href.includes("/vhs_tape") ||
+    !!win.__VHS_DATA_SESSION__;
+
+  const hasVHSTapeDRM = 
+    isVHSTapeEnvironment && (
+      !!win.__MACROVISION_ACTIVE__ ||
+      !!win.__VHS_TAPE_DRM__ ||
+      !!win.__ANALOG_VIDEO_DRM__ ||
+      !!win.__CGMS_A_DRM__ ||
+      userAgent.includes("macrovision") ||
+      userAgent.includes("vhs_drm")
+    );
+
+  if (hasVHSTapeDRM) {
+    return {
+      isCompliant: false,
+      platformType: "VHS_TAPE_DRM",
+      detectedSignature: "VHS Tape Analog Signal DRM Scrambling",
+      enforcementMessage: COPYLEFT_MESSAGES.VHS_TAPE_DRM
+    };
+  }
+
+  // Audio Cassette Media DRM Detection (FSK tone scramblers, datasette locks, proprietary frequency gates)
+  const isAudioCassetteEnvironment =
+    href.includes("/cassette") ||
+    href.includes("/datasette") ||
+    href.includes("/tape_loader") ||
+    !!win.__CASSETTE_DATA_SESSION__;
+
+  const hasAudioCassetteDRM =
+    isAudioCassetteEnvironment && (
+      !!win.__CASSETTE_DRM__ ||
+      !!win.__AUDIO_TONE_LOCK__ ||
+      !!win.__DATASSETTE_SCRAMBLER__ ||
+      !!win.__FSK_TONE_GATE__ ||
+      userAgent.includes("datasette_drm") ||
+      userAgent.includes("cassette_scrambler")
+    );
+
+  if (hasAudioCassetteDRM) {
+    return {
+      isCompliant: false,
+      platformType: "AUDIO_CASSETTE_DRM",
+      detectedSignature: "Audio Cassette Data Scrambled Tone DRM",
+      enforcementMessage: COPYLEFT_MESSAGES.AUDIO_CASSETTE_DRM
     };
   }
 

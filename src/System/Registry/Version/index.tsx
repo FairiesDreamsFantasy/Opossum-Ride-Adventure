@@ -9,7 +9,7 @@
  * Permanently locked to Central Standard Time (CST) only.
  */
 export const VersionRegistry = {
-  current: "0.1.0.7.8",
+  current: "0.1.0.7.9",
   get date(): string {
     const d = new Date();
     const cst = new Date(d.getTime() - 6 * 3600 * 1000);
