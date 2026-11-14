@@ -9,6 +9,9 @@ import { GardenArenaNarration } from "./Garden";
 import { CellarArenaNarration } from "./Cellar";
 import { PorchArenaNarration } from "./Porch";
 import { ManorsvilleArenaNarration } from "./Manorsville";
+import { CropFieldArenaNarration, isCropFieldPlaceId } from "./Crop_Field";
+import { VegetableFieldArenaNarration, isVegetableFieldPlaceId } from "./Vegetable_Field";
+import { WildernessArenaNarration, isWildernessPlaceId } from "./Wilderness";
 import { PlaceResolver } from "../../../../../../Engine/Resolver";
 
 /**
@@ -38,7 +41,19 @@ export const ArenaNarrationRegistry = {
       return ManorsvilleArenaNarration.compileScene(ctx);
     }
 
-    // Default to Garden arena engine for natural terrain, groves, orchards, farms, and outdoor arenas
+    if (isCropFieldPlaceId(ctx.placeId)) {
+      return CropFieldArenaNarration.compileScene(ctx);
+    }
+
+    if (isVegetableFieldPlaceId(ctx.placeId)) {
+      return VegetableFieldArenaNarration.compileScene(ctx);
+    }
+
+    if (isWildernessPlaceId(ctx.placeId)) {
+      return WildernessArenaNarration.compileScene(ctx);
+    }
+
+    // Default to Garden arena engine for natural terrain, groves, orchards, and farms
     return GardenArenaNarration.compileScene(ctx);
   },
 
@@ -73,6 +88,18 @@ export const ArenaNarrationRegistry = {
 
     if (placeId === "manorsville" || placeId.includes("dalesville") || placeId.includes("tea_room")) {
       return ManorsvilleArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
+    }
+
+    if (isCropFieldPlaceId(placeId)) {
+      return CropFieldArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
+    }
+
+    if (isVegetableFieldPlaceId(placeId)) {
+      return VegetableFieldArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
+    }
+
+    if (isWildernessPlaceId(placeId)) {
+      return WildernessArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);
     }
 
     return GardenArenaNarration.compilePosition(formattedDistance, activeName, segmentDirection);

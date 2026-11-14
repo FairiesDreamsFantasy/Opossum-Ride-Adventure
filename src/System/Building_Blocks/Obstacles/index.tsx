@@ -6,6 +6,7 @@
 import { RockObstacle } from "./Rock";
 import { FenceObstacle } from "./Fence";
 import { FountainObstacle } from "./Fountain";
+import { TriangularStoneFenceObstacle } from "../Triangular_Stone_Fence";
 
 /**
  * Obstacles Registry
@@ -13,5 +14,6 @@ import { FountainObstacle } from "./Fountain";
 export const ObstaclesRegistry = {
   Rock: RockObstacle,
   Fence: FenceObstacle,
-  Fountain: FountainObstacle
+  Fountain: FountainObstacle,
+  TriangularStoneFence: TriangularStoneFenceObstacle
 };

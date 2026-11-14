@@ -34,27 +34,36 @@ export function generateLevel(levelId: number): GameLevel {
         butterfly_sanctuary: ["Fluttering", "Silky", "Monarch", "Monarch-Nectar", "Tropical", "Orchid", "Blossom", "Chrysalis", "Petal", "Hovering"],
         orchid_glasshouse: ["Steamy", "Exotic", "Glass", "Tranquil", "Mist", "Vibrant", "Moist", "Bloomed", "Hothouse", "Floral"],
         edible_berry_garden: ["Ripe", "Sweet", "Berry", "Strawberry", "Bramble", "Honey", "Beech", "Nectar", "Wildwood", "Fruity"],
-        simulated_gold_mine: ["Brilliant", "Ingot", "Shimmering", "Nugget", "Glittering", "Golden", "Pyrite", "Midas", "Gilded", "Auric"],
-        simulated_silver_mine: ["Argent", "Polished", "Lustrous", "Sterling", "Specular", "Chrome", "Chalice", "Plated", "Silver", "Gray-Nugget"],
-        simulated_emerald_mine: ["Jade", "Beryl", "Floaty-Islands", "Crystalline", "Prismatic", "Faceted", "Deep-Green", "Verdant", "Glow", "Celadon"],
-        simulated_diamond_mine: ["Carbon", "Flawless", "Sparkling", "Prismatic", "Brilliant", "Refractive", "Rainbow", "Glistening", "Glacial", "Ice-White"],
-        simulated_salt_mine: ["Halite", "Saline", "Crystalline", "White-Rock", "Contrast", "Brine", "Monochrome", "Salty", "Snowy", "Bleached"],
-        cave: ["Mossy", "Limestone", "Grotto", "Crystal", "Basalt", "Shadow", "Stalactite", "Echo", "Granite", "Underworld"],
-        plain: ["Switchgrass", "Prairie", "Meadow", "Valley", "Savannah", "Steppe", "Grassland", "Pampas", "Veldfire", "Loam"],
-        mountains: ["Scree", "Granite", "Crag", "Glacier", "Summit", "Ridge", "Peak", "Basalt", "Volcanic", "Sub-Alpine"],
-        stone_corridor: ["Dungeon", "Masonry", "Castle", "Vault", "Slab", "Corridor", "Passage", "Gallery", "Crypt", "Cloister"],
-        forest: ["Birch", "Pine", "Redwood", "Mulch", "Dewy", "Autumn", "Canopy", "Thicket", "Boreal", "Grove"],
-        city: ["Asphalt", "Neon", "Cyber", "Alley", "Slate", "Metropolitan", "Concrete", "Grid", "Downtown", "Expressway"],
-        quarry: ["Pit", "Sand", "Excavating", "Granite", "Grit", "Gilded", "Quartz", "Clay", "Silt", "Crushed-Rock"],
-        stone_room: ["Tapestry", "Chamber", "Relic", "Vault", "Palace", "Polished", "Sanctuary", "Marble", "Hearth", "Foyer-Inner"],
-        desert: ["Saharan", "Crimson", "Arid", "Dune", "Oasis", "Mirage", "Nomad", "Scorpion", "Sirocco", "Canyon"],
-        generic: ["Lounge", "Hardwood", "Fireplace", "Manor", "Estate", "Cozy", "Parlor", "Chamber-Inner", "Vestibule", "Library"],
         chicken_farm: ["Feathered", "Scratching", "Roosting", "Golden-Egg", "Pasture", "Hay-Straw", "Broody", "Sunny-Side", "Paddock", "Plucky"],
         goat_farm: ["Rocky-Hill", "Agile", "Bleating", "Nanny", "Billy", "Mountain-Climber", "Salt-Lick", "Spotted", "Wild-Goat", "Playful"],
         sheep_farm: ["Woolly", "Fluffy", "Clover-Meadow", "Grazing", "Ewe-Flock", "Shepherd", "Soft-Meadow", "Pristine", "Lanolin", "Pastoral"],
         duck_farm: ["Waterfowl", "Splashy", "Mallard", "Pond-Side", "Feathered", "Marshy", "Reedy", "Waddling", "Webbed-Foot", "Quacking"],
         goose_farm: ["Gander", "Honking", "Proud-Formation", "Creek-Side", "Guarding", "Feathered", "Emerald-Turf", "Wild-Goose", "Sentry", "Plumed"],
-        cattle_farm: ["Majestic-Herd", "Bovine", "Deep-Lowing", "Red-Barn", "Silo-Field", "Pasture", "Lariat", "Sturdy", "Ranch", "Western"]
+        horse_farm: ["Equestrian", "Mustang", "Paddock", "Galloping", "Clover-Ridge", "Solar-Stable", "Bridle-Path", "Pastoral", "Trotter", "Chestnut"],
+        cattle_farm: ["Majestic-Herd", "Bovine", "Deep-Lowing", "Red-Barn", "Silo-Field", "Pasture", "Lariat", "Sturdy", "Ranch", "Western"],
+        crop_field: ["Slate-Paved", "Solar-Tended", "Rustling", "Triangular-Way", "Verdant-Row", "Harvest-Tech", "Autonomous", "Golden-Acre", "Irrigated", "Mosaic-Slate"],
+        wheat_field: ["Golden-Wheat", "Amber-Wave", "Harvest-Solar", "Slate-Row", "Rustling-Head", "Autumn-Gold", "Sunlit-Grain", "Breeze-Swept", "Stalk-Line", "Granary-Path"],
+        corn_field: ["Tall-Maize", "Silk-Tassel", "Green-Canopy", "Sun-Drenched", "Husk-Row", "Slate-Passage", "Rover-Patrol", "Rustling-Stalk", "Canyon-Row", "Bountiful"],
+        barley_field: ["Bearded-Grain", "Emerald-Awn", "Malt-Breeze", "Slate-Trail", "Sun-Ripened", "Solar-Tended", "Whispering", "Plumed-Head", "Harvest-Line", "Rustic-Row"],
+        rice_field: ["Irrigated", "Terraced", "Shimmering", "Paddy-Breeze", "Lush-Shoot", "Boom-Sprayed", "Emerald-Water", "Sky-Mirror", "Slate-Causeway", "Monsoon-Dew"],
+        oats_field: ["Nodding-Plume", "Silvery-Green", "Breeze-Ripple", "Morning-Oat", "Slate-Ridge", "Whole-Grain", "Panicle-Row", "Gentle-Rustle", "Solar-Pasture", "Pastoral"],
+        sorghum_field: ["Crimson-Head", "Red-Panicle", "Milo-Stalk", "Drought-Brave", "High-Plain", "Slate-Aisle", "Copper-Tuft", "Sun-Harvest", "Rover-Tended", "Rustling-Plume"],
+        rye_field: ["Resilient-Rye", "Emerald-Spike", "Crisp-Stalk", "Slate-Passage", "Cool-Breeze", "Solar-Tended", "Harvest-Grain", "Sunlit-Row", "Rustling-Ear", "Prairie-Rye"],
+        millet_field: ["Pearl-Millet", "Golden-Cluster", "Sun-Warm", "Slate-Walk", "Feather-Grain", "Rover-Patrol", "Breeze-Swept", "Amber-Tuft", "Harvest-Way", "Dryland-Bloom"],
+        buckwheat_field: ["Blossoming", "Bee-Friendly", "Crimson-Stem", "Slate-Aisle", "Honey-Nectar", "Solar-Tended", "White-Blossom", "Triangular-Seed", "Sunlit-Plot", "Pastoral"],
+        quinoa_field: ["Rainbow-Seed", "Highland-Plume", "Amber-Panicle", "Slate-Row", "Solar-Sensor", "Harvest-Cluster", "Magenta-Grain", "Crisp-Air", "Bountiful", "Terrace"],
+        amaranth_field: ["Ruby-Plume", "Velvet-Crimson", "Tall-Stalk", "Slate-Causeway", "Sunlit-Tassel", "Solar-Tended", "Autumn-Flame", "Breeze-Swayed", "Heritage-Grain", "Harvest-Row"],
+        spelt_field: ["Ancient-Husk", "Golden-Awn", "Whispering-Spelt", "Slate-Path", "Sun-Ripened", "Solar-Monitored", "Bronze-Wave", "Rustling-Stalk", "Artisan-Grain", "Meadow-Ridge"],
+        vegetable_field: ["Verdant-Row", "Solar-Tended", "Fresh-Produce", "Slate-Path", "Irrigated", "Garden-Acre", "Harvest-Tech", "Crisp-Leaf", "Autonomous", "Sunlit-Bed"],
+        carrot_field: ["Feathery-Top", "Sandy-Loam", "Emerald-Frond", "Slate-Causeway", "Crisp-Root", "Solar-Weeded", "Sunlit-Ridge", "Breeze-Rustle", "Harvest-Row", "Orange-Crown"],
+        potato_field: ["Flowering-Bed", "Shaded-Mound", "Emerald-Vine", "Slate-Path", "Irrigated", "Solar-Monitored", "Rich-Loam", "Blossom-Row", "Harvest-Ridge", "Bountiful"],
+        tomato_field: ["Heirloom-Vine", "Crimson-Fruit", "Trellis-Row", "Slate-Aisle", "Honeybee-Hum", "Solar-Misted", "Sun-Ripened", "Golden-Truss", "Garden-Plot", "Harvest-Line"],
+        cabbage_field: ["Blue-Green", "Ruby-Head", "Broad-Leaf", "Slate-Passage", "Cool-Breeze", "Solar-Drip", "Crisp-Row", "Verdant-Bed", "Sunlit-Plot", "Harvest-Way"],
+        onion_field: ["Silver-Shoot", "Tubular-Row", "Whistling-Breeze", "Slate-Walk", "Sun-Cured", "Solar-Sensor", "Crisp-Stalk", "Amber-Bed", "Harvest-Ridge", "Meadow-Plot"],
+        broccoli_field: ["Jade-Crown", "Floret-Row", "Mist-Cooled", "Slate-Path", "Leafy-Stalk", "Solar-Boom", "Emerald-Head", "Crisp-Air", "Harvest-Acre", "Verdant"],
+        squash_field: ["Golden-Blossom", "Velvet-Leaf", "Sun-Sprawled", "Slate-Causeway", "Pollinated", "Solar-Rover", "Amber-Vine", "Rustling-Plot", "Harvest-Row", "Bountiful"],
+        spinach_field: ["Tender-Leaf", "Deep-Emerald", "Cool-Shade", "Slate-Aisle", "Crisp-Row", "Micro-Mist", "Solar-Tended", "Nutrient-Rich", "Morning-Dew", "Harvest-Bed"],
+        bell_pepper_field: ["Glossy-Pepper", "Tri-Color", "Crisp-Canopy", "Slate-Walk", "Ruby-Gold-Green", "Solar-Scanned", "Sun-Drenched", "Verdant-Row", "Harvest-Plot", "Bountiful"]
       };
 
       const descriptors: Record<string, string[]> = {
@@ -64,27 +73,36 @@ export function generateLevel(levelId: number): GameLevel {
         butterfly_sanctuary: ["Dome", "Sanctuary", "Aviary", "Meadow", "Haven", "Glasshouse", "Glade", "Habitat", "Bower", "Garden"],
         orchid_glasshouse: ["Atrium", "Glasshouse", "Greenhouse", "Terrarium", "Pavilion", "Enclosure", "Vault", "Dome", "Gallery", "Conservatory"],
         edible_berry_garden: ["Patch", "Bramble", "Orchard", "Thicket", "Plot", "Grove", "Glade", "Field", "Row", "Pasture"],
-        simulated_gold_mine: ["Ridge", "Shaft", "Chamber", "Lode", "Vein", "Excavation", "Gallery", "Tunnel", "Vault", "Slab-Way"],
-        simulated_silver_mine: ["Grotto", "Shaft", "Passage", "Vein", "Lode", "Adit", "Chamber", "Drift", "Stope", "Way"],
-        simulated_emerald_mine: ["Islands", "Platform", "Sphere-Vault", "Cavern", "Embossed-Way", "Abyss", "Chamber", "Grotto", "Tiles-Path", "Hall"],
-        simulated_diamond_mine: ["Glass-Floor", "Circles-Way", "Diamond-Walls", "Canyon", "Vault", "Table-Star", "Fissure", "Chamber", "Tunnel", "Track"],
-        simulated_salt_mine: ["Cavern", "Flooring", "Walls-Track", "Shaft", "Pit", "Chamber", "Gully", "Slab", "Adit", "Passage"],
-        cave: ["Grotto", "Cavern", "Fissure", "Chamber", "Vent-Shaft", "Shaft", "Abyss", "Gully", "Crevice", "Tunnel"],
-        plain: ["Plain", "Switchgrass-Loam", "Prairie-Way", "Field", "Steppe-trail", "Loam-Run", "Meadow", "Breeze-Track", "Plains", "Runway"],
-        mountains: ["Peak", "Ridge", "Summit", "Pass", "Scree-Slope", "Cliff", "Ascent", "Gorge", "Saddle", "High-Trail"],
-        stone_corridor: ["Corridor", "Dungeon-Track", "Vault", "Passageway", "Slab-Way", "Gallery", "Crypt", "Dungeon", "Tunnel", "Hall"],
-        forest: ["Birch-Way", "Canopy-Run", "Mulch-Track", "Forest", "Grove", "Pine-Trail", "Woodland", "Boreal-Run", "Leaves-Trail", "Canopy"],
-        city: ["Alleyway", "Asphalt-Track", "Lane", "Neon-Alley", "Canyon", "Metropolitan-Way", "Asphalt-Block", "Grid-Run", "Block-Track", "Street"],
-        quarry: ["Pit", "Quarry", "Excavation-Run", "Grit-Path", "Slopes", "Clay-Gully", "Sand-Track", "Quartz-Base", "Gravel-Road", "Pit-Way"],
-        stone_room: ["Tapestry-Vault", "Chamber", "Vault", "Polished-Run", "Slate-Room", "Relic-Track", "Sanctuary", "Hall", "Hearth-Track", "Vault-Way"],
-        desert: ["Dunes", "Sands", "Plateau", "Gulch", "Wadi", "Basin", "Bluff", "Mesa", "Ridge", "Expanse"],
-        generic: ["Lounge-Way", "Hardwood-Track", "Manor-Run", "Lounge", "Library-Loop", "Estate-Path", "Parlor-Track", "Cozy-Corner", "Vestibule", "Lounge-Run"],
         chicken_farm: ["Yard", "Run", "Pasture", "Coop-Way", "Paddock", "Pluck-Run", "Roost", "Straw-Trail", "Scratch-Field", "Runway"],
         goat_farm: ["Hill", "Paddock", "Structures", "Ramp-Way", "Knoll", "Climb", "Trail", "Ridge", "Meadow", "Runway"],
         sheep_farm: ["Meadow", "Hillside", "Pasture", "Green-Field", "Fold", "Clover-Field", "Glen", "Downs", "Meadow-Trail", "Runway"],
         duck_farm: ["Pond", "Wetland", "Marsh", "Shoreline", "Water-Way", "Estuary", "Basin", "Nesting-Ground", "Puddle", "Runway"],
         goose_farm: ["Field", "Creek-Paddock", "Lawn", "Grass-Meade", "Sentry-Post", "Formation", "Stream-Side", "Meadow", "Flat", "Runway"],
-        cattle_farm: ["Prairie", "Paddock", "Ranch-Land", "Silo-Pasture", "Barn-Yard", "Range", "Cattle-Path", "Grassland", "Silo-Field", "Runway"]
+        horse_farm: ["Pasture", "Paddock", "Bridle-Trail", "Corral", "Clover-Run", "Meadow-Track", "Stable-Way", "Ridge", "Field", "Runway"],
+        cattle_farm: ["Prairie", "Paddock", "Ranch-Land", "Silo-Pasture", "Barn-Yard", "Range", "Cattle-Path", "Grassland", "Silo-Field", "Runway"],
+        crop_field: ["Causeway", "Slate-Path", "Field-Way", "Mosaic-Trail", "Harvest-Lane", "Acreage", "Sensor-Row", "Corridor", "Furrow-Run", "Runway"],
+        wheat_field: ["Field", "Slate-Causeway", "Acre", "Furrow-Way", "Harvest-Lane", "Mosaic-Path", "Terrace", "Expanse", "Grain-Run", "Runway"],
+        corn_field: ["Corridor", "Maize-Way", "Slate-Aisle", "Stalk-Alley", "Acreage", "Tassel-Trail", "Harvest-Row", "Expanse", "Rover-Lane", "Runway"],
+        barley_field: ["Plot", "Barley-Run", "Slate-Walk", "Awn-Trail", "Field", "Grain-Lane", "Harvest-Way", "Meadow-Row", "Expanse", "Runway"],
+        rice_field: ["Paddy-Causeway", "Terrace-Path", "Slate-Bridge", "Basin-Run", "Irrigation-Way", "Field", "Shoots-Trail", "Expanse", "Row", "Runway"],
+        oats_field: ["Meadow-Plot", "Oats-Lane", "Slate-Track", "Plume-Trail", "Field", "Grain-Way", "Harvest-Path", "Expanse", "Row", "Runway"],
+        sorghum_field: ["Acre", "Sorghum-Way", "Slate-Road", "Milo-Trail", "Field", "Panicle-Run", "Harvest-Path", "Expanse", "Row", "Runway"],
+        rye_field: ["Plot", "Rye-Causeway", "Slate-Track", "Spike-Trail", "Field", "Grain-Way", "Harvest-Row", "Expanse", "Meadow", "Runway"],
+        millet_field: ["Acre", "Millet-Way", "Slate-Walk", "Cluster-Trail", "Field", "Grain-Lane", "Harvest-Row", "Expanse", "Terrace", "Runway"],
+        buckwheat_field: ["Plot", "Blossom-Way", "Slate-Aisle", "Nectar-Trail", "Field", "Bloom-Lane", "Harvest-Row", "Expanse", "Meadow", "Runway"],
+        quinoa_field: ["Terrace", "Quinoa-Way", "Slate-Path", "Plume-Trail", "Field", "Seed-Lane", "Harvest-Row", "Expanse", "Ridge", "Runway"],
+        amaranth_field: ["Acre", "Amaranth-Way", "Slate-Causeway", "Plume-Trail", "Field", "Crimson-Lane", "Harvest-Row", "Expanse", "Plot", "Runway"],
+        spelt_field: ["Plot", "Spelt-Way", "Slate-Track", "Awn-Trail", "Field", "Grain-Lane", "Harvest-Row", "Expanse", "Ridge", "Runway"],
+        vegetable_field: ["Bed", "Produce-Way", "Slate-Path", "Garden-Trail", "Field", "Harvest-Row", "Expanse", "Plot", "Acre", "Runway"],
+        carrot_field: ["Ridge", "Carrot-Way", "Slate-Causeway", "Frond-Trail", "Field", "Loam-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        potato_field: ["Mound", "Potato-Way", "Slate-Path", "Blossom-Trail", "Field", "Loam-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        tomato_field: ["Trellis-Way", "Tomato-Aisle", "Slate-Path", "Vine-Trail", "Field", "Heirloom-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        cabbage_field: ["Bed", "Cabbage-Way", "Slate-Passage", "Leaf-Trail", "Field", "Crisp-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        onion_field: ["Ridge", "Onion-Way", "Slate-Walk", "Shoot-Trail", "Field", "Loam-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        broccoli_field: ["Bed", "Broccoli-Way", "Slate-Path", "Crown-Trail", "Field", "Jade-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        squash_field: ["Plot", "Squash-Way", "Slate-Causeway", "Blossom-Trail", "Field", "Vine-Row", "Harvest-Lane", "Expanse", "Acre", "Runway"],
+        spinach_field: ["Bed", "Spinach-Way", "Slate-Aisle", "Leaf-Trail", "Field", "Emerald-Row", "Harvest-Lane", "Expanse", "Plot", "Runway"],
+        bell_pepper_field: ["Plot", "Pepper-Way", "Slate-Walk", "Canopy-Trail", "Field", "Produce-Row", "Harvest-Lane", "Expanse", "Acre", "Runway"]
       };
 
       const levelPlaceIds = [
@@ -106,35 +124,29 @@ export function generateLevel(levelId: number): GameLevel {
         "sheep_farm",           // 15
         "duck_farm",            // 16
         "goose_farm",           // 17
-        "cattle_farm",          // 18
-        "simulated_gold_mine",  // 19
-        "simulated_silver_mine",// 20
-        "simulated_emerald_mine",// 21
-        "simulated_diamond_mine",// 22
-        "simulated_salt_mine",  // 23
-        "gold_mine",            // 24
-        "silver_mine",          // 25
-        "emerald_mine",         // 26
-        "diamond_mine",         // 27
-        "salt_mine",            // 28
-        "cave",                 // 29
-        "plain",                // 30
-        "mountains",            // 31
-        "stone_corridor",       // 32
-        "forest",               // 33
-        "city",                 // 34
-        "quarry",               // 35
-        "stone_room",           // 36
-        "desert",               // 37
-        "generic",              // 38
-        "garden",               // 39
-        "zen_stone_garden",     // 40
-        "botanical_maze",       // 41
-        "butterfly_sanctuary",  // 42
-        "orchid_glasshouse",    // 43
-        "edible_berry_garden",  // 44
-        "cherry_orchard",       // 45
-        "the_grand_orchard"     // 46
+        "horse_farm",           // 18 (slotted before Cattle Farm)
+        "cattle_farm",          // 19
+        "wheat_field",          // 20
+        "corn_field",           // 21
+        "barley_field",         // 22
+        "rice_field",           // 23
+        "oats_field",           // 24
+        "sorghum_field",        // 25
+        "rye_field",            // 26
+        "millet_field",         // 27
+        "buckwheat_field",      // 28
+        "quinoa_field",         // 29
+        "amaranth_field",       // 30
+        "spelt_field",          // 31
+        "carrot_field",         // 32
+        "potato_field",         // 33
+        "tomato_field",         // 34
+        "cabbage_field",        // 35
+        "onion_field",          // 36
+        "broccoli_field",       // 37
+        "squash_field",         // 38
+        "spinach_field",        // 39
+        "bell_pepper_field"     // 40
       ];
 
       const maxIndex = levelPlaceIds.length - 1;
@@ -143,8 +155,6 @@ export function generateLevel(levelId: number): GameLevel {
       let baseKey = placeId;
       if (placeId.includes("grove") || placeId.includes("orchard")) {
         baseKey = "edible_berry_garden";
-      } else if (!placeId.startsWith("simulated_") && placeId.includes("mine")) {
-        baseKey = `simulated_${placeId}`;
       }
 
       const pThemes = themes[baseKey] || themes.garden;
@@ -161,14 +171,13 @@ export function generateLevel(levelId: number): GameLevel {
     name = `Infinite Endless Mystery Land (Stage ${levelId})`;
   }
 
-  // Calculate mathematically aligned properties representing level intensity:
   // Target distance in meters: shortened by 30% as requested by the user
   const targetDistance = Math.floor((1500 + levelId * 300) * 0.7);
   
   // Tick Density: average ticks count per 100 meters (keeps it fun! 8 to 20)
   const tickDensity = Math.min(25, 6 + (levelId % 8));
 
-  // Cycle through all newly designed places and reverb profiles
+  // Cycle cleanly across World 1: Gardens, Orchards, Farms, Crop Fields, Vegetable Fields (Level_0–Level_40)
   const levelPlaceIdsForEndless = [
     "floor_foyer",          // 0
     "garden",               // 1
@@ -188,35 +197,29 @@ export function generateLevel(levelId: number): GameLevel {
     "sheep_farm",           // 15
     "duck_farm",            // 16
     "goose_farm",           // 17
-    "cattle_farm",          // 18
-    "simulated_gold_mine",  // 19
-    "simulated_silver_mine",// 20
-    "simulated_emerald_mine",// 21
-    "simulated_diamond_mine",// 22
-    "simulated_salt_mine",  // 23
-    "gold_mine",            // 24
-    "silver_mine",          // 25
-    "emerald_mine",         // 26
-    "diamond_mine",         // 27
-    "salt_mine",            // 28
-    "cave",                 // 29
-    "plain",                // 30
-    "mountains",            // 31
-    "stone_corridor",       // 32
-    "forest",               // 33
-    "city",                 // 34
-    "quarry",               // 35
-    "stone_room",           // 36
-    "desert",               // 37
-    "generic",              // 38
-    "garden",               // 39
-    "zen_stone_garden",     // 40
-    "botanical_maze",       // 41
-    "butterfly_sanctuary",  // 42
-    "orchid_glasshouse",    // 43
-    "edible_berry_garden",  // 44
-    "cherry_orchard",       // 45
-    "the_grand_orchard"     // 46
+    "horse_farm",           // 18
+    "cattle_farm",          // 19
+    "wheat_field",          // 20
+    "corn_field",           // 21
+    "barley_field",         // 22
+    "rice_field",           // 23
+    "oats_field",           // 24
+    "sorghum_field",        // 25
+    "rye_field",            // 26
+    "millet_field",         // 27
+    "buckwheat_field",      // 28
+    "quinoa_field",         // 29
+    "amaranth_field",       // 30
+    "spelt_field",          // 31
+    "carrot_field",         // 32
+    "potato_field",         // 33
+    "tomato_field",         // 34
+    "cabbage_field",        // 35
+    "onion_field",          // 36
+    "broccoli_field",       // 37
+    "squash_field",         // 38
+    "spinach_field",        // 39
+    "bell_pepper_field"     // 40
   ];
   const maxIndexForEndless = levelPlaceIdsForEndless.length - 1;
   const placeId = levelId === 0 ? "floor_foyer" : (levelId <= maxIndexForEndless ? levelPlaceIdsForEndless[levelId] : levelPlaceIdsForEndless[1 + ((levelId - 1) % maxIndexForEndless)]);
@@ -239,4 +242,3 @@ export function generateLevel(levelId: number): GameLevel {
 }
 
 export * from "./Index";
-

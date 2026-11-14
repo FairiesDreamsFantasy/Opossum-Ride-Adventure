@@ -157,7 +157,7 @@ export interface TickItem {
 
 export interface ObstacleItem {
   id: number;
-  type: "fence" | "rock" | "garden_plant" | "stone_platform";
+  type: "fence" | "rock" | "garden_plant" | "stone_platform" | "triangular_stone_fence";
   z: number;
   lane: number;
   width: number;

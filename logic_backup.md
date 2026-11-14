@@ -321,3 +321,43 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
   7. Shannon White (`shannon`)
   8. Femmy (`femmy`) - $3\text{ ft } 11\text{ in}$ height, Black ethnicity, dark-brown skin, red hair, green eyes, modest Rastafari beige onesie with black horizontal stripes and rainbow circles, flat yellow shoes. Circus actress, awareness advocate, poacher hunter hardware technician.
 - **Master Equilibrium**: 24 Jills + 8 Compact Jacks = 32 Total Opossums; 8 Packed Riders.
+
+---
+
+## 14. Crop Fields (`Arena/Crop_Field/`), Vegetable Fields (`Arena/Vegetable_Field/`), & Aligned World 1 ("Gardens, Orchards, and Farms" `Level_0`–`Level_40`)
+- **World 1 Boundaries**: Strictly bounded to **`Level_0` through `Level_40`** (41 modules). Mines reside in `World/3/`; Wilderness & Mountains reside in `World/4/`.
+- **Horse Farm Alignment**: `horse_farm` slotted at `Level_18` directly before `cattle_farm` (`Level_19`).
+- **Crop Fields (`Levels 20–31`, 12 Sub-Arenas)**: `wheat_field` (`20`), `corn_field` (`21`), `barley_field` (`22`), `rice_field` (`23`), `oats_field` (`24`), `sorghum_field` (`25`), `rye_field` (`26`), `millet_field` (`27`), `buckwheat_field` (`28`), `quinoa_field` (`29`), `amaranth_field` (`30`), `spelt_field` (`31`).
+- **Vegetable Fields (`Levels 32–40`, 9 Sub-Arenas)**: `carrot_field` (`32`), `potato_field` (`33`), `tomato_field` (`34`), `cabbage_field` (`35`), `onion_field` (`36`), `broccoli_field` (`37`), `squash_field` (`38`), `spinach_field` (`39`), `bell_pepper_field` (`40`).
+- **Triangular Slate Stone Path (`System/Building_Blocks/Triangular_Stone_Path/`)**:
+  - Ground-oriented path (`pathPattern: "ground"`), sky rendering completely unaltered.
+  - Paved with flat triangular **Slate** stone blocks cycling through **36 distinct colors**: White, Pink, Blue, Green, Yellow, Red, Orange, Purple, Indigo, Lavender, Silver, Gold, Bronze, Platinum, Brass, Gray, Black, Red-Orange, Yellow-Orange, Blue-Green, Blue-Violet, Red-Violet, Violet, Yellow-Green, Coral, Amber, Brown, **Caramel** (corrected from `"Carmel"`), Toffee, Tan, Peach, Ocean, Light-Green, Light-Blue, Sky Blue, Emerald.
+  - Bordered along both left and right edges by **12-inch (`0.3048 m`) triangular divider stones** alternating Red, Gold, and Green.
+  - Footstep Acoustics: Verified **Slate** frequency profile (`1650 Hz`, `Q = 4.8`, `gain = 1.18`, `thudFreq = 105`), prioritized ahead of generic `stone`.
+- **Triangular Stone Fence Obstacle (`System/Building_Blocks/Triangular_Stone_Fence/`)**:
+  - Stacked triangular slate stone fence (`1.4 m` height, `> 0.8 m` opossum jump clearance).
+  - Deterministically spaced **`500 m` minimum to `2,000 m` maximum** apart across Crop & Vegetable Fields.
+  - Exclusively replaces rocks, garden plants, and wooden garden fences in Crop & Vegetable Fields, with dedicated collision audio (`playTriangularStoneFenceCollision`).
+- **Ethical Agriculture & Wildlife**:
+  - Autonomous solar farm robotics (harvesters, sensor rovers, irrigation booms) paired with dignified human stewardship; zero slavery or plantation depictions.
+  - Wildlife & Opponents: Monkeys riding moose, unmounted wild moose, feral pigs, and loose unmounted roaming monkeys (`radar` + `physics` + `Graphical_Renderer`).
+- **Audio & Accessibility**:
+  - Wind-rustling crop ambience (`System/Sound/BGM/Category/Ambience/Crop_Field/`).
+  - Zero-fallback Accessibility Narrations (`System/AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field/` + `Vegetable_Field/` + `Registry.tsx`).
+
+---
+
+## 15. Wilderness Suite (`Arena/Wilderness/`) & World 4 ("The Great Outdoors, Wilderness and Mountains" `Level_1`–`Level_40`)
+- **Consolidated Wilderness Folder (`src/Arena/Wilderness/`)**: Contains 5 biome families with 8 sub-arenas each (40 total):
+  - `Desert/` (8), `Forest/` (8), `Plain/` (8), `Mountains/` (8), and natural `Cave/` (8 — distinct from simulated caves in `src/Arena/Cave/`).
+- **World 4 Rules (`src/World/4/`)**:
+  - Strictly **`Level_1` through `Level_40`** (**NO `Level_0`**, **NO `Level_N`/`Level_*`**).
+  - Arranged in 8 assorted 5-biome rounds (`[Desert, Forest, Plain, Mountains, Cave] × 8`).
+- **Wilderness Physics & Obstacles**:
+  - Zero fences, zero garden plants, zero triangular stone fences, and zero blocking rocks.
+  - Spawns elevated `"stone_platform"` structures (`width: 6.0 m`, `height: 1.1 m`) to jump onto and ride over with matched stone footsteps.
+- **Wilderness Acoustics**:
+  - Scientific biome ambience (`System/Sound/BGM/Category/Ambience/Wilderness/`) and terrain-specific footstep profiles (`basalt`, `limestone`, `moss`, `peat`, `silt`, `ice`, `sand`, `gravel`, `slate`, `granite`, `marble`).
+- **World 2 & World 3 Alignment**:
+  - World 2 decluttered to `Level_0`–`Level_7` (Temple Courtyard + 7 unique Temple arenas).
+  - World 3 Index & Levels metadata aligned with Simulated & Natural Mines (`Level_0`–`Level_30`).

@@ -6,7 +6,7 @@
 import { Opponent, AnimalItem } from "../../../../../../types";
 
 export interface RadarScanTarget {
-  type: "opponent" | "feral_pig";
+  type: "opponent" | "feral_pig" | "monkey";
   z: number;
   data: Opponent | AnimalItem;
   distance: number;
@@ -34,11 +34,11 @@ export class InGameRadarScanner {
     }
 
     for (const animal of animals) {
-      if (animal.species === "feral_pig") {
+      if (animal.species === "feral_pig" || animal.species === "monkey") {
         const distance = animal.z - playerZ;
         if (distance > 0 && distance < minDistance) {
           minDistance = distance;
-          nearestTarget = { type: "feral_pig", z: animal.z, data: animal, distance };
+          nearestTarget = { type: animal.species, z: animal.z, data: animal, distance };
         }
       }
     }
@@ -47,6 +47,16 @@ export class InGameRadarScanner {
       return {
         target: null,
         reportText: "No opponents detected in immediate vicinity."
+      };
+    }
+
+    if (nearestTarget.type === "monkey") {
+      const monkey = nearestTarget.data as AnimalItem;
+      const monkeyGender = monkey.state === "roaming_female" ? "female" : "male";
+      const laneStr = monkey.lane === -1 ? "left lane" : monkey.lane === 1 ? "right lane" : "center lane";
+      return {
+        target: nearestTarget,
+        reportText: `Scan reports: Nearest entity is a loose ${monkeyGender} monkey in the ${laneStr}, ${formatDistance(minDistance)} ahead.`
       };
     }
 

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { SimulatedSaltMineArena } from "../../../../../Arena/Simulated_Salt_Mine";
+import { GooseFarmSubArena } from "../../../../../Arena/Farm";
 
 export const Level_17SubArena = {
-  ...SimulatedSaltMineArena
+  ...GooseFarmSubArena
 };

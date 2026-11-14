@@ -11,7 +11,10 @@ export const World2LevelsIndex = {
     "Level_1",
     "Level_2",
     "Level_3",
-    "Level_4"
+    "Level_4",
+    "Level_5",
+    "Level_6",
+    "Level_7"
   ],
   standard: "75,000,000,000%_ULTRA_BROAD",
   timestamp: new Date().toISOString()

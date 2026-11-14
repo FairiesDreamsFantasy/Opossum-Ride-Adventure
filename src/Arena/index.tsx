@@ -16,11 +16,50 @@ import { AppleGroveSubArena } from "./The_Grand_Orchard/Apple_Grove";
 import { OliveGroveSubArena } from "./The_Grand_Orchard/Olive_Grove";
 import { WalnutGroveSubArena } from "./The_Grand_Orchard/Walnut_Grove";
 import { CaveArena } from "./Cave";
-import { PlainArena } from "./Plain";
-import { ForestArena } from "./Forest";
-import { MountainsArena } from "./Mountains";
+import {
+  PlainArena,
+  TallgrassPrairieSubArena,
+  SagebrushSteppeSubArena,
+  GoldenSavannahSubArena,
+  WildflowerMeadowSubArena,
+  CoastalMoorlandSubArena,
+  WindsweptTundraSubArena,
+  PampasFloodplainSubArena,
+  ForestArena,
+  OldGrowthRedwoodSubArena,
+  PineNeedleRidgeSubArena,
+  MossyRainforestSubArena,
+  AutumnMapleHollowSubArena,
+  BorealSpruceTaigaSubArena,
+  BambooMistGroveSubArena,
+  CypressBayouTrailSubArena,
+  MountainsArena,
+  GlacialIceRidgeSubArena,
+  BasaltVolcanicCrestSubArena,
+  AlpineSnowSaddleSubArena,
+  SlateSwitchbackPassSubArena,
+  LimestoneKarstCragSubArena,
+  TimberlineMeadowSpurSubArena,
+  CloudGorgeLedgeSubArena,
+  DesertArena,
+  ObsidianErgSubArena,
+  SaltPanBasinSubArena,
+  RedSandstoneMesaSubArena,
+  OasisPalmWadiSubArena,
+  QuartzSingingDunesSubArena,
+  ChalkBadlandsSubArena,
+  CanyonArroyoSubArena,
+  WildernessCaveArena,
+  LimestoneDripstoneGrottoSubArena,
+  GraniteRiftCavernSubArena,
+  GlacialIceCavernSubArena,
+  BasaltLavaTubeSubArena,
+  KarstMarbleCathedralSubArena,
+  DarkSlateFissureSubArena,
+  SubterraneanRiverBedSubArena,
+  EchoSiltHollowSubArena
+} from "./Wilderness";
 import { QuarryArena } from "./Quarry";
-import { DesertArena } from "./Desert";
 import { SimulatedGoldMineArena } from "./Simulated_Gold_Mine";
 import { SimulatedSilverMineArena } from "./Simulated_Silver_Mine";
 import { SimulatedEmeraldMineArena } from "./Simulated_Emerald_Mine";
@@ -50,6 +89,33 @@ import {
   JadeGallery,
   SilentShrine
 } from "./Temple";
+import {
+  CropFieldArena,
+  WheatFieldSubArena,
+  CornFieldSubArena,
+  BarleyFieldSubArena,
+  RiceFieldSubArena,
+  OatsFieldSubArena,
+  SorghumFieldSubArena,
+  RyeFieldSubArena,
+  MilletFieldSubArena,
+  BuckwheatFieldSubArena,
+  QuinoaFieldSubArena,
+  AmaranthFieldSubArena,
+  SpeltFieldSubArena
+} from "./Crop_Field";
+import {
+  VegetableFieldArena,
+  CarrotFieldSubArena,
+  PotatoFieldSubArena,
+  TomatoFieldSubArena,
+  CabbageFieldSubArena,
+  OnionFieldSubArena,
+  BroccoliFieldSubArena,
+  SquashFieldSubArena,
+  SpinachFieldSubArena,
+  BellPepperFieldSubArena
+} from "./Vegetable_Field";
 
 export {
   TempleArena,
@@ -58,9 +124,34 @@ export {
   SacredSanctuary,
   GoldenChamber,
   JadeGallery,
-  SilentShrine
+  SilentShrine,
+  CropFieldArena,
+  WheatFieldSubArena,
+  CornFieldSubArena,
+  BarleyFieldSubArena,
+  RiceFieldSubArena,
+  OatsFieldSubArena,
+  SorghumFieldSubArena,
+  RyeFieldSubArena,
+  MilletFieldSubArena,
+  BuckwheatFieldSubArena,
+  QuinoaFieldSubArena,
+  AmaranthFieldSubArena,
+  SpeltFieldSubArena,
+  VegetableFieldArena,
+  CarrotFieldSubArena,
+  PotatoFieldSubArena,
+  TomatoFieldSubArena,
+  CabbageFieldSubArena,
+  OnionFieldSubArena,
+  BroccoliFieldSubArena,
+  SquashFieldSubArena,
+  SpinachFieldSubArena,
+  BellPepperFieldSubArena,
+  WildernessCaveArena
 };
 
+export * from "./Wilderness";
 export * from "./AI-Generated";
 
 export interface PlaceDefinition {
@@ -212,6 +303,70 @@ export const INITIAL_PLACES: Record<string, PlaceDefinition> = {
   goose_farm: GooseFarmSubArena,
   cattle_farm: CattleFarmSubArena,
   horse_farm: HorseFarmSubArena,
+  crop_field: CropFieldArena,
+  wheat_field: WheatFieldSubArena,
+  corn_field: CornFieldSubArena,
+  barley_field: BarleyFieldSubArena,
+  rice_field: RiceFieldSubArena,
+  oats_field: OatsFieldSubArena,
+  sorghum_field: SorghumFieldSubArena,
+  rye_field: RyeFieldSubArena,
+  millet_field: MilletFieldSubArena,
+  buckwheat_field: BuckwheatFieldSubArena,
+  quinoa_field: QuinoaFieldSubArena,
+  amaranth_field: AmaranthFieldSubArena,
+  spelt_field: SpeltFieldSubArena,
+  vegetable_field: VegetableFieldArena,
+  carrot_field: CarrotFieldSubArena,
+  potato_field: PotatoFieldSubArena,
+  tomato_field: TomatoFieldSubArena,
+  cabbage_field: CabbageFieldSubArena,
+  onion_field: OnionFieldSubArena,
+  broccoli_field: BroccoliFieldSubArena,
+  squash_field: SquashFieldSubArena,
+  spinach_field: SpinachFieldSubArena,
+  bell_pepper_field: BellPepperFieldSubArena,
+  // Wilderness Desert (8)
+  desert_obsidian_erg: ObsidianErgSubArena,
+  desert_salt_pan_basin: SaltPanBasinSubArena,
+  desert_red_sandstone_mesa: RedSandstoneMesaSubArena,
+  desert_oasis_palm_wadi: OasisPalmWadiSubArena,
+  desert_quartz_singing_dunes: QuartzSingingDunesSubArena,
+  desert_chalk_badlands: ChalkBadlandsSubArena,
+  desert_canyon_arroyo: CanyonArroyoSubArena,
+  // Wilderness Forest (8)
+  forest_old_growth_redwood: OldGrowthRedwoodSubArena,
+  forest_pine_needle_ridge: PineNeedleRidgeSubArena,
+  forest_mossy_temperate_rainforest: MossyRainforestSubArena,
+  forest_autumn_maple_hollow: AutumnMapleHollowSubArena,
+  forest_boreal_spruce_taiga: BorealSpruceTaigaSubArena,
+  forest_bamboo_mist_grove: BambooMistGroveSubArena,
+  forest_cypress_bayou_trail: CypressBayouTrailSubArena,
+  // Wilderness Plain (8)
+  plain_tallgrass_prairie: TallgrassPrairieSubArena,
+  plain_sagebrush_steppe: SagebrushSteppeSubArena,
+  plain_golden_savannah: GoldenSavannahSubArena,
+  plain_wildflower_meadow: WildflowerMeadowSubArena,
+  plain_coastal_moorland: CoastalMoorlandSubArena,
+  plain_windswept_tundra: WindsweptTundraSubArena,
+  plain_pampas_floodplain: PampasFloodplainSubArena,
+  // Wilderness Mountains (8)
+  mountains_glacial_ice_ridge: GlacialIceRidgeSubArena,
+  mountains_basalt_volcanic_crest: BasaltVolcanicCrestSubArena,
+  mountains_alpine_snow_saddle: AlpineSnowSaddleSubArena,
+  mountains_slate_switchback_pass: SlateSwitchbackPassSubArena,
+  mountains_limestone_karst_crag: LimestoneKarstCragSubArena,
+  mountains_timberline_meadow_spur: TimberlineMeadowSpurSubArena,
+  mountains_cloud_gorge_ledge: CloudGorgeLedgeSubArena,
+  // Wilderness Caves (8)
+  wilderness_cave_limestone_grotto: LimestoneDripstoneGrottoSubArena,
+  wilderness_cave_granite_rift: GraniteRiftCavernSubArena,
+  wilderness_cave_glacial_ice_vault: GlacialIceCavernSubArena,
+  wilderness_cave_lava_tube: BasaltLavaTubeSubArena,
+  wilderness_cave_marble_cathedral: KarstMarbleCathedralSubArena,
+  wilderness_cave_slate_fissure: DarkSlateFissureSubArena,
+  wilderness_cave_alluvial_gravel: SubterraneanRiverBedSubArena,
+  wilderness_cave_echosilt_hollow: EchoSiltHollowSubArena,
   stone_room: {
     id: "stone_room",
     name: "The Grand Tapestry Vault",

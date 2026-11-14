@@ -27,3 +27,10 @@ export class AudioDSPMathEngine {
 }
 
 export default AudioDSPMathEngine;
+
+export * from "./Oscillator";
+export * from "./Resonator";
+export * from "./Envelope";
+export * from "./FFT";
+export * from "./KarplusStrong";
+export * from "./Reverb";

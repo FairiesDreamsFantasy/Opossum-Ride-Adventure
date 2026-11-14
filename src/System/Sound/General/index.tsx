@@ -15,11 +15,16 @@ export const SURFACE_PROFILES: Record<string, { freq: number; q: number; gain: n
   hardwood: { freq: 400, q: 3.0, gain: 1.15, thudFreq: 65 },
   carpet: { freq: 200, q: 1.5, gain: 0.8, thudFreq: 40 },
   asphalt: { freq: 1100, q: 3.5, gain: 1.05, thudFreq: 90 },
+  slate: { freq: 1650, q: 4.8, gain: 1.18, thudFreq: 105 },
+  basalt: { freq: 1700, q: 5.1, gain: 1.22, thudFreq: 108 },
+  limestone: { freq: 1640, q: 4.9, gain: 1.2, thudFreq: 102 },
   stone: { freq: 1600, q: 5.0, gain: 1.2, thudFreq: 100 },
   granite: { freq: 1750, q: 5.2, gain: 1.25, thudFreq: 110 },
   marble: { freq: 1900, q: 5.5, gain: 1.3, thudFreq: 115 },
-  slate: { freq: 1650, q: 4.8, gain: 1.18, thudFreq: 105 },
   slab: { freq: 1600, q: 5.0, gain: 1.2, thudFreq: 100 },
+  moss: { freq: 320, q: 0.8, gain: 0.78, thudFreq: 42 },
+  peat: { freq: 380, q: 0.9, gain: 0.82, thudFreq: 48 },
+  silt: { freq: 460, q: 1.1, gain: 0.85, thudFreq: 52 },
   soil: { freq: 1200, q: 4.0, gain: 1.0, thudFreq: 80 },
   grass: { freq: 400, q: 1.0, gain: 0.85, thudFreq: 50 },
   mulch: { freq: 450, q: 1.2, gain: 0.9, thudFreq: 55 },
@@ -110,8 +115,10 @@ export const SoundService = {
     if (type === "fence") sys.playFenceCollision();
     else if (type === "garden_plant") sys.playGardenPlantCollision();
     else if (type === "rock") sys.playRockCollision();
+    else if (type === "triangular_stone_fence") sys.playTriangularStoneFenceCollision();
     else sys.playImpactCrash();
   },
+  playTriangularStoneFenceCollision: () => getSoundSystem().playTriangularStoneFenceCollision(),
   playSlidingDoorOpen: () => getSoundSystem().playSlidingDoors(true),
   playSlidingDoorClose: () => getSoundSystem().playSlidingDoors(false),
   playAnimalVocal: (animal: "owl" | "frog", distance: number = 0) => {

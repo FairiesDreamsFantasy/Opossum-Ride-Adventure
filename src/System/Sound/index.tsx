@@ -18,6 +18,8 @@ import {
   globalGardenAmbience,
   globalMountainsAmbience,
   globalCaveAmbience,
+  globalCropFieldAmbience,
+  globalWildernessAmbience,
   globalFanfare
 } from "./BGM";
 import { OpossumSynthesizer } from "./Synthesizer";
@@ -292,9 +294,9 @@ export class ProceduralSoundSystem {
     else if (id.includes("cave")) profileKey = "cave";
     else if (id.includes("mountain")) profileKey = "mountains";
     else if (id.includes("corridor")) profileKey = "stone_corridor";
-    else if (id.includes("forest") || id.includes("jungle")) profileKey = "forest";
+    else if (id.includes("forest") || id.includes("jungle") || id.includes("rainforest") || id.includes("taiga") || id.includes("redwood") || id.includes("bayou") || id.includes("bamboo_mist")) profileKey = "forest";
     else if (id.includes("city")) profileKey = "city";
-    else if (id.includes("quarry")) profileKey = "quarry";
+    else if (id.includes("quarry") || id.includes("arroyo") || id.includes("badlands")) profileKey = "quarry";
     else if (id.includes("temple")) profileKey = "temple";
     else if (id.includes("arena")) profileKey = "arena";
     else if (id.includes("carpet")) profileKey = "carpeted_hallway";
@@ -449,7 +451,17 @@ export class ProceduralSoundSystem {
     if (ambientDest) {
       if (profile.ambientType === "cavern") {
         globalCaveAmbience.startCaveAmbience(ctx, ambientDest);
-      } else if (id.includes("mountain")) {
+      } else if (profile.ambientType === "wilderness_cavern") {
+        globalWildernessAmbience.startWildernessCaveAmbience(ctx, ambientDest, id);
+      } else if (profile.ambientType === "desert_wind") {
+        globalWildernessAmbience.startDesertWind(ctx, ambientDest, id);
+      } else if (profile.ambientType === "grassland_wind") {
+        globalWildernessAmbience.startPlainWind(ctx, ambientDest, id);
+      } else if (profile.ambientType === "forest_canopy") {
+        globalWildernessAmbience.startForestWildernessAmbience(ctx, ambientDest, id);
+      } else if (profile.ambientType === "crop_rustle") {
+        globalCropFieldAmbience.startCropFieldAmbience(ctx, ambientDest);
+      } else if (profile.ambientType === "alpine_wind" || id.includes("mountain")) {
         globalMountainsAmbience.startMountainsWind(ctx, ambientDest);
       } else if (profile.ambientType === "breeze" || profile.ambientType === "greenhouse" || profile.ambientType === "rural") {
         globalGardenAmbience.startGardenBreeze(ctx, ambientDest);
@@ -533,6 +545,8 @@ export class ProceduralSoundSystem {
     globalMountainsAmbience.stopMountainsWind();
     globalGardenAmbience.stopGardenBreeze();
     globalCaveAmbience.stopCaveAmbience();
+    globalCropFieldAmbience.stopCropFieldAmbience();
+    globalWildernessAmbience.stopWildernessAmbience();
     
     if (this.dropletTimeout) {
       clearTimeout(this.dropletTimeout);
@@ -670,6 +684,13 @@ export class ProceduralSoundSystem {
     if (!ctx || ctx.state === "suspended") return;
     const dest = this.getSharedDestination(ctx, 0.4);
     this.sfx.playRockCollision(ctx, dest);
+  }
+
+  public playTriangularStoneFenceCollision() {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.4);
+    this.sfx.playTriangularStoneFenceCollision(ctx, dest);
   }
 
   public playMonkeyVocalForOpponent(opponent: any, distance: number) {

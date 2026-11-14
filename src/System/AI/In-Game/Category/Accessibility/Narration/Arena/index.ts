@@ -8,6 +8,10 @@ export * from "./Foyer";
 export * from "./Garden";
 export * from "./Cellar";
 export * from "./Porch";
+export * from "./Manorsville";
+export * from "./Crop_Field";
+export * from "./Vegetable_Field";
+export * from "./Wilderness";
 export * from "./Registry";
 
 import { ArenaNarrationRegistry } from "./Registry";

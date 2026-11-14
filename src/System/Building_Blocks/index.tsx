@@ -16,6 +16,8 @@ export * from "./Paths";
 export * from "./Railway";
 export * from "./Random_Materials";
 export * from "./Road";
+export * from "./Triangular_Stone_Fence";
+export * from "./Triangular_Stone_Path";
 export * from "./Tunnels";
 export * from "./World";
 // Add other blocks as they are refined

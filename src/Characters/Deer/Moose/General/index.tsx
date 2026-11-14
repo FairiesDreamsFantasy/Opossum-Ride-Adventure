@@ -54,6 +54,7 @@ export const MooseGeneral = {
             speakAnimalNarrative(`${subject} stomped a garden plant.`);
           }
         } else {
+          const obsLabel = (obs.type || "obstacle").replace(/_/g, " ");
           const actionRoll = Math.random();
           
           if (actionRoll < 0.25) {
@@ -61,11 +62,11 @@ export const MooseGeneral = {
             const possibleLanes = [-1, 0, 1].filter(l => l !== oldLane);
             opp.lane = possibleLanes[Math.floor(Math.random() * possibleLanes.length)];
             if (oppDistance < 80) {
-              speakAnimalNarrative(`${subject} swerved lanes avoiding a ${obs.type}.`);
+              speakAnimalNarrative(`${subject} swerved lanes avoiding a ${obsLabel}.`);
             }
-          } else if (actionRoll < 0.50 && obs.type === "rock") {
+          } else if (actionRoll < 0.50 && (obs.type === "rock" || obs.type === "triangular_stone_fence")) {
             if (oppDistance < 80) {
-              speakAnimalNarrative(`${subject} leaped over rock.`);
+              speakAnimalNarrative(`${subject} leaped over ${obsLabel}.`);
             }
             opp.z += (opp.isCharging ? -4.0 : 4.0);
           } else if (actionRoll < 0.75) {
@@ -76,6 +77,8 @@ export const MooseGeneral = {
               soundSystemRef.current.playFenceCollision();
             } else if (obs.type === "rock") {
               soundSystemRef.current.playRockCollision();
+            } else if (obs.type === "triangular_stone_fence") {
+              soundSystemRef.current.playTriangularStoneFenceCollision();
             } else {
               soundSystemRef.current.playImpactCrash();
             }
@@ -87,17 +90,17 @@ export const MooseGeneral = {
               
               if (monkeyHangsOn) {
                 if (oppDistance < 80) {
-                  speakAnimalNarrative(`${subject} hit ${obs.type}; monkey ${monkeyStr} hung on.`);
+                  speakAnimalNarrative(`${subject} hit ${obsLabel}; monkey ${monkeyStr} hung on.`);
                 }
               } else {
                 opp.monkeyBehavior = "tossed";
                 if (oppDistance < 80) {
-                  speakAnimalNarrative(`${subject} hit ${obs.type}; monkey tossed off.`);
+                  speakAnimalNarrative(`${subject} hit ${obsLabel}; monkey tossed off.`);
                 }
               }
             } else {
               if (oppDistance < 80) {
-                speakAnimalNarrative(`${subject} hit ${obs.type} and halted.`);
+                speakAnimalNarrative(`${subject} hit ${obsLabel} and halted.`);
               }
             }
             
@@ -112,6 +115,13 @@ export const MooseGeneral = {
               soundSystemRef.current.playFenceCollision();
               if (oppDistance < 80) {
                 speakAnimalNarrative(`${subject} charged through wooden fence.`);
+              }
+            } else if (obs.type === "triangular_stone_fence") {
+              opp.isCharging = false;
+              opp.speed = 0;
+              soundSystemRef.current.playTriangularStoneFenceCollision();
+              if (oppDistance < 80) {
+                speakAnimalNarrative(`${subject} struck triangular stone fence and stopped.`);
               }
             } else {
               opp.isCharging = false;

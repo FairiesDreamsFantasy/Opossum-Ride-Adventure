@@ -16,6 +16,8 @@ import { GeneralEngineUtils } from "../General";
 import { IntegrityShadow } from "../../../Security/Phantom/Integrity_Shadow";
 import { SymbioticAnchor } from "../../../Security/Phantom/Cryptographic_Anchor";
 import { canSpeakAnimalNarrative, speakAnimalNarrative } from "../../../Sound/TTS";
+import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
+import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
 
 /**
  * Internal helper to apply a scientific reaction to an opponent (moose/monkey)
@@ -469,7 +471,14 @@ export function updateStandardPhysics(
           selectedOpossum.id.startsWith("ai-")
         ))
       );
-      soundSystemRef.current?.playFootstep(platformUnder ? "rock" : currentPlaceObj.surfaceType, opSex, isAI);
+      const platformSurface = currentPlaceObj.surfaceType.toLowerCase().includes("slate")
+        ? "slate"
+        : currentPlaceObj.surfaceType.toLowerCase().includes("marble")
+          ? "marble"
+          : currentPlaceObj.surfaceType.toLowerCase().includes("basalt")
+            ? "basalt"
+            : "granite";
+      soundSystemRef.current?.playFootstep(platformUnder ? platformSurface : currentPlaceObj.surfaceType, opSex, isAI);
     } else {
       const platformUnder = localObstacles.find(obs => obs.type === "stone_platform" && obs.lane === stateRef.current.playerLane && Math.abs(obs.z - stateRef.current.playerZ) <= obs.width / 2);
       const baseHeight = platformUnder && stateRef.current.playerY >= platformUnder.height - 0.2 ? platformUnder.height : 0;
@@ -585,10 +594,17 @@ export function updateStandardPhysics(
     ))
   );
   
-  if (Math.abs(stepDeltaZ) >= trotStrideFrequency && Math.abs(stateRef.current.speed) > 0.1 && !stateRef.current.isJumping && stateRef.current.playerY <= 0) {
+  const ridingPlatform = !stateRef.current.isJumping
+    ? localObstacles.find(obs => obs.type === "stone_platform" && obs.lane === stateRef.current.playerLane && Math.abs(obs.z - stateRef.current.playerZ) <= obs.width / 2 && Math.abs(stateRef.current.playerY - obs.height) < 0.15)
+    : undefined;
+
+  if (Math.abs(stepDeltaZ) >= trotStrideFrequency && Math.abs(stateRef.current.speed) > 0.1 && !stateRef.current.isJumping && (stateRef.current.playerY <= 0 || ridingPlatform)) {
     lastFootstepZRef.current = stateRef.current.playerZ;
     const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
-    soundSystemRef.current.playFootstep(currentPlace.surfaceType, opSex, isAI);
+    const stepSurface = ridingPlatform
+      ? (currentPlace.surfaceType.toLowerCase().includes("slate") ? "slate" : currentPlace.surfaceType.toLowerCase().includes("marble") ? "marble" : "granite")
+      : currentPlace.surfaceType;
+    soundSystemRef.current.playFootstep(stepSurface, opSex, isAI);
   }
 
   // Move opponents
@@ -664,17 +680,18 @@ export function updateStandardPhysics(
 
     const isMooseFreePlace = currentLevel.placeId === "floor_foyer" || currentLevel.placeId === "stone_corridor" || currentLevel.placeId === "stone_room" || currentLevel.placeId === "generic";
     // Check for endless hotspots in specific arenas
-    const hasEndlessHotspots = currentLevel.placeId === "cave" || currentLevel.placeId === "plain" || currentLevel.placeId === "plains" || currentLevel.placeId === "forest" || currentLevel.placeId === "mountains";
+    const pidLower = currentLevel.placeId.toLowerCase();
+    const hasEndlessHotspots = pidLower === "cave" || pidLower.startsWith("wilderness_cave_") || pidLower.startsWith("plain") || pidLower.startsWith("forest") || pidLower.startsWith("mountains");
     
     const randomThreshold = hasEndlessHotspots ? delta * 0.12 : delta * 0.04;
     
     if (!isMooseFreePlace && oppDistance < 90 && !opp.hasCharged && canSpeakAnimalNarrative() && Math.random() < randomThreshold) {
       opp.hasCharged = true; // Trigger once per opponent encounter
       const nameStr = opp.mooseName || (opp.mooseType === "Bull" ? "Wild Bull Moose" : "Wild Cow Moose");
-      const isCave = currentLevel.placeId === "cave";
-      const isForest = currentLevel.placeId === "forest";
-      const isPlain = currentLevel.placeId === "plain" || currentLevel.placeId === "plains";
-      const isMountain = currentLevel.placeId === "mountains";
+      const isCave = pidLower === "cave" || pidLower.startsWith("wilderness_cave_");
+      const isForest = pidLower.startsWith("forest");
+      const isPlain = pidLower.startsWith("plain");
+      const isMountain = pidLower.startsWith("mountains");
       
       // Scientific factor: misidentification due to opossum size
       const opossumScaleFactor = " Due to the large scale of this crafted opossum, the moose misidentifies it as a wolf or wild dog enemy! ";
@@ -739,7 +756,9 @@ export function updateStandardPhysics(
           setStatusMessage(`Ouch! Hit stone platform`);
         }
       } else {
-        const savesWithJump = stateRef.current.playerY > 0.8 && (obs.type === "fence" || obs.type === "garden_plant");
+        const savesWithJump =
+          stateRef.current.playerY > 0.8 &&
+          (obs.type === "fence" || obs.type === "garden_plant" || obs.type === "triangular_stone_fence");
         if (!savesWithJump) {
           playProceduralSound("crash");
           if (obs.type === "fence") {
@@ -748,14 +767,17 @@ export function updateStandardPhysics(
             soundSystemRef.current?.playGardenPlantCollision();
           } else if (obs.type === "rock") {
             soundSystemRef.current?.playRockCollision();
+          } else if (obs.type === "triangular_stone_fence") {
+            soundSystemRef.current?.playTriangularStoneFenceCollision();
           } else {
             soundSystemRef.current?.playImpactCrash();
           }
           stateRef.current.speed = -3;
           stateRef.current.score = Math.max(0, stateRef.current.score - 20);
           stateRef.current.playerZ -= 4;
-          speakWords(`Crash! Hit ${obs.type.replace("_", " ")}! Jump or strafe lanes to avoid.`, true);
-          setStatusMessage(`Ouch! Hit a ${obs.type}`);
+          const obstacleLabel = obs.type.replace(/_/g, " ");
+          speakWords(`Crash! Hit ${obstacleLabel}! Jump or strafe lanes to avoid.`, true);
+          setStatusMessage(`Ouch! Hit a ${obstacleLabel}`);
         }
       }
     }
@@ -917,6 +939,21 @@ export function updateStandardPhysics(
       }
     }
 
+    if (animal.species === "monkey") {
+      const distance = Math.abs(animal.z - stateRef.current.playerZ);
+      const isSameLane = animal.lane === stateRef.current.playerLane;
+      if (distance < 2.2 && isSameLane && stateRef.current.playerY <= 0.8 && !(animal as any).recentlyDodged) {
+        (animal as any).recentlyDodged = true;
+        const isFemale = animal.state === "roaming_female";
+        soundSystemRef.current?.playMonkeyModularVocal(isFemale ? "coo" : "screech", isFemale ? 1.15 : 0.92);
+        stateRef.current.speed = Math.max(2, stateRef.current.speed - 2);
+        if (canSpeakAnimalNarrative()) {
+          const isFieldPath = isCropFieldPlaceId(currentLevel.placeId) || isVegetableFieldPlaceId(currentLevel.placeId);
+          speakAnimalNarrative(`Opossum darted past a loose ${isFemale ? "female" : "male"} monkey ${isFieldPath ? "on the slate path" : "along the wilderness trail"}.`);
+        }
+      }
+    }
+
     if (animal.state === "smashed") return;
 
     if (animal.nextVocalTime === undefined) {
@@ -933,6 +970,9 @@ export function updateStandardPhysics(
           soundSystemRef.current?.playFrogCroak(distance);
         } else if (animal.species === "feral_pig") {
           soundSystemRef.current?.playPigVocal(animal.gender || "Boar", distance);
+        } else if (animal.species === "monkey") {
+          const isFemale = animal.state === "roaming_female";
+          soundSystemRef.current?.playMonkeyModularVocal(isFemale ? "hoot" : "pant_hoot", isFemale ? 1.12 : 0.95);
         }
       }
     }

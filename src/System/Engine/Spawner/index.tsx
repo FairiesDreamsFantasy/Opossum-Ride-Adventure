@@ -12,6 +12,10 @@ import { PseudorandomGenerator, PseudorandomFunctions } from "../../AI/In-Game/C
 import { OpponentAIEngine, MOOSE_BABYLON_NAMES, MONKEY_BABYLON_NAMES } from "../../AI/In-Game/Category/Opponents";
 import { FeralPigArenaInclusionEngine } from "../../AI/In-Game/Category/Animal/Feral_Pig/Included_Via_Any_Arena";
 import { BASE_PIG_COAT_HUES } from "../../../Characters/Pigs/Animations/Color_Palette/General";
+import { isCropFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
+import { isVegetableFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
+import { isWildernessPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Wilderness";
+import { TRIANGULAR_STONE_FENCE_SPEC } from "../../Building_Blocks/Triangular_Stone_Fence";
 
 export { MOOSE_BABYLON_NAMES, MONKEY_BABYLON_NAMES };
 
@@ -85,6 +89,77 @@ export const Spawner = {
     const bufferMinZ = 91.44; // 300 feet start buffer
     const bufferMaxZ = levelObj.targetDistance - 91.44; // 300 feet end buffer
 
+    // Crop Field & Vegetable Field Arenas: Exclusively Triangular Stone Fence obstacles spaced strictly 500m–2000m apart
+    if (isCropFieldPlaceId(placeId) || isVegetableFieldPlaceId(placeId)) {
+      const cropRng = new PseudorandomGenerator(levelId * 7919 + 42);
+      const minSpacing = TRIANGULAR_STONE_FENCE_SPEC.spacing.minMeters;
+      const maxSpacing = TRIANGULAR_STONE_FENCE_SPEC.spacing.maxMeters;
+      const lanes = [-1, 0, 1];
+      let curZ = bufferMinZ + cropRng.range(minSpacing, Math.min(maxSpacing, 1100));
+      let fenceIdx = 0;
+
+      while (curZ <= bufferMaxZ) {
+        const laneChoice = lanes[Math.floor(cropRng.range(0, 3)) % 3];
+        spawnedObstacles.push({
+          id: fenceIdx++,
+          type: "triangular_stone_fence",
+          z: Math.round(curZ),
+          lane: laneChoice,
+          width: TRIANGULAR_STONE_FENCE_SPEC.dimensions.worldWidthM,
+          height: TRIANGULAR_STONE_FENCE_SPEC.dimensions.worldHeightM
+        });
+        curZ += cropRng.range(minSpacing, maxSpacing);
+      }
+
+      if (spawnedObstacles.length === 0 && bufferMaxZ >= bufferMinZ + 400) {
+        spawnedObstacles.push({
+          id: 0,
+          type: "triangular_stone_fence",
+          z: Math.round(Math.min(bufferMaxZ, 600)),
+          lane: lanes[levelId % 3],
+          width: TRIANGULAR_STONE_FENCE_SPEC.dimensions.worldWidthM,
+          height: TRIANGULAR_STONE_FENCE_SPEC.dimensions.worldHeightM
+        });
+      }
+
+      return spawnedObstacles;
+    }
+
+    // Wilderness Arenas: ZERO fences, garden plants, triangular stone fences, or blocking rocks.
+    // Exclusively elevated stone_platform structures that can be jumped onto and ridden over.
+    if (isWildernessPlaceId(placeId)) {
+      const wildRng = new PseudorandomGenerator(levelId * 6133 + 19);
+      const lanes = [-1, 0, 1];
+      let curZ = bufferMinZ + wildRng.range(95, 165);
+      let platIdx = 0;
+
+      const colorPreset = placeId.startsWith("desert")
+        ? { name: "Red Sandstone Ledge", fill: "#B45309", stroke: "#78350F" }
+        : placeId.startsWith("forest")
+          ? { name: "Mossy Woodland Stone", fill: "#4B5563", stroke: "#166534" }
+          : placeId.startsWith("plain")
+            ? { name: "Prairie Limestone Slab", fill: "#9CA3AF", stroke: "#4B5563" }
+            : placeId.startsWith("wilderness_cave_")
+              ? { name: "Cavern Karst Ledge", fill: "#334155", stroke: "#0F172A" }
+              : { name: "Alpine Granite Shelf", fill: "#64748B", stroke: "#334155" };
+
+      while (curZ <= bufferMaxZ) {
+        const laneChoice = lanes[Math.floor(wildRng.range(0, 3)) % 3];
+        spawnedObstacles.push({
+          id: platIdx++,
+          type: "stone_platform",
+          z: Math.round(curZ),
+          lane: laneChoice,
+          width: 6.0,
+          height: 1.1,
+          colorPreset
+        });
+        curZ += wildRng.range(120, 210);
+      }
+
+      return spawnedObstacles;
+    }
+
     const spacingMeters = levelId <= 20 ? 152.4 : 45;
     const obstaclesCount = Math.floor((levelObj.targetDistance - 60) / spacingMeters);
     
@@ -133,10 +208,26 @@ export const Spawner = {
     const id = levelObj.placeId.toLowerCase();
     let currentAnimalId = 0;
     
-    // 1. Garden, nature-based, and AI-generated smart arena feral pig inclusion
+    // 1. Garden, nature-based, crop/vegetable field, wilderness, and AI-generated smart arena feral pig inclusion
     const isGardenArena = id === "garden" || id.includes("garden") || id.includes("maze") || id.includes("sanctuary") || id.includes("glasshouse");
+    const isCropField = isCropFieldPlaceId(id);
+    const isVegetableField = isVegetableFieldPlaceId(id);
+    const isWilderness = isWildernessPlaceId(id);
     const isAIGeneratedArena = id.startsWith("ai_gen_");
-    const isNatureArena = isGardenArena || isAIGeneratedArena || id === "the_grand_orchard" || id.includes("orchard") || id === "farm" || id.includes("farm") || id === "trail" || id.includes("trail") || id === "plain" || id === "forest";
+    const isNatureArena =
+      isGardenArena ||
+      isCropField ||
+      isVegetableField ||
+      isWilderness ||
+      isAIGeneratedArena ||
+      id === "the_grand_orchard" ||
+      id.includes("orchard") ||
+      id === "farm" ||
+      id.includes("farm") ||
+      id === "trail" ||
+      id.includes("trail") ||
+      id === "plain" ||
+      id === "forest";
 
     if (isNatureArena && levelObj.targetDistance > 80) {
       let arenaType: "garden" | "cave" | "orchard" | "farm" | "trail" = "trail";
@@ -144,7 +235,7 @@ export const Spawner = {
         arenaType = "garden";
       } else if (id.includes("orchard") || id.includes("redwood") || id.includes("forest")) {
         arenaType = "orchard";
-      } else if (id.includes("farm")) {
+      } else if (id.includes("farm") || isCropField || isVegetableField) {
         arenaType = "farm";
       } else if (id.includes("cave") || id.includes("trench") || id.includes("cavern")) {
         arenaType = "cave";
@@ -197,7 +288,7 @@ export const Spawner = {
           nextVocalTime: Math.random() * 5000
         });
       }
-    } else if (id === "forest") {
+    } else if (id === "forest" || id.startsWith("forest_")) {
       // 3. Frogs in Forest near the ground every 80 meters
       const count = Math.floor(levelObj.targetDistance / 80);
       for (let i = 0; i < count; i++) {
@@ -210,6 +301,28 @@ export const Spawner = {
           heightOffset: 0,
           state: "sitting",
           nextVocalTime: Math.random() * 3000
+        });
+      }
+    }
+
+    // 4. Loose unmounted Monkeys roaming Crop Fields, Vegetable Fields & Outdoor Wilderness trails
+    if ((isCropField || isVegetableField || (isWilderness && !id.startsWith("wilderness_cave_"))) && levelObj.targetDistance > 120) {
+      const monkeyRng = new PseudorandomGenerator(levelObj.id * 3571 + 91);
+      const monkeySpacing = 135;
+      const monkeyCount = Math.floor((levelObj.targetDistance - 120) / monkeySpacing);
+      const lanes = [-1, 0, 1];
+      for (let i = 0; i < monkeyCount; i++) {
+        const laneChoice = lanes[Math.floor(monkeyRng.range(0, 3)) % 3];
+        const isFemale = i % 2 === 0;
+        spawnedAnimals.push({
+          id: currentAnimalId++,
+          species: "monkey",
+          z: 75 + i * monkeySpacing + Math.round(monkeyRng.range(0, 45)),
+          lane: laneChoice,
+          xOffset: (i % 3 === 0 ? 0 : (isFemale ? -0.45 : 0.45)),
+          heightOffset: 0,
+          state: isFemale ? "roaming_female" : "roaming_male",
+          nextVocalTime: 1.5 + (i % 4) * 1.4
         });
       }
     }

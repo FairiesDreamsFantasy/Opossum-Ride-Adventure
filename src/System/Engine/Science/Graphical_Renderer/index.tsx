@@ -26,6 +26,10 @@ import { drawEdibleItem, getEdibleItemName } from "./Items";
 import { IntegrityShadow } from "../../../Security/Phantom/Integrity_Shadow";
 import { INITIAL_PLACES, PlaceDefinition } from "../../../../Arena";
 import { isPiratedSwitchCartridge } from "../../../Security/Copyleft_Enforcement";
+import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
+import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
+import { isWildernessPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Wilderness";
+import { CROP_FIELD_BORDER_TRIANGLE_COLORS, CROP_FIELD_PATH_36_BLOCK_COLORS } from "../../../Building_Blocks/Triangular_Stone_Path";
 export { drawEdibleItem, getEdibleItemName };
 
 /**
@@ -243,8 +247,97 @@ export function render2DView(
     // ==================== COURSE/STANDARD LEVEL 2D WORLD VIEW ====================
     const roadWidth = 180;
     const roadCenter = width / 2;
+    const isCropField2D = isCropFieldPlaceId(currentLevel.placeId || "") || isVegetableFieldPlaceId(currentLevel.placeId || "");
 
-    ctx.strokeStyle = wireframe ? "#22c55e" : "#1e3a1e";
+    if (isCropField2D && !wireframe) {
+      // Spread-out crop plots on left & right shoulders
+      const cropPalette: Record<string, string> = {
+        wheat_field: "#a16207",
+        corn_field: "#166534",
+        barley_field: "#b45309",
+        rice_field: "#0f766e",
+        oats_field: "#4d7c0f",
+        sorghum_field: "#7c2d12",
+        rye_field: "#65a30d",
+        millet_field: "#ca8a04",
+        buckwheat_field: "#9f1239",
+        quinoa_field: "#b45309",
+        amaranth_field: "#881337",
+        spelt_field: "#854d0e",
+        vegetable_field: "#15803d",
+        carrot_field: "#15803d",
+        potato_field: "#14532d",
+        tomato_field: "#166534",
+        cabbage_field: "#0d9488",
+        onion_field: "#3f6212",
+        broccoli_field: "#047857",
+        squash_field: "#4d7c0f",
+        spinach_field: "#065f46",
+        bell_pepper_field: "#15803d"
+      };
+      const pid = (currentLevel.placeId || "").toLowerCase();
+      const fieldTint = cropPalette[pid] || "#3f6212";
+      ctx.fillStyle = fieldTint;
+      ctx.fillRect(0, 0, roadCenter - roadWidth / 2, height);
+      ctx.fillRect(roadCenter + roadWidth / 2, 0, width - (roadCenter + roadWidth / 2), height);
+
+      // 36-color flat triangular slate blocks on the 2D ground path
+      const stepPx = 24;
+      const numCols = 3;
+      const colW = roadWidth / numCols;
+      const startRow = Math.floor(state.playerZ / 3);
+      const scrollPx = (state.playerZ * 8) % stepPx;
+      for (let row = -1; row * stepPx < height + stepPx; row++) {
+        const yTop = height - (row * stepPx - scrollPx + 100);
+        const yBot = yTop + stepPx;
+        const worldRowIdx = startRow + row;
+        for (let col = 0; col < numCols; col++) {
+          const xL = roadCenter - roadWidth / 2 + col * colW;
+          const xR = xL + colW;
+          const idx1 = Math.abs((worldRowIdx * 7 + col * 3) % CROP_FIELD_PATH_36_BLOCK_COLORS.length);
+          const idx2 = Math.abs((worldRowIdx * 7 + col * 3 + 17) % CROP_FIELD_PATH_36_BLOCK_COLORS.length);
+          const c1 = CROP_FIELD_PATH_36_BLOCK_COLORS[idx1];
+          const c2 = CROP_FIELD_PATH_36_BLOCK_COLORS[idx2];
+
+          ctx.fillStyle = c1.hex;
+          ctx.beginPath();
+          ctx.moveTo(xL, yTop);
+          ctx.lineTo(xR, yTop);
+          ctx.lineTo(xL, yBot);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = c2.hex;
+          ctx.beginPath();
+          ctx.moveTo(xR, yTop);
+          ctx.lineTo(xR, yBot);
+          ctx.lineTo(xL, yBot);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // 12-inch Red, Gold, Green triangular edge divider stones on both sides
+        const edgeColor = CROP_FIELD_BORDER_TRIANGLE_COLORS[Math.abs(worldRowIdx) % 3];
+        ctx.fillStyle = edgeColor.hex;
+        const triSize = 9;
+        // Left shoulder triangle
+        ctx.beginPath();
+        ctx.moveTo(roadCenter - roadWidth / 2 - triSize, yTop + stepPx * 0.5);
+        ctx.lineTo(roadCenter - roadWidth / 2, yTop + stepPx * 0.5 - triSize * 0.6);
+        ctx.lineTo(roadCenter - roadWidth / 2, yTop + stepPx * 0.5 + triSize * 0.6);
+        ctx.closePath();
+        ctx.fill();
+        // Right shoulder triangle
+        ctx.beginPath();
+        ctx.moveTo(roadCenter + roadWidth / 2 + triSize, yTop + stepPx * 0.5);
+        ctx.lineTo(roadCenter + roadWidth / 2, yTop + stepPx * 0.5 - triSize * 0.6);
+        ctx.lineTo(roadCenter + roadWidth / 2, yTop + stepPx * 0.5 + triSize * 0.6);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    ctx.strokeStyle = wireframe ? "#22c55e" : (isCropField2D ? "#475569" : "#1e3a1e");
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(roadCenter - roadWidth / 2, 0);
@@ -253,7 +346,7 @@ export function render2DView(
     ctx.lineTo(roadCenter + roadWidth / 2, height);
     ctx.stroke();
 
-    ctx.strokeStyle = wireframe ? "rgba(34, 197, 94, 0.4)" : "#15803d";
+    ctx.strokeStyle = wireframe ? "rgba(34, 197, 94, 0.4)" : (isCropField2D ? "rgba(148, 163, 184, 0.55)" : "#15803d");
     ctx.lineWidth = 1;
     ctx.setLineDash([10, 12]);
     ctx.beginPath();
@@ -289,6 +382,28 @@ export function render2DView(
       if (wireframe) {
         ctx.strokeStyle = "#4ade80";
         ctx.strokeRect(screenX - 10, screenY - 5, 20, 10);
+      } else if (obs.type === "triangular_stone_fence") {
+        // 3 stacked triangular slate blocks in 2D view
+        ctx.fillStyle = "#64748b";
+        ctx.strokeStyle = "#e2e8f0";
+        ctx.lineWidth = 1;
+        for (let t = 0; t < 3; t++) {
+          const tx = screenX - 10 + t * 10;
+          ctx.beginPath();
+          ctx.moveTo(tx, screenY - 6);
+          ctx.lineTo(tx - 6, screenY + 5);
+          ctx.lineTo(tx + 6, screenY + 5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      } else if (obs.type === "stone_platform") {
+        const preset = (obs as any).colorPreset || { fill: "#64748b", stroke: "#334155" };
+        ctx.fillStyle = preset.fill;
+        ctx.strokeStyle = preset.stroke;
+        ctx.lineWidth = 2;
+        ctx.fillRect(screenX - 18, screenY - 12, 36, 24);
+        ctx.strokeRect(screenX - 18, screenY - 12, 36, 24);
       } else {
         ctx.fillStyle = obs.type === "fence" ? "#d97706" : (obs.type === "rock" ? "#6b7280" : "#16a34a");
         ctx.fillRect(screenX - 12, screenY - 6, 24, 12);
@@ -366,6 +481,21 @@ export function render2DView(
           }
 
           ctx.restore();
+        } else if (animal.species === "monkey") {
+          ctx.fillStyle = "#78350f";
+          ctx.beginPath();
+          ctx.arc(screenX, screenY, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#fde68a";
+          ctx.beginPath();
+          ctx.arc(screenX, screenY - 1, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = "#78350f";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(screenX, screenY + 6);
+          ctx.quadraticCurveTo(screenX + 8, screenY + 12, screenX + 5, screenY + 16);
+          ctx.stroke();
         } else {
           ctx.fillStyle = animal.species === "owl" ? "#451a03" : "#22c55e";
           ctx.beginPath();
@@ -570,6 +700,8 @@ export function renderStandardLevel(
   // 2. Custom Ground & Wall Renderers
   const leftLimitX = -6;
   const rightLimitX = 6;
+  const isCropField = isCropFieldPlaceId(currentLevel.placeId || "") || isVegetableFieldPlaceId(currentLevel.placeId || "");
+  const isWilderness = isWildernessPlaceId(currentLevel.placeId || "");
 
   if (currentLevel.placeId === "the_grand_orchard") {
     // Draw lush orchard ground
@@ -578,6 +710,215 @@ export function renderStandardLevel(
     groundGrad.addColorStop(1, "#1a2e05");
     ctx.fillStyle = groundGrad;
     ctx.fillRect(0, horizonY, width, height - horizonY);
+  } else if (isCropField && !wireframe) {
+    const pid = (currentLevel.placeId || "").toLowerCase();
+    // Spread-out agricultural field ground backdrop
+    const groundGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+    groundGrad.addColorStop(0, pid === "rice_field" ? "#064e3b" : "#365314");
+    groundGrad.addColorStop(1, pid === "rice_field" ? "#022c22" : "#1a2e05");
+    ctx.fillStyle = groundGrad;
+    ctx.fillRect(0, horizonY, width, height - horizonY);
+
+    // Ground-oriented 36-color flat triangular slate stone path + 12-inch Red/Gold/Green border triangles + functional crop rows + autonomous solar robotics
+    const segDist = 6;
+    const laneXs = [-6, -2, 2, 6];
+    for (let zVal = Math.floor((cameraZ + 144) / segDist) * segDist; zVal >= Math.floor(cameraZ / segDist) * segDist; zVal -= segDist) {
+      const relZStart = zVal - cameraZ;
+      if (relZStart <= 0.1) continue;
+
+      const pOuterL = project3D(-19, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pOuterR = project3D(19, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pLNext = project3D(-19, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pRNext = project3D(19, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+
+      if (!pOuterL.visible || !pLNext.visible) continue;
+
+      // Spread-out Crop Fields on left & right shoulders of the path
+      const segIdx = Math.floor(zVal / segDist);
+      const drawCropSide = (sideSign: -1 | 1) => {
+        const innerX = sideSign * 6.5;
+        const outerX = sideSign * 18.5;
+        const pInStart = project3D(innerX, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pOutStart = project3D(outerX, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pInEnd = project3D(innerX, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pOutEnd = project3D(outerX, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        if (!pInStart.visible || !pOutStart.visible || !pInEnd.visible || !pOutEnd.visible) return;
+
+        // Soil / paddy plot base
+        ctx.fillStyle = pid === "rice_field"
+          ? (segIdx % 2 === 0 ? "#0f766e" : "#115e59")
+          : (segIdx % 2 === 0 ? "#3f2e18" : "#4a371e");
+        ctx.beginPath();
+        ctx.moveTo(pInStart.x, pInStart.y);
+        ctx.lineTo(pOutStart.x, pOutStart.y);
+        ctx.lineTo(pOutEnd.x, pOutEnd.y);
+        ctx.lineTo(pInEnd.x, pInEnd.y);
+        ctx.closePath();
+        ctx.fill();
+
+        // Crop & Vegetable stalks differentiated per subarena
+        const isVeg = isVegetableFieldPlaceId(pid);
+        const stalkH = (
+          pid === "corn_field" ? 1.85 :
+          pid === "sorghum_field" || pid === "amaranth_field" ? 1.55 :
+          pid === "tomato_field" ? 1.35 :
+          pid === "rye_field" || pid === "quinoa_field" || pid === "spelt_field" ? 1.25 :
+          pid === "rice_field" || pid === "spinach_field" || pid === "cabbage_field" ? 0.65 :
+          isVeg ? 0.85 : 1.05
+        );
+        const rows = [7.6, 10.2, 13.0, 16.0];
+        rows.forEach((rx, rIdx) => {
+          const worldX = sideSign * rx;
+          const stalkZ = zVal + segDist * 0.5;
+          const pBase = project3D(worldX, 0, stalkZ, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          const pTop = project3D(worldX + Math.sin((stalkZ + rIdx) * 0.4) * 0.15, stalkH, stalkZ, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          if (!pBase.visible || !pTop.visible) return;
+          const sc = pBase.scale * 0.15;
+
+          ctx.strokeStyle = pid === "wheat_field" ? "#ca8a04"
+            : pid === "corn_field" ? "#15803d"
+            : pid === "barley_field" ? "#d97706"
+            : pid === "rice_field" ? "#22c55e"
+            : pid === "oats_field" ? "#65a30d"
+            : pid === "rye_field" ? "#65a30d"
+            : pid === "millet_field" ? "#eab308"
+            : pid === "buckwheat_field" ? "#9f1239"
+            : pid === "quinoa_field" ? "#b45309"
+            : pid === "amaranth_field" ? "#be123c"
+            : pid === "spelt_field" ? "#a16207"
+            : isVeg ? "#15803d"
+            : "#84cc16";
+          ctx.lineWidth = Math.max(1.2, (isVeg ? 5.2 : 4.5) * sc);
+          ctx.beginPath();
+          ctx.moveTo(pBase.x, pBase.y);
+          ctx.lineTo(pTop.x, pTop.y);
+          ctx.stroke();
+
+          // Grain head / panicle / vegetable produce crown
+          ctx.fillStyle = pid === "wheat_field" ? "#facc15"
+            : pid === "corn_field" ? "#fde047"
+            : pid === "barley_field" ? "#fbbf24"
+            : pid === "rice_field" ? "#bef264"
+            : pid === "oats_field" ? "#fde68a"
+            : pid === "rye_field" ? "#d9f99d"
+            : pid === "millet_field" ? "#fde047"
+            : pid === "buckwheat_field" ? "#fce7f3"
+            : pid === "quinoa_field" ? "#fb7185"
+            : pid === "amaranth_field" ? "#e11d48"
+            : pid === "spelt_field" ? "#f59e0b"
+            : pid === "carrot_field" ? "#f97316"
+            : pid === "potato_field" ? "#fde68a"
+            : pid === "tomato_field" ? "#ef4444"
+            : pid === "cabbage_field" ? "#2dd4bf"
+            : pid === "onion_field" ? "#e9d5ff"
+            : pid === "broccoli_field" ? "#059669"
+            : pid === "squash_field" ? "#f59e0b"
+            : pid === "spinach_field" ? "#10b981"
+            : pid === "bell_pepper_field" ? (rIdx % 3 === 0 ? "#ef4444" : rIdx % 3 === 1 ? "#facc15" : "#22c55e")
+            : "#dc2626";
+          ctx.beginPath();
+          ctx.ellipse(pTop.x, pTop.y, Math.max(1.5, (isVeg ? 5.2 : 4) * sc), Math.max(2, (isVeg ? 5.2 : 6) * sc), 0, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Ethical Autonomous Solar Farm Rover every 48 meters (alternating sides)
+        if (segIdx % 8 === 0 && ((segIdx / 8) % 2 === 0 ? sideSign === -1 : sideSign === 1)) {
+          const roverProj = project3D(sideSign * 10.5, 0, zVal + segDist * 0.5, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          if (roverProj.visible) {
+            const rs = roverProj.scale * 0.15;
+            // Chassis
+            ctx.fillStyle = "#e2e8f0";
+            ctx.fillRect(roverProj.x - 22 * rs, roverProj.y - 16 * rs, 44 * rs, 12 * rs);
+            // Solar panel array on top
+            ctx.fillStyle = "#1d4ed8";
+            ctx.fillRect(roverProj.x - 24 * rs, roverProj.y - 24 * rs, 48 * rs, 7 * rs);
+            ctx.strokeStyle = "#93c5fd";
+            ctx.lineWidth = Math.max(1, rs);
+            ctx.strokeRect(roverProj.x - 24 * rs, roverProj.y - 24 * rs, 48 * rs, 7 * rs);
+            // Cyan sensor beacon & wheels
+            ctx.fillStyle = "#38bdf8";
+            ctx.beginPath();
+            ctx.arc(roverProj.x, roverProj.y - 27 * rs, Math.max(1.5, 3.5 * rs), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#0f172a";
+            ctx.beginPath();
+            ctx.arc(roverProj.x - 14 * rs, roverProj.y - 3 * rs, Math.max(1.5, 5 * rs), 0, Math.PI * 2);
+            ctx.arc(roverProj.x + 14 * rs, roverProj.y - 3 * rs, Math.max(1.5, 5 * rs), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      };
+
+      drawCropSide(-1);
+      drawCropSide(1);
+
+      // Flat Triangular Slate Stone Blocks (36-color palette including Caramel) across all 3 path lanes
+      for (let laneIdx = 0; laneIdx < 3; laneIdx++) {
+        const xA = laneXs[laneIdx];
+        const xB = laneXs[laneIdx + 1];
+        const pBL = project3D(xA, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pBR = project3D(xB, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pTL = project3D(xA, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+        const pTR = project3D(xB, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+
+        if (!pBL.visible || !pBR.visible || !pTL.visible || !pTR.visible) continue;
+
+        const cIdx1 = Math.abs((segIdx * 5 + laneIdx * 11) % CROP_FIELD_PATH_36_BLOCK_COLORS.length);
+        const cIdx2 = Math.abs((segIdx * 5 + laneIdx * 11 + 19) % CROP_FIELD_PATH_36_BLOCK_COLORS.length);
+        const swatch1 = CROP_FIELD_PATH_36_BLOCK_COLORS[cIdx1];
+        const swatch2 = CROP_FIELD_PATH_36_BLOCK_COLORS[cIdx2];
+
+        // Triangle 1 (bottom-left -> bottom-right -> top-left)
+        ctx.fillStyle = swatch1.hex;
+        ctx.beginPath();
+        ctx.moveTo(pBL.x, pBL.y);
+        ctx.lineTo(pBR.x, pBR.y);
+        ctx.lineTo(pTL.x, pTL.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = swatch1.strokeHex;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Triangle 2 (bottom-right -> top-right -> top-left)
+        ctx.fillStyle = swatch2.hex;
+        ctx.beginPath();
+        ctx.moveTo(pBR.x, pBR.y);
+        ctx.lineTo(pTR.x, pTR.y);
+        ctx.lineTo(pTL.x, pTL.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = swatch2.strokeHex;
+        ctx.stroke();
+      }
+
+      // 12-inch (0.3048m) Triangular Red, Gold, and Green Edge Divider Stones on Both Sides of Path
+      const subSteps = 3;
+      const subStepLen = segDist / subSteps;
+      for (let s = 0; s < subSteps; s++) {
+        const edgeZ = zVal + s * subStepLen;
+        const borderColor = CROP_FIELD_BORDER_TRIANGLE_COLORS[Math.abs(segIdx * subSteps + s) % 3];
+        [-1, 1].forEach((sideSign) => {
+          const innerEdgeX = sideSign * 6.0;
+          const outerEdgeX = sideSign * 6.3048; // 12 inches wide triangular stone divider
+          const pInnerA = project3D(innerEdgeX, 0.04, edgeZ, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          const pInnerB = project3D(innerEdgeX, 0.04, edgeZ + subStepLen * 0.85, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          const pPeak = project3D(outerEdgeX, 0.14, edgeZ + subStepLen * 0.425, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+          if (pInnerA.visible && pInnerB.visible && pPeak.visible) {
+            ctx.fillStyle = borderColor.hex;
+            ctx.strokeStyle = borderColor.strokeHex;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pInnerA.x, pInnerA.y);
+            ctx.lineTo(pInnerB.x, pInnerB.y);
+            ctx.lineTo(pPeak.x, pPeak.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+        });
+      }
+    }
   } else if (isMine && !wireframe) {
     // Draw solid back floor/walls space below horizon
     if (currentLevel.placeId === "simulated_emerald_mine") {
@@ -736,6 +1077,44 @@ export function renderStandardLevel(
         ctx.fill();
       }
     }
+  } else if (isWilderness && !wireframe) {
+    const pid = (currentLevel.placeId || "").toLowerCase();
+    const baseCol = activePlace?.groundColor || activePlace?.colorBase || "#365314";
+    const floorGrad = ctx.createLinearGradient(0, horizonY, 0, height);
+    floorGrad.addColorStop(0, baseCol);
+    floorGrad.addColorStop(1, pid.startsWith("wilderness_cave_") ? "#090d16" : "#0f172a");
+    ctx.fillStyle = floorGrad;
+    ctx.fillRect(0, horizonY, width, height - horizonY);
+
+    // Natural biome trail surface & subtle geological shoulder bands
+    const segDist = 10;
+    for (let zVal = Math.floor((cameraZ + 130) / segDist) * segDist; zVal >= Math.floor(cameraZ / segDist) * segDist; zVal -= segDist) {
+      const relZStart = zVal - cameraZ;
+      if (relZStart <= 0.1) continue;
+      const pLS = project3D(leftLimitX, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pRS = project3D(rightLimitX, 0, zVal, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pLE = project3D(leftLimitX, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      const pRE = project3D(rightLimitX, 0, zVal + segDist, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
+      if (!pLS.visible || !pLE.visible) continue;
+
+      const alt = Math.floor(zVal / segDist) % 2 === 0;
+      ctx.fillStyle = pid.startsWith("desert")
+        ? (alt ? "rgba(217, 119, 6, 0.25)" : "rgba(180, 83, 9, 0.18)")
+        : pid.startsWith("forest")
+          ? (alt ? "rgba(22, 101, 52, 0.26)" : "rgba(20, 83, 45, 0.18)")
+          : pid.startsWith("plain")
+            ? (alt ? "rgba(101, 163, 13, 0.22)" : "rgba(132, 204, 22, 0.14)")
+            : pid.startsWith("wilderness_cave_")
+              ? (alt ? "rgba(51, 65, 85, 0.42)" : "rgba(30, 41, 59, 0.32)")
+              : (alt ? "rgba(100, 116, 139, 0.34)" : "rgba(71, 85, 105, 0.24)");
+      ctx.beginPath();
+      ctx.moveTo(pLS.x, pLS.y);
+      ctx.lineTo(pRS.x, pRS.y);
+      ctx.lineTo(pRE.x, pRE.y);
+      ctx.lineTo(pLE.x, pLE.y);
+      ctx.closePath();
+      ctx.fill();
+    }
   }
 
   // 3. Structural Wooden Beams (Portal Framing for Mine Tunnels)
@@ -747,10 +1126,11 @@ export function renderStandardLevel(
     ctx.lineWidth = 1.5;
   }
 
-  // Fence posts
+  // Fence posts (omitted in Crop/Vegetable Fields and Wilderness arenas where zero fences are present)
   for (let zPost = Math.floor(cameraZ / 15) * 15; zPost < cameraZ + 150; zPost += 15) {
     const relZ = zPost - cameraZ;
     if (relZ <= 1) continue;
+    if ((isCropField || isWilderness) && !wireframe) continue;
 
     const proj = project3D(-7, 0, zPost, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
     const projTop = project3D(-7, 3, zPost, cameraX, cameraY, cameraZ, focalLength, width, height, horizonY);
@@ -994,6 +1374,45 @@ export function renderStandardLevel(
         ctx.lineTo(proj.x + ow / 2, yLine);
         ctx.stroke();
       }
+    } else if (obs.type === "triangular_stone_fence") {
+      // Stacked Triangular Slate Stone Fence (3 interlocking tiers, Red/Gold/Green trim + slate stone)
+      const tierColors = ["#475569", "#64748b", "#94a3b8"];
+      const accentColors = ["#DC2626", "#EAB308", "#16A34A"];
+      const tierH = oh / 3;
+      const blocksPerRow = 4;
+      const blockW = ow / blocksPerRow;
+
+      for (let tier = 0; tier < 3; tier++) {
+        const tierBaseY = proj.y - tier * tierH;
+        const tierTopY = tierBaseY - tierH;
+        for (let b = 0; b < blocksPerRow; b++) {
+          const bx = proj.x - ow / 2 + b * blockW;
+          ctx.fillStyle = tier === 2 ? accentColors[b % 3] : tierColors[tier];
+          ctx.strokeStyle = "#1e293b";
+          ctx.lineWidth = Math.max(1, 1.5 * proj.scale * 0.15);
+
+          // Upright slate triangle
+          ctx.beginPath();
+          ctx.moveTo(bx, tierBaseY);
+          ctx.lineTo(bx + blockW * 0.5, tierTopY);
+          ctx.lineTo(bx + blockW, tierBaseY);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Interlocking inverted slate triangle
+          if (b < blocksPerRow - 1) {
+            ctx.fillStyle = tierColors[(tier + 1) % 3];
+            ctx.beginPath();
+            ctx.moveTo(bx + blockW * 0.5, tierTopY);
+            ctx.lineTo(bx + blockW * 1.5, tierTopY);
+            ctx.lineTo(bx + blockW, tierBaseY);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+        }
+      }
     } else {
       ctx.fillStyle = "#15803d";
       ctx.beginPath();
@@ -1203,6 +1622,26 @@ export function renderStandardLevel(
       ctx.arc(proj.x - 4 * sc, proj.y - 5 * sc, 3 * sc, 0, Math.PI * 2);
       ctx.arc(proj.x + 4 * sc, proj.y - 5 * sc, 3 * sc, 0, Math.PI * 2);
       ctx.fill();
+    } else if (animal.species === "monkey") {
+      const ow = 52 * sc;
+      const oh = 64 * sc;
+      const isFemale = animal.state === "roaming_female";
+      const hopPhase = Math.abs(Math.sin(Date.now() * 0.004 + animal.id));
+      const hopY = hopPhase * 5 * sc;
+      const sway = Math.sin(Date.now() * 0.005 + animal.id) * 2.5 * sc;
+      const armSway = Math.sin(Date.now() * 0.008 + animal.id) * 18;
+      MonkeyCharacterModel.draw3D(
+        ctx,
+        proj.x,
+        proj.y + oh * 0.56 - hopY,
+        ow,
+        oh,
+        isFemale,
+        undefined,
+        0,
+        sway,
+        armSway
+      );
     } else {
       ctx.fillStyle = "#16a34a";
       ctx.beginPath();

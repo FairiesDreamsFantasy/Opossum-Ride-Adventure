@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Aggregate export of all modular levels 1-40
+// Aggregate export of all modular World 1 levels 1-40 (Gardens, Orchards, Farms, Crop Fields, Vegetable Fields)
 export * from "../Level_1/General";
 export * from "../Level_2/General";
 export * from "../Level_3/General";
@@ -11,7 +11,6 @@ export * from "../Level_4/General";
 export * from "../Level_5/General";
 export * from "../Level_6/General";
 export * from "../Level_7/General";
-export * from "../Level_8/General";
 export * from "../Level_8/General";
 export * from "../Level_9/General";
 export * from "../Level_10/General";

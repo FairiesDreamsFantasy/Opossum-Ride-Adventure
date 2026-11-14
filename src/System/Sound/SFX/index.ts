@@ -5,7 +5,7 @@
 
 import { getSharedAudioContext } from "../TTS";
 import { SURFACE_PROFILES, RHYTHM_PROFILES } from "../General";
-import { playFenceCollision as synthFenceCollision, playGardenPlantCollision as synthGardenPlantCollision, playRockCollision as synthRockCollision } from "./Category/Movement/Collision";
+import { playFenceCollision as synthFenceCollision, playGardenPlantCollision as synthGardenPlantCollision, playRockCollision as synthRockCollision, playTriangularStoneFenceCollision as synthTriangularStoneFenceCollision } from "./Category/Movement/Collision";
 import {
   playMonkeyJump as synthMonkeyJump,
   playMonkeyScreech as synthMonkeyScreech,
@@ -264,6 +264,23 @@ export class DedicatedSFXSynthesizer {
   public playRockCollision(ctx: AudioContext, destination: AudioNode) {
     this.enforceVoiceLimit(ctx);
     const { nodes, endTime } = synthRockCollision(ctx, destination);
+    nodes.forEach(node => {
+      if (node instanceof OscillatorNode || node instanceof AudioBufferSourceNode) {
+        this.activeSFXVoices.push({
+          source: node,
+          gainNode: (nodes.find(n => n instanceof GainNode) as GainNode) || ctx.createGain(),
+          endTime
+        });
+      }
+    });
+  }
+
+  /**
+   * Play high-fidelity Triangular Stone Fence (stacked Slate) collision sound
+   */
+  public playTriangularStoneFenceCollision(ctx: AudioContext, destination: AudioNode) {
+    this.enforceVoiceLimit(ctx);
+    const { nodes, endTime } = synthTriangularStoneFenceCollision(ctx, destination);
     nodes.forEach(node => {
       if (node instanceof OscillatorNode || node instanceof AudioBufferSourceNode) {
         this.activeSFXVoices.push({

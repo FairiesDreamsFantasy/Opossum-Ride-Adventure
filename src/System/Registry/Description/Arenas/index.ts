@@ -11,10 +11,10 @@ import { ORCHID_GLASSHOUSE_DESCRIPTION } from "../../../../Arena/Garden/Orchid_G
 import { EDIBLE_BERRY_GARDEN_DESCRIPTION } from "../../../../Arena/Garden/Edible_Berry_Garden/Description";
 import { THE_GRAND_ORCHARD_DESCRIPTION } from "../../../../Arena/The_Grand_Orchard/Description";
 import { CAVE_ARENA_DESCRIPTION } from "../../../../Arena/Cave/Description";
-import { DESERT_ARENA_DESCRIPTION } from "../../../../Arena/Desert/Description";
-import { FOREST_ARENA_DESCRIPTION } from "../../../../Arena/Forest/Description";
-import { MOUNTAINS_ARENA_DESCRIPTION } from "../../../../Arena/Mountains/Description";
-import { PLAIN_ARENA_DESCRIPTION } from "../../../../Arena/Plain/Description";
+import { DESERT_ARENA_DESCRIPTION } from "../../../../Arena/Wilderness/Desert/Description";
+import { FOREST_ARENA_DESCRIPTION } from "../../../../Arena/Wilderness/Forest/Description";
+import { MOUNTAINS_ARENA_DESCRIPTION } from "../../../../Arena/Wilderness/Mountains/Description";
+import { PLAIN_ARENA_DESCRIPTION } from "../../../../Arena/Wilderness/Plain/Description";
 import { QUARRY_ARENA_DESCRIPTION } from "../../../../Arena/Quarry/Description";
 import { FARM_ARENA_DESCRIPTION } from "../../../../Arena/Farm/Description";
 import { SIMULATED_GOLD_MINE_DESCRIPTION } from "../../../../Arena/Simulated_Gold_Mine/Description";

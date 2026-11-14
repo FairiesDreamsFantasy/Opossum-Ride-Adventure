@@ -14,6 +14,7 @@ export const ArenaIndex = {
     "Cave",
     "Desert",
     "Farm",
+    "Crop_Field",
     "Temple",
     "The_Grand_Orchard",
     "Quarry",

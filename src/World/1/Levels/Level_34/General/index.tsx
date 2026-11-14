@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ZenStoneGardenSubArena } from "../../../../../Arena/Garden/Zen_Stone_Garden";
+import { TomatoFieldSubArena } from "../../../../../Arena/Vegetable_Field";
 
 export const Level_34SubArena = {
-  ...ZenStoneGardenSubArena
+  ...TomatoFieldSubArena
 };

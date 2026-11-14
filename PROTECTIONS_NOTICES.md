@@ -164,7 +164,26 @@ To protect the standardization of the accessibility system, the following mandat
 *   **Fleet Equilibrium**: 24 Large Crafted Jills + 8 Compact Crafted Jacks = 32 Total Crafted Opossums; 8 Packed Riders.
 *   **Shield Matrix**: All character folders fortified with dedicated `AGENTS.md` shields under the 75,000,000,000% Ultra-Broad Protection Standard.
 
+---
 
+### 12. Crop Fields (`Arena/Crop_Field/`), Vegetable Fields (`Arena/Vegetable_Field/`), & World 1 Alignment (`Level_0`–`Level_40`)
+*   **Arena Directories & Sub-Arenas**:
+    *   `src/Arena/Crop_Field/`: 12 functional grain & heritage crop sub-arenas (`Wheat_Field/`, `Corn_Field/`, `Barley_Field/`, `Rice_Field/`, `Oats_Field/`, `Sorghum_Field/`, `Rye_Field/`, `Millet_Field/`, `Buckwheat_Field/`, `Quinoa_Field/`, `Amaranth_Field/`, `Spelt_Field/`) positioned at **World 1 Levels 20–31** immediately after the Farms block (`Level_18: horse_farm` slotted before `Level_19: cattle_farm`).
+    *   `src/Arena/Vegetable_Field/`: 9 functional horticultural sub-arenas (`Carrot_Field/`, `Potato_Field/`, `Tomato_Field/`, `Cabbage_Field/`, `Onion_Field/`, `Broccoli_Field/`, `Squash_Field/`, `Spinach_Field/`, `Bell_Pepper_Field/`) positioned at **World 1 Levels 32–40**.
+*   **Path Geometry & 36-Color Slate Mosaic**: Ground-oriented (`pathPattern: "ground"`) path paved with flat triangular **Slate** stone blocks (`System/Building_Blocks/Triangular_Stone_Path/`) cycling through 36 distinct colors (spelling verified as **`"Caramel"`**, never `"Carmel"`), bordered on both sides by **12-inch (`0.3048 m`) triangular divider stones** in **Red (`#DC2626`), Gold (`#FACC15`), and Green (`#16A34A`)**.
+*   **Slate Acoustic Priority**: `slate` (`1650 Hz`, `Q = 4.8`, `gain = 1.18`, `thudFreq = 105`) ordered ahead of `stone` in `SURFACE_PROFILES` and `FLOORING_SURFACE_PROFILES_64BIT` so triangular slate footsteps synthesize with 100% physical accuracy.
+*   **Triangular Stone Fence Obstacle (`System/Building_Blocks/Triangular_Stone_Fence/`)**: Stacked triangular slate fence (`1.4 m` height, comfortable `> 0.8 m` opossum jump clearance, spaced **`500 m` min to `2,000 m` max**), exclusively replacing rocks, garden plants, and wooden fences in Crop & Vegetable Fields, paired with dedicated impact SFX (`System/Sound/SFX/Category/Movement/Collision/Triangular_Stone_Fence/`).
+*   **Crop-Rustling Wind Ambience**: Procedural multi-band wind & rustling stalk synthesis (`System/Sound/BGM/Category/Ambience/Crop_Field/`), mapped via `ambientType: "crop_rustle"`.
+*   **In-Game Accessibility Narrations**: Dedicated `System/AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field/` (12 sub-arena modules) and `Vegetable_Field/` (9 sub-arena modules) integrated into `Narration/Arena/Registry.tsx`.
+*   **Ethical Robotics & Wildlife**: Depicts autonomous solar agricultural rovers, harvesters, and irrigation booms alongside dignified human stewardship (zero slavery or plantation depictions). Supports monkeys riding moose, unmounted wild moose, feral pigs, and loose roaming monkeys (`radar` + `physics` + `Graphical_Renderer`).
+*   **Sky Preservation Invariant**: Existing sky and star rendering in `src/System/Engine/Science/Graphical_Renderer/index.tsx` remains 100% unaltered.
+*   **World 1 Level Alignment**: `src/World/1/` ("Gardens, Orchards, and Farms") strictly bounded to **`Level_0` through `Level_40`** (`0`: Floor Foyer, `1–6`: Gardens, `7–12`: Orchards, `13–19`: Farms with `horse_farm` at 18 before `cattle_farm` at 19, `20–31`: Crop Fields, `32–40`: Vegetable Fields; Mines belong in `World/3/` and Wilderness/Mountains belong in `World/4/`).
 
+---
 
-
+### 13. Wilderness Suite (`Arena/Wilderness/`), World 4 (`Level_1`–`Level_40`), & World 2/3 Synchronization
+*   **Wilderness Organization (`src/Arena/Wilderness/`)**: Consolidates `Desert/` (8), `Forest/` (8), `Plain/` (8), `Mountains/` (8), and natural `Cave/` (8 — distinct from `src/Arena/Cave/` reserved for simulated caves) into 40 unique Wilderness sub-arenas.
+*   **Wilderness Gameplay & Physics Rules**: Zero artificial fences, zero garden plants, zero triangular stone fences, and zero blocking rocks; spawns elevated `"stone_platform"` structures (`width: 6.0 m`, `height: 1.1 m`) that players can jump onto and ride over with matched stone footsteps (`basalt`, `limestone`, `slate`, `granite`, `marble`).
+*   **Wilderness Ambience & Surface Profiles**: Dedicated procedural synthesizers (`System/Sound/BGM/Category/Ambience/Wilderness/`) and expanded surface profiles (`basalt`, `limestone`, `moss`, `peat`, `silt`, `ice`, `sand`, `gravel`, `slate`, `granite`, `marble`) in `SURFACE_PROFILES` and `FLOORING_SURFACE_PROFILES_64BIT`.
+*   **World 4 ("The Great Outdoors, Wilderness and Mountains")**: `src/World/4/Levels/` contains strictly **`Level_1` through `Level_40`** (**no `Level_0`**, **no `Level_N`/`Level_*`**) arranged in 8 assorted 5-biome rounds (`[Desert, Forest, Plain, Mountains, Cave] × 8`).
+*   **World 2 & World 3 Sync**: `src/World/2/Levels/` decluttered to `Level_0`–`Level_7` (Temple Courtyard + 7 unique Temple arenas, removing obsolete Redwood Canopy / Silent Thicket references); `src/World/3/` Index & Levels metadata synchronized to Simulated & Natural Mines (`Level_0`–`Level_30`).

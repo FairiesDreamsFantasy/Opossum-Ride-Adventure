@@ -1,0 +1,21 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export const World4LevelsIndex = {
+  id: "world_4_levels_index",
+  name: "World 4 Levels Index",
+  levels: [
+    "Level_1", "Level_2", "Level_3", "Level_4", "Level_5",
+    "Level_6", "Level_7", "Level_8", "Level_9", "Level_10",
+    "Level_11", "Level_12", "Level_13", "Level_14", "Level_15",
+    "Level_16", "Level_17", "Level_18", "Level_19", "Level_20",
+    "Level_21", "Level_22", "Level_23", "Level_24", "Level_25",
+    "Level_26", "Level_27", "Level_28", "Level_29", "Level_30",
+    "Level_31", "Level_32", "Level_33", "Level_34", "Level_35",
+    "Level_36", "Level_37", "Level_38", "Level_39", "Level_40"
+  ],
+  standard: "75,000,000,000%_ULTRA_BROAD",
+  timestamp: new Date().toISOString()
+};

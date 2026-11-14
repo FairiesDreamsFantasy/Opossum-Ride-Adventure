@@ -84,6 +84,20 @@ Every arena zone is modularized into dedicated subfolder modules under `src/Syst
 
 ---
 
+### 6. Crop Fields Arena (`/Crop_Field/`)
+* **Biome ID:** `crop_field`
+* **Substrate Baseline:** Flat triangular slate stone blocks cycling through 36 colors (including Caramel), bordered by 12-inch Red, Gold, and Green triangular divider stones with crisp `1650 Hz` Slate acoustic footsteps ($RT60 \approx 0.55\text{s}$).
+* **Ethical Technology:** Autonomous solar farm robotics (harvesters, irrigation booms, sensor drones) tending plots with zero slavery or plantation depictions.
+* **Registered Modular Subarenas (6 Total):**
+  1. **Wheat Field (`/Crop_Field/Wheat_Field/`)**: Sun-ripened wheat stalks rustling across open farmland winds ($RT60 \approx 0.55\text{s}$).
+  2. **Corn Field (`/Crop_Field/Corn_Field/`)**: Tall layered maize leaf rustle & solar grain robotics ($RT60 \approx 0.65\text{s}$).
+  3. **Barley Field (`/Crop_Field/Barley_Field/`)**: Bearded barley heads whispering along slate lanes ($RT60 \approx 0.55\text{s}$).
+  4. **Rice Field (`/Crop_Field/Rice_Field/`)**: Sunlit terraced rice plots with gentle water ripple & breeze ($RT60 \approx 0.6\text{s}$).
+  5. **Oats Field (`/Crop_Field/Oats_Field/`)**: Swaying oat panicles over cool 36-color slate trail ($RT60 \approx 0.5\text{s}$).
+  6. **Sorghum Field (`/Crop_Field/Sorghum_Field/`)**: Dense crimson-gold sorghum stalks & agricultural robotics ($RT60 \approx 0.6\text{s}$).
+
+---
+
 ## Accessibility Engine Hotkey Integration
 
 The Arena Narration system directly feeds the dual accessibility hotkey pipeline:

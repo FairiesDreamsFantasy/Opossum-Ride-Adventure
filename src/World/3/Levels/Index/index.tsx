@@ -8,10 +8,12 @@ export const World3LevelsIndex = {
   name: "World 3 Levels Index",
   levels: [
     "Level_0",
-    "Level_1",
-    "Level_2",
-    "Level_3",
-    "Level_4"
+    "Level_1", "Level_2", "Level_3", "Level_4", "Level_5",
+    "Level_6", "Level_7", "Level_8", "Level_9", "Level_10",
+    "Level_11", "Level_12", "Level_13", "Level_14", "Level_15",
+    "Level_16", "Level_17", "Level_18", "Level_19", "Level_20",
+    "Level_21", "Level_22", "Level_23", "Level_24", "Level_25",
+    "Level_26", "Level_27", "Level_28", "Level_29", "Level_30"
   ],
   standard: "75,000,000,000%_ULTRA_BROAD",
   timestamp: new Date().toISOString()
