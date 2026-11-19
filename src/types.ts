@@ -101,6 +101,8 @@ export enum GameState {
 
 export interface GameLevel {
   id: number;
+  worldId?: number;
+  isExploration?: boolean;
   name: string;
   placeId: string;
   targetDistance: number; // in meters (e.g. 500 meters)
@@ -173,9 +175,15 @@ export interface AnimalItem {
   secondaryColor?: string;
   z: number;
   lane: number;
+  targetLane?: number;
   xOffset?: number; // For non-track positioning (e.g. perched in trees, foraging on verge)
   heightOffset?: number; // For flying or perched height
   state: string;
+  behaviorState?: "rooting" | "patrolling" | "alert" | "charging" | "evading" | "stunned" | "smashed";
+  stateElapsedMs?: number;
+  stunnedUntil?: number;
+  nextLaneSwitchTime?: number;
+  speed?: number;
   nextVocalTime: number;
   smashedTime?: number;
 }

@@ -16,7 +16,13 @@ import {
   DagmarKoneReynoldsOpossum,
   AgapeRoseOpossum,
   RoxanneKoneReynoldsOpossum,
-  TianaQinOpossum
+  TianaQinOpossum,
+  drawIvan2D,
+  drawIvan3D,
+  drawIvanPolygons,
+  drawIsaac2D,
+  drawIsaac3D,
+  drawIsaacPolygons
 } from "../../../../Characters/Opossums";
 import { AIGeneratedOpossum } from "../../../../Characters/Opossums/AI-Generated/Drawing";
 import { MonkeyCharacterModel } from "../../../../Characters/Monkeys";
@@ -30,6 +36,7 @@ import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/N
 import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
 import { isWildernessPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Wilderness";
 import { CROP_FIELD_BORDER_TRIANGLE_COLORS, CROP_FIELD_PATH_36_BLOCK_COLORS } from "../../../Building_Blocks/Triangular_Stone_Path";
+import { renderWorld2Courtyard2D, renderWorld2Courtyard3D as renderWorld2Courtyard3DCore } from "./World_2/Temple_Courtyard";
 export { drawEdibleItem, getEdibleItemName };
 
 /**
@@ -59,6 +66,10 @@ export function render2DView(
 ) {
   // --- 🛡️ Distributed Security Heartbeat (Phantom Tier) ---
   IntegrityShadow.performShadowAudit();
+  if (currentLevel.placeId === "temple_courtyard") {
+    renderWorld2Courtyard2D(ctx, width, height, state, selectedOpossum, defaultRider, wireframe);
+    return;
+  }
   if (currentLevel.id === 0) {
     // ==================== LEVEL 0 FOYER 2D BLUEPRINT VIEW ====================
     const sideMargin = Math.min(width, height) * 0.08;
@@ -213,6 +224,8 @@ export function render2DView(
     const isAgape = selectedOpossum.id === "agape_rose";
     const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
     const isTiana = selectedOpossum.id === "tiana_qin";
+    const isIvan = selectedOpossum.id === "ivan_opossum";
+    const isIsaac = selectedOpossum.id === "isaac_opossum";
 
     if (selectedOpossum.isAI) {
       AIGeneratedOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
@@ -234,6 +247,10 @@ export function render2DView(
       RoxanneKoneReynoldsOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
     } else if (isTiana) {
       TianaQinOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
+    } else if (isIvan) {
+      drawIvan2D(ctx, pScaleX, pScaleY, selectedOpossum);
+    } else if (isIsaac) {
+      drawIsaac2D(ctx, pScaleX, pScaleY, selectedOpossum);
     } else {
       MelissaOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
     }
@@ -443,11 +460,17 @@ export function render2DView(
           const baseCol = animal.coatColor || "#5C3A21";
           const secCol = animal.secondaryColor || "#3E2715";
           const isSmashed = animal.state === "smashed";
+          const isStunned = animal.state === "stunned";
 
           ctx.save();
           if (isSmashed) {
             ctx.translate(screenX, screenY);
             ctx.scale(1.3, 0.25);
+            ctx.translate(-screenX, -screenY);
+          } else if (isStunned) {
+            const dazeWobble = Math.sin(Date.now() * 0.018 + animal.id) * 0.14;
+            ctx.translate(screenX, screenY);
+            ctx.rotate(dazeWobble);
             ctx.translate(-screenX, -screenY);
           }
           
@@ -524,6 +547,8 @@ export function render2DView(
     const isAgape = selectedOpossum.id === "agape_rose";
     const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
     const isTiana = selectedOpossum.id === "tiana_qin";
+    const isIvan = selectedOpossum.id === "ivan_opossum";
+    const isIsaac = selectedOpossum.id === "isaac_opossum";
 
     if (selectedOpossum.isAI) {
       AIGeneratedOpossum.draw2D(ctx, plX, plY, selectedOpossum);
@@ -545,6 +570,10 @@ export function render2DView(
       RoxanneKoneReynoldsOpossum.draw2D(ctx, plX, plY, selectedOpossum);
     } else if (isTiana) {
       TianaQinOpossum.draw2D(ctx, plX, plY, selectedOpossum);
+    } else if (isIvan) {
+      drawIvan2D(ctx, plX, plY, selectedOpossum);
+    } else if (isIsaac) {
+      drawIsaac2D(ctx, plX, plY, selectedOpossum);
     } else {
       MelissaOpossum.draw2D(ctx, plX, plY, selectedOpossum);
     }
@@ -1537,12 +1566,20 @@ export function renderStandardLevel(
       const baseCol = animal.coatColor || "#5C3A21";
       const secCol = animal.secondaryColor || "#3E2715";
       const isSmashed = animal.state === "smashed";
+      const isStunned = animal.state === "stunned";
 
       ctx.save();
       if (isSmashed) {
         // Flat squish effect mirroring smashed moose
         ctx.translate(proj.x, proj.y);
         ctx.scale(1.25, 0.22);
+        ctx.translate(-proj.x, -proj.y);
+      } else if (isStunned) {
+        // Dazed wobble & slumped posture when stunned by a compact jack impact
+        const dazeAngle = Math.sin(Date.now() * 0.016 + animal.id) * 0.12;
+        ctx.translate(proj.x, proj.y);
+        ctx.rotate(dazeAngle);
+        ctx.scale(1.04, 0.86);
         ctx.translate(-proj.x, -proj.y);
       }
 
@@ -1741,6 +1778,45 @@ export function renderStandardLevel(
 /**
  * Renders the Level 0 Foyer 3D perspective.
  */
+export function renderWorld2Courtyard3D(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  horizonY: number,
+  floorHeight: number,
+  foyerX: number,
+  foyerY: number,
+  foyerDirection: string,
+  doorOpenProgress: number,
+  wireframe: boolean,
+  viewMode: GameViewMode,
+  selectedOpossum: OpossumCharacter,
+  defaultRider: RiderCharacter
+) {
+  renderWorld2Courtyard3DCore(
+    ctx,
+    width,
+    height,
+    horizonY,
+    floorHeight,
+    foyerX,
+    foyerY,
+    foyerDirection,
+    doorOpenProgress,
+    wireframe,
+    viewMode,
+    selectedOpossum,
+    defaultRider,
+    (c, w, h, op, rid, wf, vm) => {
+      if (vm === GameViewMode.RIDER) {
+        renderOpossumRider(c, w / 2, h - 100, w, h, op, rid, wf);
+      } else {
+        renderOpossumPOV(c, w / 2, h + 10, op);
+      }
+    }
+  );
+}
+
 export function renderFoyer3D(
   ctx: CanvasRenderingContext2D,
   width: number,
@@ -2079,8 +2155,10 @@ export function renderOpossumRider(
   const isAgape = selectedOpossum.id === "agape_rose";
   const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
   const isTiana = selectedOpossum.id === "tiana_qin";
+  const isIvan = selectedOpossum.id === "ivan_opossum";
+  const isIsaac = selectedOpossum.id === "isaac_opossum";
   
-  const pWidth = isSaffron ? 48 : (isJalissa || isArden ? 38 : (isRoxanne ? 45 : (isAgape ? 42 : (isTiana ? 38 : (isJahmella || isDagmar ? 40 : (isAshley ? 45 : 40))))));
+  const pWidth = isIvan ? 28 : (isIsaac ? 27.5 : (isSaffron ? 48 : (isJalissa || isArden ? 38 : (isRoxanne ? 45 : (isAgape ? 42 : (isTiana ? 38 : (isJahmella || isDagmar ? 40 : (isAshley ? 45 : 40))))))));
 
   if (wireframe) {
     if (isAshley) {
@@ -2103,6 +2181,10 @@ export function renderOpossumRider(
       RoxanneKoneReynoldsOpossum.drawPolygons(ctx, px, py, pWidth);
     } else if (isTiana) {
       TianaQinOpossum.drawPolygons(ctx, px, py, pWidth);
+    } else if (isIvan) {
+      drawIvanPolygons(ctx, px, py, pWidth);
+    } else if (isIsaac) {
+      drawIsaacPolygons(ctx, px, py, pWidth);
     } else {
       MelissaOpossum.drawPolygons(ctx, px, py, pWidth);
     }
@@ -2129,6 +2211,10 @@ export function renderOpossumRider(
       RoxanneKoneReynoldsOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
     } else if (isTiana) {
       TianaQinOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
+    } else if (isIvan) {
+      drawIvan3D(ctx, px, py, width, height, selectedOpossum);
+    } else if (isIsaac) {
+      drawIsaac3D(ctx, px, py, width, height, selectedOpossum);
     } else {
       MelissaOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
     }
@@ -2342,8 +2428,18 @@ export function renderOpossumPOV(
   const isArden = selectedOpossum.id === "arden_rosie";
   const isJahmella = selectedOpossum.id === "jahmella_rose";
   const isDagmar = selectedOpossum.id === "dagmar_kone_reynolds";
-  const furColor = isAshley ? "#facc15" : (isArden ? "#fff7ed" : (isJahmella ? "#f97316" : (isDagmar ? "#ffffff" : "#9ca3af")));
-  const strokeColor = isAshley ? "#eab308" : (isArden ? "#fff1e2" : (isJahmella ? "#ea580c" : (isDagmar ? "#f3f4f6" : "#6b7280")));
+  const isIvan = selectedOpossum.id === "ivan_opossum";
+  const isIsaac = selectedOpossum.id === "isaac_opossum";
+  const furColor = isIvan
+    ? "#ffc0cb"
+    : isIsaac
+      ? "#d1d5db"
+      : (isAshley ? "#facc15" : (isArden ? "#fff7ed" : (isJahmella ? "#f97316" : (isDagmar ? "#ffffff" : "#9ca3af"))));
+  const strokeColor = isIvan
+    ? "#5c3d2e"
+    : isIsaac
+      ? "#3e2723"
+      : (isAshley ? "#eab308" : (isArden ? "#fff1e2" : (isJahmella ? "#ea580c" : (isDagmar ? "#f3f4f6" : "#6b7280"))));
 
   ctx.save();
 
@@ -2364,7 +2460,86 @@ export function renderOpossumPOV(
   ctx.fill();
   ctx.stroke();
 
-  if (isAshley) {
+  if (isIvan) {
+    // Black outer ears with Dark-brown inner ears (Standard for real opossums)
+    ctx.fillStyle = "#121212";
+    ctx.beginPath();
+    ctx.arc(px - 12, py - 16, 8, 0, Math.PI * 2);
+    ctx.arc(px + 12, py - 16, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#3E2723";
+    ctx.beginPath();
+    ctx.arc(px - 12, py - 16, 5, 0, Math.PI * 2);
+    ctx.arc(px + 12, py - 16, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Striped back shoulders visible behind head
+    ctx.fillStyle = "#FFC0CB";
+    ctx.beginPath();
+    ctx.ellipse(px, py + 4, 29, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#5C3D2E";
+    ctx.lineWidth = 0.8;
+    for (let i = -20; i <= 20; i += 2.5) {
+      ctx.beginPath();
+      ctx.moveTo(px + i, py - 8);
+      ctx.lineTo(px + i, py + 18);
+      ctx.stroke();
+    }
+
+    // 100% Furry Face Head (Peach-pink tone)
+    ctx.fillStyle = "#FFD1DC";
+    ctx.beginPath();
+    ctx.ellipse(px, py - 2, 24, 20, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Red Nose tip
+    ctx.fillStyle = "#EF4444";
+    ctx.beginPath();
+    ctx.arc(px, py - 16, 4.8, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (isIsaac) {
+    // Natural real-opossum dark outer ears with Natural Pink inner ears
+    ctx.fillStyle = "#1A1A1A";
+    ctx.beginPath();
+    ctx.arc(px - 12, py - 16, 8, 0, Math.PI * 2);
+    ctx.arc(px + 12, py - 16, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#FFB6C1";
+    ctx.beginPath();
+    ctx.arc(px - 12, py - 16, 5, 0, Math.PI * 2);
+    ctx.arc(px + 12, py - 16, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Light-gray body with 8 evenly spaced dark-brown stripes visible behind head
+    ctx.fillStyle = "#D1D5DB";
+    ctx.beginPath();
+    ctx.ellipse(px, py + 4, 28.5, 19.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#3E2723";
+    ctx.lineWidth = 2.0;
+    for (let i = 0; i < 8; i++) {
+      const sx = px - 21 + i * 6;
+      ctx.beginPath();
+      ctx.moveTo(sx, py - 8);
+      ctx.lineTo(sx, py + 18);
+      ctx.stroke();
+    }
+
+    // 100% Furry Face Head
+    ctx.fillStyle = "#E5E7EB";
+    ctx.beginPath();
+    ctx.ellipse(px, py - 2, 23.5, 19.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Pinkish-red Nose tip
+    ctx.fillStyle = "#EF4444";
+    ctx.beginPath();
+    ctx.arc(px, py - 16, 4.8, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (isAshley) {
     // Draw ears
     ctx.fillStyle = "#111827";
     ctx.beginPath();

@@ -10,7 +10,7 @@ import { FeralPigVocalSound } from "../Vocals";
 import { FeralPigSmashSound } from "../Smash";
 import { FeralPigStereoCalibrator, FeralPigSpatialParameters } from "../Spatial";
 
-export type FeralPigSFXType = "squeal" | "snort" | "trot" | "charge" | "vocal_grunt" | "smash";
+export type FeralPigSFXType = "squeal" | "snort" | "trot" | "charge" | "vocal_grunt" | "lane_grunt" | "stunned" | "smash";
 
 export interface FeralPigSoundOptions {
   pitchOffset?: number;
@@ -44,6 +44,20 @@ export class FeralPigSoundDispatcher {
         return FeralPigMovementSound.playTrot(context, targetDestination, pitch);
       case "vocal_grunt":
         return FeralPigVocalSound.playGrunt(context, targetDestination, pitch);
+      case "lane_grunt":
+        return FeralPigVocalSound.playLaneSwitchGrunt(
+          context,
+          targetDestination,
+          options.gender ?? "Boar",
+          options.pitchOffset ?? 1.0
+        );
+      case "stunned":
+        return FeralPigVocalSound.playStunned(
+          context,
+          targetDestination,
+          options.gender ?? "Boar",
+          options.pitchOffset ?? 1.0
+        );
       case "smash":
         return FeralPigSmashSound.playSmash(context, targetDestination, pitch);
     }

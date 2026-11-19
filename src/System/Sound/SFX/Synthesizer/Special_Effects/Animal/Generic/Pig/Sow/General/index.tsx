@@ -43,4 +43,43 @@ export class GenericSowSynthesizer {
     osc.stop(now + 0.5);
     LFO.stop(now + 0.5);
   }
+
+  public static playSowGrunt(context: AudioContext, destination: AudioNode, pitchOffset: number = 1.0): void {
+    const now = context.currentTime;
+    const osc = context.createOscillator();
+    const gain = context.createGain();
+    const filter = context.createBiquadFilter();
+
+    const LFO = context.createOscillator();
+    const LFOGain = context.createGain();
+
+    const baseFreq = 132 * pitchOffset; // Warm natural sow grunt
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(baseFreq, now);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.74, now + 0.28);
+
+    LFO.frequency.setValueAtTime(19, now);
+    LFOGain.gain.setValueAtTime(20, now);
+
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(560, now);
+    filter.Q.setValueAtTime(3.2, now);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.linearRampToValueAtTime(0.22, now + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.31);
+
+    LFO.connect(LFOGain);
+    LFOGain.connect(osc.frequency);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(destination);
+
+    osc.start(now);
+    LFO.start(now);
+    osc.stop(now + 0.34);
+    LFO.stop(now + 0.34);
+  }
 }

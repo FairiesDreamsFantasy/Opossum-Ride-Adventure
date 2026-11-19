@@ -25,6 +25,11 @@ export const ArenaNarrationRegistry = {
    * Compiles scene description for any given place, routing to its modular arena handler.
    */
   compileScene: (ctx: SceneNarrationContext): string => {
+    if (ctx.placeId === "temple_courtyard") {
+      const title = ctx.levelName || "Temple Courtyard";
+      return `${title}: A 4000 by 3000 foot outdoor stone temple courtyard with 25-foot stone walls, a north flower garden on grass, a south 20-foot canopy tile tea garden with spaced tea tables, and carved double sliding stone doors east into the 3000 by 3000 foot 40-foot-tall checkered tile Temple Foyer.`;
+    }
+
     if (ctx.isFoyer || ctx.placeId === "floor_foyer") {
       return FoyerArenaNarration.compileScene(ctx);
     }
@@ -71,6 +76,17 @@ export const ArenaNarrationRegistry = {
     formattedDistance: string,
     segmentDirection: string
   ): string => {
+    if (placeId === "temple_courtyard") {
+      const zoneLabel = foyerX > 4000
+        ? `Temple Foyer (${Math.round(foyerX - 4000)} feet east, ${Math.round(foyerY)} feet north)`
+        : foyerY > 3000
+          ? `North Flower Garden (${Math.round(foyerX)} feet east, ${Math.round(foyerY)} feet north)`
+          : foyerY < 0
+            ? `South Outdoor Tea Area (${Math.round(foyerX)} feet east, ${Math.round(foyerY)} feet)`
+            : `Temple Courtyard (${Math.round(foyerX)} feet east, ${Math.round(foyerY)} feet north)`;
+      return `Position inside ${zoneLabel}, facing ${foyerDirection}.`;
+    }
+
     if (levelId === 0 || placeId === "floor_foyer") {
       return FoyerArenaNarration.compilePosition(foyerX, foyerY, foyerDirection);
     }

@@ -197,6 +197,9 @@ export const Spawner = {
    * delegated scientifically to OpponentAIEngine.
    */
   spawnOpponents(levelObj: GameLevel, levelId: number, selectedOpossumId: string): Opponent[] {
+    if (levelId <= 0 || levelObj.placeId === "temple_courtyard" || levelObj.placeId === "floor_foyer") {
+      return [];
+    }
     return OpponentAIEngine.generateOpponents(levelObj, levelId, selectedOpossumId);
   },
 
@@ -206,6 +209,9 @@ export const Spawner = {
   spawnAnimals(levelObj: GameLevel): AnimalItem[] {
     const spawnedAnimals: AnimalItem[] = [];
     const id = levelObj.placeId.toLowerCase();
+    if (levelObj.id === 0 || id === "temple_courtyard" || id === "floor_foyer") {
+      return spawnedAnimals;
+    }
     let currentAnimalId = 0;
     
     // 1. Garden, nature-based, crop/vegetable field, wilderness, and AI-generated smart arena feral pig inclusion

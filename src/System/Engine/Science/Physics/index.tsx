@@ -18,6 +18,14 @@ import { SymbioticAnchor } from "../../../Security/Phantom/Cryptographic_Anchor"
 import { canSpeakAnimalNarrative, speakAnimalNarrative } from "../../../Sound/TTS";
 import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
 import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
+import { FeralPigAIController } from "../../../AI/In-Game/Category/Animal/Feral_Pig";
+import { OpossumsAttributesDesign } from "../../../Registry/Characters/Opossums/Attributes/Design";
+import { FlowersStarsDiamondsRainbowStoneDoorAI } from "../../../AI/In-Game/Category/Building_Blocks";
+import {
+  resolveWorld2Level0Zone,
+  getWorld2Level0SurfaceSound,
+  SOUTH_TEA_TABLES
+} from "../../../../World/2/Levels/Level_0";
 
 /**
  * Internal helper to apply a scientific reaction to an opponent (moose/monkey)
@@ -149,7 +157,7 @@ export function updateFoyerPhysics(
   speakWords: (text: string, priority?: boolean) => void,
   setStatusMessage: (text: string) => void,
   playProceduralSound: (type: string) => void,
-  startLevel: (level: number) => void,
+  startLevel: (level: number, worldId?: number) => void,
   announceDoors: boolean,
   selectedOpossum: any
 ) {
@@ -374,8 +382,306 @@ export function updateFoyerPhysics(
     speakWords("Leaving the Expanded Porch, entering Level 1: Garden of Beginnings stage! Ride along!");
     setStatusMessage("Leaving porch, entering Level 1!");
     setTimeout(() => {
-      startLevel(1);
+      startLevel(1, 1);
     }, 3500);
+  }
+}
+
+/**
+ * World 2 Level 0 Exploration Physics (Temple Courtyard, North Flower Garden, South Tea Area, and Temple Foyer)
+ */
+export function updateWorld2CourtyardPhysics(
+  delta: number,
+  stateRef: any,
+  setSpeed: (val: number) => void,
+  setFoyerX: (val: number) => void,
+  setFoyerY: (val: number) => void,
+  setPlayerZ: (val: number) => void,
+  setPlayerY: (val: number) => void,
+  setIsJumping: (val: boolean) => void,
+  lastFootstepZRef: { current: number },
+  lastRenderedZRef: { current: number },
+  soundSystemRef: any,
+  speakWords: (text: string, priority?: boolean) => void,
+  setStatusMessage: (text: string) => void,
+  playProceduralSound: (type: string) => void,
+  startLevel: (level: number, worldId?: number) => void,
+  completeLevelSave: (level: number, ticks: number, worldId?: number) => Promise<any>,
+  announceDoors: boolean,
+  selectedOpossum: any
+) {
+  const anchorFactor = SymbioticAnchor.validateAndGetFactor();
+
+  // Manual movement & cruise control
+  if (stateRef.current.isPressingForward) {
+    stateRef.current.speed = Math.min(10, stateRef.current.speed + delta * 14 * anchorFactor);
+  } else if (stateRef.current.isPressingBackward) {
+    stateRef.current.speed = Math.max(-4, stateRef.current.speed - delta * 12 * anchorFactor);
+  } else {
+    const cruiseTarget = stateRef.current.cruiseSpeed / 2.23694;
+    if (stateRef.current.speed < cruiseTarget) {
+      stateRef.current.speed = Math.min(cruiseTarget, stateRef.current.speed + delta * 6);
+    } else if (stateRef.current.speed > cruiseTarget) {
+      stateRef.current.speed = Math.max(cruiseTarget, stateRef.current.speed - delta * 12);
+    } else {
+      stateRef.current.speed = cruiseTarget;
+    }
+  }
+  setSpeed(stateRef.current.speed);
+
+  const curZone = resolveWorld2Level0Zone(stateRef.current.foyerX, stateRef.current.foyerY);
+  const currentSurfaceSound = getWorld2Level0SurfaceSound(curZone);
+
+  // Jump parabola
+  if (stateRef.current.isJumping) {
+    stateRef.current.jumpProgress += delta * 2;
+    if (stateRef.current.jumpProgress >= Math.PI) {
+      stateRef.current.isJumping = false;
+      stateRef.current.playerY = 0;
+      setIsJumping(false);
+      lastFootstepZRef.current = stateRef.current.playerZ;
+      const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
+      const isAI = Boolean(
+        selectedOpossum?.isAI ||
+        selectedOpossum?.isAIGenerated ||
+        selectedOpossum?.aiData != null ||
+        (typeof selectedOpossum?.id === "string" && (
+          selectedOpossum.id.startsWith("gen-") ||
+          selectedOpossum.id.startsWith("proto-") ||
+          selectedOpossum.id.startsWith("ai_") ||
+          selectedOpossum.id.startsWith("ai-")
+        ))
+      );
+      soundSystemRef.current?.playFootstep(currentSurfaceSound, opSex, isAI);
+    } else {
+      stateRef.current.playerY = Math.sin(stateRef.current.jumpProgress) * 3;
+    }
+    setPlayerY(stateRef.current.playerY);
+  }
+
+  const speedFactor = 20;
+  const dPos = stateRef.current.speed * delta * speedFactor;
+
+  const prevX = stateRef.current.foyerX;
+  const prevY = stateRef.current.foyerY;
+  let targetX = prevX;
+  let targetY = prevY;
+
+  if (stateRef.current.foyerDirection === "North") targetY += dPos;
+  else if (stateRef.current.foyerDirection === "South") targetY -= dPos;
+  else if (stateRef.current.foyerDirection === "East") targetX += dPos;
+  else if (stateRef.current.foyerDirection === "West") targetX -= dPos;
+
+  // Evaluate carved stone double sliding door AI at East Courtyard Wall (X = 4000, Y = 1490..1510)
+  const doorEval = FlowersStarsDiamondsRainbowStoneDoorAI.evaluateProximity(
+    prevX,
+    prevY,
+    stateRef.current.doorsOpen,
+    stateRef.current.doorOpenProgress,
+    delta
+  );
+  stateRef.current.doorsOpen = doorEval.isOpen;
+  stateRef.current.doorOpenProgress = doorEval.openProgress;
+
+  if (doorEval.shouldPlayOpenSFX) {
+    soundSystemRef.current?.playStoneCarvedSlidingDoors(true);
+    if (announceDoors && doorEval.announceDoorState) {
+      speakWords("The carved stone sliding doors open into the Temple Foyer.");
+    }
+  } else if (doorEval.shouldPlayCloseSFX) {
+    soundSystemRef.current?.playStoneCarvedSlidingDoors(false);
+  }
+
+  let collided = false;
+  let collWall = "";
+
+  // West boundary (X = 0): locked exterior door overlooks road & crop field horizon
+  if (targetX < 0) {
+    targetX = 0;
+    collided = true;
+    collWall = (prevY >= 1490 && prevY <= 1510 && prevY >= 0 && prevY <= 3000)
+      ? "Locked West Exterior Door (Overlooking Road & Crop Fields)"
+      : "West Wall";
+  }
+
+  // East Temple Wall boundary at X = 4000 (Courtyard/North Garden/South Tea Area -> Temple Foyer via Y = 1490..1510)
+  if (prevX <= 4000 && targetX > 4000) {
+    if (prevY >= 1490 && prevY <= 1510 && stateRef.current.doorOpenProgress > 0.25) {
+      // Allowed through open carved stone double sliding doors into Temple Foyer
+    } else {
+      targetX = 4000;
+      collided = true;
+      collWall = "East Temple Stone Wall";
+    }
+  } else if (prevX > 4000 && targetX < 4000) {
+    // Returning West from Temple Foyer back into Courtyard
+    if (prevY >= 1490 && prevY <= 1510 && stateRef.current.doorOpenProgress > 0.25) {
+      // Allowed back out to courtyard
+    } else {
+      targetX = 4000;
+      collided = true;
+      collWall = "Temple Foyer West Wall";
+    }
+  }
+
+  // Inside Temple Foyer (X in [4000, 7000], Y in [0, 3000]): clamp north/south & check East Archway exit
+  if (prevX > 4000 || targetX > 4000) {
+    if (targetY < 0) {
+      targetY = 0;
+      collided = true;
+      collWall = "Temple Foyer South Gold-Pyramid Wall";
+    } else if (targetY > 3000) {
+      targetY = 3000;
+      collided = true;
+      collWall = "Temple Foyer North Horizon Wall";
+    }
+
+    // East wall X = 7000: 20x20 ft Archway at Y in [1490, 1510] leads into World 2 Level 1!
+    if (targetX >= 7000) {
+      if (targetY >= 1490 && targetY <= 1510) {
+        stateRef.current.isGameOver = true;
+        soundSystemRef.current?.playLevelCompleteFanfare();
+        completeLevelSave(0, 0, 2).catch((err) => {
+          console.warn("Could not save World 2 Level 0 completion:", err);
+        });
+        speakWords("Stepping through the east temple archway into World 2, Level 1: The Ancient Relic Temple!");
+        setStatusMessage("Entering World 2 - Level 1: The Ancient Relic Temple!");
+        setTimeout(() => {
+          startLevel(1, 2);
+        }, 3000);
+        return;
+      } else {
+        targetX = 7000;
+        collided = true;
+        collWall = "Temple Foyer East Carved Wall";
+      }
+    }
+  } else {
+    // Courtyard / North Garden / South Tea Area Y partition gates at X in [2990, 3010]
+    // 1. North divider at Y = 3000
+    if (prevY <= 3000 && targetY > 3000) {
+      if (targetX >= 2990 && targetX <= 3010) {
+        // Enter North Flower Garden
+      } else {
+        targetY = 3000;
+        collided = true;
+        collWall = "North Flower Garden Divider Wall";
+      }
+    } else if (prevY > 3000 && targetY < 3000) {
+      if (targetX >= 2990 && targetX <= 3010) {
+        // Return to Courtyard
+      } else {
+        targetY = 3000;
+        collided = true;
+        collWall = "Flower Garden South Gate Wall";
+      }
+    }
+
+    // 2. South divider at Y = 0
+    if (prevY >= 0 && targetY < 0) {
+      if (targetX >= 2990 && targetX <= 3010) {
+        // Enter South Tea Area
+      } else {
+        targetY = 0;
+        collided = true;
+        collWall = "South Outdoor Tea Area Wall";
+      }
+    } else if (prevY < 0 && targetY > 0) {
+      if (targetX >= 2990 && targetX <= 3010) {
+        // Return to Courtyard
+      } else {
+        targetY = 0;
+        collided = true;
+        collWall = "Tea Area North Wall";
+      }
+    }
+
+    // Outer North/South bounds
+    if (targetY > 5000) {
+      targetY = 5000;
+      collided = true;
+      collWall = "North Flower Garden Horizon Wall";
+    } else if (targetY < -2000) {
+      targetY = -2000;
+      collided = true;
+      collWall = "South Tea Garden Horizon Wall";
+    }
+
+    // Spaced outdoor tea tables collision check (South Tea Area)
+    if (targetY < 0) {
+      for (const tbl of SOUTH_TEA_TABLES) {
+        const dist = Math.hypot(targetX - tbl.x, targetY - tbl.y);
+        if (dist < tbl.radiusFeet + 4 && stateRef.current.playerY < 2) {
+          targetX = prevX;
+          targetY = prevY;
+          collided = true;
+          collWall = `Outdoor Tea Table #${tbl.id}`;
+          break;
+        }
+      }
+    }
+  }
+
+  // Zone transitions & one-time announcements
+  const nextZone = resolveWorld2Level0Zone(targetX, targetY);
+  if (nextZone !== stateRef.current.announcedZone) {
+    stateRef.current.announcedZone = nextZone;
+    if (nextZone === "temple_foyer") {
+      speakWords("Entering the Temple Entrance Foyer, 3000 by 3000 feet with 40-foot ceilings and checkered black and green tile flooring. Head east to the 20-foot archway for World 2 Level 1.");
+      setStatusMessage("Temple Foyer (3000x3000 ft, 40 ft ceiling)");
+    } else if (nextZone === "north_garden") {
+      speakWords("Entering the North Flower Garden on grass. Notice the large flowers and distant crop fields to the west.");
+      setStatusMessage("North Flower Garden (4000x2000 ft, Grass)");
+    } else if (nextZone === "south_tea_area") {
+      speakWords("Entering the Outdoor Tea Garden under the 20-foot skylight canopy on tile flooring with spaced tea tables.");
+      setStatusMessage("South Tea Area (4000x2000 ft, Tile)");
+    } else {
+      speakWords("Stepping into the central Stone Temple Courtyard, 4000 by 3000 feet.");
+      setStatusMessage("Temple Courtyard (4000x3000 ft, Stone)");
+    }
+  }
+
+  stateRef.current.foyerX = targetX;
+  stateRef.current.foyerY = targetY;
+
+  if (collided && Math.abs(stateRef.current.speed) > 1.2) {
+    stateRef.current.speed = -stateRef.current.speed * 0.35;
+    setSpeed(stateRef.current.speed);
+    playProceduralSound("crash");
+    soundSystemRef.current?.playImpactCrash();
+    setStatusMessage(`Bumped into ${collWall}!`);
+  }
+
+  setFoyerX(Math.round(stateRef.current.foyerX));
+  setFoyerY(Math.round(stateRef.current.foyerY));
+
+  stateRef.current.playerZ += Math.abs(stateRef.current.speed) * delta;
+  const roundedZ = Math.round(stateRef.current.playerZ);
+  if (lastRenderedZRef.current !== roundedZ) {
+    lastRenderedZRef.current = roundedZ;
+    setPlayerZ(roundedZ);
+  }
+
+  // Surface-specific footsteps ("stone" / "grass" / "tile")
+  const stepDeltaZ = stateRef.current.playerZ - lastFootstepZRef.current;
+  const isJack = selectedOpossum?.gender === "Jack" || selectedOpossum?.sex === "Jack" || selectedOpossum?.gender === "Male";
+  const trotStrideFrequency = computeOpossumStrideFrequency(selectedOpossum, isJack);
+
+  if (Math.abs(stepDeltaZ) >= trotStrideFrequency && Math.abs(stateRef.current.speed) > 0.1 && !stateRef.current.isJumping && stateRef.current.playerY <= 0) {
+    lastFootstepZRef.current = stateRef.current.playerZ;
+    const opSex = selectedOpossum?.aiData?.sex || selectedOpossum?.sex || (selectedOpossum?.gender === "Male" ? "Jack" : "Jill");
+    const isAI = Boolean(
+      selectedOpossum?.isAI ||
+      selectedOpossum?.isAIGenerated ||
+      selectedOpossum?.aiData != null ||
+      (typeof selectedOpossum?.id === "string" && (
+        selectedOpossum.id.startsWith("gen-") ||
+        selectedOpossum.id.startsWith("proto-") ||
+        selectedOpossum.id.startsWith("ai_") ||
+        selectedOpossum.id.startsWith("ai-")
+      ))
+    );
+    soundSystemRef.current?.playFootstep(currentSurfaceSound, opSex, isAI);
   }
 }
 
@@ -402,25 +708,31 @@ export function updateStandardPhysics(
   speakWords: (text: string, priority?: boolean) => void,
   setStatusMessage: (text: string) => void,
   playProceduralSound: (type: string) => void,
-  startLevel: (level: number) => void,
+  startLevel: (level: number, worldId?: number) => void,
   getEdibleItemName: (level: number) => string,
   selectedOpossum: any,
-  completeLevelSave: (level: number, ticks: number) => Promise<any>,
-  announceSteering: boolean
+  completeLevelSave: (level: number, ticks: number, worldId?: number) => Promise<any>,
+  announceSteering: boolean,
+  selectedRider: any = null
 ) {
   // Active Embedded Defense: Standard physics tick mathematically tied to codebase integrity
   const anchorFactor = SymbioticAnchor.validateAndGetFactor();
 
   // Resolve stage atmosphere and biology scientifically
   const atmosphere = GeneralEngineUtils.resolveStageAtmosphere(currentLevel.id, currentLevel.placeId);
-  const isOpossumJack = selectedOpossum?.gender === "Jack" || selectedOpossum?.sex === "Jack" || selectedOpossum?.gender === "Male";
-  const bio = GeneralEngineUtils.calculateOpossumBiology(selectedOpossum?.scale || 1.0, isOpossumJack);
-  
+  const legLengthLabel = OpossumsAttributesDesign.Leg_Length.getByOpossumId(selectedOpossum?.id || "");
+  const mountedJumpProfile = GeneralEngineUtils.calculateMountedJumpProfile(
+    selectedOpossum,
+    selectedRider,
+    stateRef.current.speed,
+    legLengthLabel
+  );
+
   // Calculate dynamic aerodynamic drag deceleration
   const dragDecel = GeneralEngineUtils.calculateDragDeceleration(
     stateRef.current.speed,
     atmosphere.airDensityKgM3,
-    bio.weightKg
+    mountedJumpProfile.opossumMassKg
   );
 
   // Course paths: realistic glide deceleration when releasing forward, immediate stop when releasing reverse
@@ -482,7 +794,7 @@ export function updateStandardPhysics(
     } else {
       const platformUnder = localObstacles.find(obs => obs.type === "stone_platform" && obs.lane === stateRef.current.playerLane && Math.abs(obs.z - stateRef.current.playerZ) <= obs.width / 2);
       const baseHeight = platformUnder && stateRef.current.playerY >= platformUnder.height - 0.2 ? platformUnder.height : 0;
-      stateRef.current.playerY = baseHeight + Math.sin(stateRef.current.jumpProgress) * 3;
+      stateRef.current.playerY = baseHeight + Math.sin(stateRef.current.jumpProgress) * mountedJumpProfile.jumpPeakHeightM;
     }
     setPlayerY(stateRef.current.playerY);
   } else {
@@ -881,55 +1193,105 @@ export function updateStandardPhysics(
     setAnimals(activeAnimals);
   }
   
-  // Animal behavior, feral pig smash detection, and vocalization
+  // Animal behavior, feral pig AI lane-switching, stun/smash detection, and vocalization
+  const nowMs = Date.now();
   localAnimals.forEach((animal) => {
-    // Check player collision / jump smash specifically with feral pigs
+    // 1. Update level-scaled Feral Pig AI on path-based arenas (random lane switching across ANY lane -1, 0, 1)
     if (animal.species === "feral_pig" && animal.state !== "smashed") {
-      const distance = Math.abs(animal.z - stateRef.current.playerZ);
-      const isSameLane = animal.lane === stateRef.current.playerLane;
+      const pigAiTick = FeralPigAIController.updateCoursePigAI(
+        animal,
+        stateRef.current.playerZ,
+        stateRef.current.visualLaneX,
+        currentLevel.id,
+        delta,
+        nowMs
+      );
+      if (pigAiTick.switchedLane && pigAiTick.distanceToPlayer < 120) {
+        soundSystemRef.current?.playPigLaneSwitchGrunt(animal.gender || "Boar", pigAiTick.distanceToPlayer);
+      }
 
-      if (distance < 2.5 && isSameLane) {
+      const proximity = FeralPigAIController.Collision.checkCoursePigProximity(
+        stateRef.current.visualLaneX,
+        stateRef.current.playerZ,
+        animal.lane,
+        animal.xOffset || 0,
+        animal.z
+      );
+
+      if (proximity.isAligned) {
         if (stateRef.current.playerY > 0.8) {
-          // High Leap & Heavy Landing Smash on Feral Pig (Jump High and Land Hard - no Babylonian shortcuts)
-          animal.state = "smashed";
-          animal.smashedTime = Date.now();
+          const impactOutcome = GeneralEngineUtils.evaluateCompactPigImpact(
+            mountedJumpProfile,
+            animal.gender || "Boar",
+            animal.state
+          );
 
-          // Award points
-          stateRef.current.score += 100;
-          setScore(stateRef.current.score);
+          if (impactOutcome === "stun") {
+            // Compact Jack impact stuns active feral pig (realistic stunned SFX, zero TTS description)
+            animal.state = "stunned";
+            animal.behaviorState = "stunned";
+            animal.stunnedUntil = nowMs + 3200;
 
-          // Intense explosion sound with cartoon squash
-          soundSystemRef.current?.synthesizePigSmashedExplosion(animal.gender || "Boar", 0);
+            stateRef.current.score += 25;
+            setScore(stateRef.current.score);
 
-          // Floating score "+100" at pig coordinates
-          const fText = stateRef.current.floatingTextPool.next();
-          fText.id = Math.random();
-          fText.text = "100";
-          fText.lane = animal.lane;
-          fText.z = animal.z;
-          fText.spawnTime = Date.now();
-          fText.yOffset = 2.5;
+            soundSystemRef.current?.playPigStunnedVocal(animal.gender || "Boar", 0);
 
-          // Trigger celebratory poof particle explosion
-          const p = stateRef.current.particlePool.next();
-          p.id = Math.random();
-          p.lane = animal.lane;
-          p.z = animal.z;
-          p.spawnTime = Date.now();
-          p.radius = 0.3;
-          p.maxRadius = 3.0;
+            const fText = stateRef.current.floatingTextPool.next();
+            fText.id = Math.random();
+            fText.text = "+25";
+            fText.lane = animal.lane;
+            fText.z = animal.z;
+            fText.spawnTime = nowMs;
+            fText.yOffset = 2.0;
 
-          // Narrative announcement when jumping on a feral pig while riding an opossum
-          const genderTitle = animal.gender === "Sow" ? "feral sow" : "feral boar";
-          speakWords(`Perfect jump! Smashed the wild ${genderTitle} with an intense blast!`, true);
-          setStatusMessage(`Smashed Wild ${animal.gender === "Sow" ? "Sow" : "Boar"}! +100`);
+            // Give player an upward rebound so consecutive jump-impact smash or dodge is clean
+            stateRef.current.isJumping = true;
+            stateRef.current.jumpProgress = 0.5;
+            setIsJumping(true);
+          } else {
+            // High Leap & Heavy Landing Smash on Feral Pig (no stomp mechanics)
+            animal.state = "smashed";
+            animal.behaviorState = "smashed";
+            animal.smashedTime = nowMs;
 
-          // Give player an upward bounce
-          stateRef.current.isJumping = true;
-          stateRef.current.jumpProgress = 0.5;
-          setIsJumping(true);
-        } else {
-          // Ground level contact bump
+            // Award points
+            stateRef.current.score += 100;
+            setScore(stateRef.current.score);
+
+            // Intense explosion sound with cartoon squash
+            soundSystemRef.current?.synthesizePigSmashedExplosion(animal.gender || "Boar", 0);
+
+            // Floating score "+100" at pig coordinates
+            const fText = stateRef.current.floatingTextPool.next();
+            fText.id = Math.random();
+            fText.text = "100";
+            fText.lane = animal.lane;
+            fText.z = animal.z;
+            fText.spawnTime = nowMs;
+            fText.yOffset = 2.5;
+
+            // Trigger celebratory poof particle explosion
+            const p = stateRef.current.particlePool.next();
+            p.id = Math.random();
+            p.lane = animal.lane;
+            p.z = animal.z;
+            p.spawnTime = nowMs;
+            p.radius = 0.3;
+            p.maxRadius = 3.0;
+
+            // Narrative announcement when jumping on a feral pig while riding an opossum
+            const genderTitle = animal.gender === "Sow" ? "feral sow" : "feral boar";
+            speakWords(`Perfect jump! Smashed the wild ${genderTitle} with an intense blast!`, true);
+            setStatusMessage(`Smashed Wild ${animal.gender === "Sow" ? "Sow" : "Boar"}! +100`);
+
+            // Give player an upward bounce
+            stateRef.current.isJumping = true;
+            stateRef.current.jumpProgress = 0.5;
+            setIsJumping(true);
+          }
+        } else if (animal.state !== "stunned") {
+          // Ground level contact bump (bypassed harmlessly if pig is currently stunned)
           if (canSpeakAnimalNarrative()) {
             speakAnimalNarrative(`Opossum bumped into a wild feral ${animal.gender === "Sow" ? "sow" : "boar"}.`);
           }
@@ -954,7 +1316,7 @@ export function updateStandardPhysics(
       }
     }
 
-    if (animal.state === "smashed") return;
+    if (animal.state === "smashed" || animal.state === "stunned") return;
 
     if (animal.nextVocalTime === undefined) {
       animal.nextVocalTime = 1 + Math.random() * 5;
@@ -983,15 +1345,25 @@ export function updateStandardPhysics(
     stateRef.current.isGameOver = true;
     // Play level complete fanfare audio
     soundSystemRef.current?.playLevelCompleteFanfare();
+    const activeWorldId = currentLevel.worldId ?? 1;
     // Record level progression in IndexedDB & Local Storage offline
-    completeLevelSave(currentLevel.id, stateRef.current.ticksEaten).catch((err) => {
+    completeLevelSave(currentLevel.id, stateRef.current.ticksEaten, activeWorldId).catch((err) => {
       console.warn("Could not save level progression:", err);
     });
-    speakWords(`Level complete! You safely completed Stage ${currentLevel.id}: ${currentLevel.name}! Got ${stateRef.current.ticksEaten} ${getEdibleItemName(currentLevel.id)}.`);
-    setStatusMessage("Stage Accomplished!");
+    const isEndOfWorld1 = activeWorldId === 1 && currentLevel.id >= 40;
+    if (isEndOfWorld1) {
+      speakWords(`World 1 complete! You passed Stage 40: ${currentLevel.name}! Advancing next to World 2, Level 0: Temple Courtyard! Got ${stateRef.current.ticksEaten} ${getEdibleItemName(currentLevel.id)}.`);
+      setStatusMessage("World 1 Complete! Advancing to World 2!");
+    } else {
+      speakWords(`Level complete! You safely completed Stage ${currentLevel.id}: ${currentLevel.name}! Got ${stateRef.current.ticksEaten} ${getEdibleItemName(currentLevel.id)}.`);
+      setStatusMessage("Stage Accomplished!");
+    }
     setTimeout(() => {
-      const nextStage = currentLevel.id + 1;
-      startLevel(nextStage);
+      if (isEndOfWorld1) {
+        startLevel(0, 2);
+      } else {
+        startLevel(currentLevel.id + 1, activeWorldId);
+      }
     }, 3500);
   }
 }

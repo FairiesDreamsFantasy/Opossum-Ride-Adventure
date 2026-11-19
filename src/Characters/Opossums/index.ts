@@ -46,8 +46,18 @@ import { DAISY_ROSE_DESCRIPTION as daisyDesc } from "./Daisy_Rose/Description";
 import { CALLIE_ROSE_DESCRIPTION as callieDesc } from "./Callie_Rose/Description";
 import { STACEY_JASMIN_DESCRIPTION as staceyDesc } from "./Stacey_Jasmin/Description";
 import { ARNOLD_ROSE_DESCRIPTION as arnoldDesc } from "./Arnold_Rose/Description";
-import { IvanOpossum } from "./Ivan_Opossum";
-import { IsaacOpossum } from "./Isaac_Opossum";
+import {
+  IvanOpossum,
+  drawIvan2D,
+  drawIvan3D,
+  drawIvanPolygons
+} from "./Ivan_Opossum";
+import {
+  IsaacOpossum,
+  drawIsaac2D,
+  drawIsaac3D,
+  drawIsaacPolygons
+} from "./Isaac_Opossum";
 import { IVAN_OPOSSUM_DESCRIPTION as ivanDesc } from "./Ivan_Opossum/Description";
 import { ISAAC_OPOSSUM_DESCRIPTION as isaacDesc } from "./Isaac_Opossum/Description";
 import { DaleJasmineOpossum } from "./Dale_Jasmine";
@@ -84,7 +94,13 @@ export {
   StaceyJasminOpossum,
   ArnoldRoseOpossum,
   IvanOpossum,
+  drawIvan2D,
+  drawIvan3D,
+  drawIvanPolygons,
   IsaacOpossum,
+  drawIsaac2D,
+  drawIsaac3D,
+  drawIsaacPolygons,
   DaleJasmineOpossum,
   QiJasmineOpossum,
   JamieJasmineOpossum,

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type FeralPigBehaviorState = "rooting" | "patrolling" | "alert" | "charging" | "evading" | "smashed";
+export type FeralPigBehaviorState = "rooting" | "patrolling" | "alert" | "charging" | "evading" | "stunned" | "smashed";
 
 export interface FeralPigBehaviorParams {
   detectionRadius: number;
@@ -16,14 +16,14 @@ export interface FeralPigBehaviorParams {
 export const DEFAULT_FERAL_PIG_BEHAVIOR_CONFIG: Record<"Boar" | "Sow", FeralPigBehaviorParams> = {
   Boar: {
     detectionRadius: 240,
-    chargeSpeedMultiplier: 1.55,
+    chargeSpeedMultiplier: 1.45,
     rootingDurationMinMs: 1800,
     rootingDurationMaxMs: 4200,
     turnProbability: 0.25
   },
   Sow: {
     detectionRadius: 280,
-    chargeSpeedMultiplier: 1.35,
+    chargeSpeedMultiplier: 1.25,
     rootingDurationMinMs: 2200,
     rootingDurationMaxMs: 5000,
     turnProbability: 0.40
@@ -31,6 +31,15 @@ export const DEFAULT_FERAL_PIG_BEHAVIOR_CONFIG: Record<"Boar" | "Sow", FeralPigB
 };
 
 export class FeralPigBehaviorEngine {
+  /**
+   * Computes continuous difficulty factor [0.08 .. 1.0] across World 1 (Levels 1-40) and maintains peak/scaled difficulty in World 2+.
+   */
+  public static computeLevelDifficulty(levelId: number, worldId: number = 1): number {
+    const cumulativeStage = worldId > 1 ? 40 + Math.max(0, levelId) : Math.max(1, levelId);
+    const clampedStage = Math.min(40, cumulativeStage);
+    return parseFloat((0.08 + ((clampedStage - 1) / 39) * 0.92).toFixed(4));
+  }
+
   /**
    * Computes next state transition via dynamic distance calculations and probabilistic timers
    */
@@ -44,6 +53,9 @@ export class FeralPigBehaviorEngine {
   ): { nextState: FeralPigBehaviorState; shouldChangeDirection: boolean } {
     if (currentState === "smashed") {
       return { nextState: "smashed", shouldChangeDirection: false };
+    }
+    if (currentState === "stunned") {
+      return { nextState: "stunned", shouldChangeDirection: false };
     }
 
     // Proximity trigger: player nearby

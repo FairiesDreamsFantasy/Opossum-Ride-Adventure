@@ -775,6 +775,13 @@ export class ProceduralSoundSystem {
     this.sfx.playSlidingDoors(ctx, dest, open);
   }
 
+  public playStoneCarvedSlidingDoors(open: boolean) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.56);
+    this.sfx.playStoneCarvedSlidingDoors(ctx, dest, open);
+  }
+
   public playLevelCompleteFanfare() {
     const ctx = this.getContext();
     if (!ctx || ctx.state === "suspended") return;
@@ -808,6 +815,20 @@ export class ProceduralSoundSystem {
     if (!ctx || ctx.state === "suspended") return;
     const dest = this.getSharedDestination(ctx, 0.55);
     this.sfx.playPigSmashedExplosion(ctx, dest, gender, distance);
+  }
+
+  public playPigLaneSwitchGrunt(gender: "Boar" | "Sow" = "Boar", distance: number = 0) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.42);
+    this.sfx.playPigLaneSwitchGrunt(ctx, dest, gender, distance);
+  }
+
+  public playPigStunnedVocal(gender: "Boar" | "Sow" = "Boar", distance: number = 0) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.48);
+    this.sfx.playPigStunnedVocal(ctx, dest, gender, distance);
   }
 
   public playPigTrot(pitch: number = 1.0) {

@@ -6,6 +6,7 @@ import { OpossumSelectionPagination } from "./Pagination";
 import { AIGeneratedView } from "./AI-Generated";
 import { CompactOpossumSelection } from "./Compact";
 import { ALL_COMPACT_OPOSSUMS_REGISTRY, CompactOpossumDefinition, COMPACT_RIDER_HEIGHT_LIMITS } from "../../../Registry/Characters/Opossums/Compact";
+import { COMPACT_CRAFTED_OPOSSUMS_REGISTRY } from "../../../Registry/Characters/Opossums/Compact/Crafted";
 import { OPOSSUM_CHARACTERS } from "../../../../Characters/Opossums";
 import { calculateMaxRiderHeight, getOpossumAestheticDescription, OPOSSUM_UI_CONSTANTS, GAME_ARENAS } from "../General";
 import { AIOpossum, useOpossumAIState } from "../General/AI_State";
@@ -21,6 +22,8 @@ interface OpossumSelectionMainProps {
   onStart: (entity?: any) => void;
   onBack: () => void;
   selectedRider?: RiderCharacter | null;
+  onTabChange?: (tab: OpossumSelectionTabType) => void;
+  onCompactSelectionChange?: (opossum: CompactOpossumDefinition | null) => void;
 }
 
 export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
@@ -30,6 +33,8 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
   onStart,
   onBack,
   selectedRider,
+  onTabChange,
+  onCompactSelectionChange,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { hasAnyKey } = useOpossumAIState();
@@ -65,6 +70,9 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
 
   const handleCompactSelect = (op: CompactOpossumDefinition) => {
     setSelectedCompactOpossum(op);
+    if (onCompactSelectionChange) {
+      onCompactSelectionChange(op);
+    }
   };
 
   useEffect(() => {
@@ -118,8 +126,13 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
     }
 
     if (activeTab === "COMPACT" && selectedCompactOpossum) {
-      // Render Compact Opossum Preview (3'0" shoulder height, perched-forward head posture)
-      const scale = 0.72; // Compact scale (~72% of standard crafted opossum)
+      const craftedMatch = COMPACT_CRAFTED_OPOSSUMS_REGISTRY[selectedCompactOpossum.id as keyof typeof COMPACT_CRAFTED_OPOSSUMS_REGISTRY];
+      const isIvan = selectedCompactOpossum.id === "ivan_opossum";
+      const isIsaac = selectedCompactOpossum.id === "isaac_opossum";
+      const isStandardHeadPosture = selectedCompactOpossum.headPosture === "Standard";
+
+      // Render Compact Opossum Preview
+      const scale = 0.72;
       const bodyColor = selectedCompactOpossum.bodyFurColor;
       const earColor = selectedCompactOpossum.outerEarColor;
       const innerEarColor = selectedCompactOpossum.innerEarColor || "#FFB6C1";
@@ -132,11 +145,43 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
       ctx.bezierCurveTo(cx - 90, cy + 18, cx - 110, cy - 25, cx - 130, cy - 5);
       ctx.stroke();
 
-      // Body (Compact Jill)
+      // Body
       ctx.fillStyle = bodyColor;
       ctx.beginPath();
       ctx.ellipse(cx, cy, 60 * scale * 1.25, 34 * scale * 1.25, 0, 0, Math.PI * 2);
       ctx.fill();
+
+      // Coat Stripe Overlay for Ivan (48 vertical brown stripes) and Isaac (8 dark-brown stripes)
+      if (isIvan || isIsaac) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, 60 * scale * 1.25, 34 * scale * 1.25, 0, 0, Math.PI * 2);
+        ctx.clip();
+        const bodyRx = 60 * scale * 1.25;
+        const bodyRy = 34 * scale * 1.25;
+        if (isIvan) {
+          ctx.strokeStyle = "#5C3D2E";
+          ctx.lineWidth = 0.75;
+          for (let i = 0; i < 48; i++) {
+            const sx = cx - bodyRx + (i + 0.5) * ((bodyRx * 2) / 48);
+            ctx.beginPath();
+            ctx.moveTo(sx, cy - bodyRy);
+            ctx.lineTo(sx, cy + bodyRy);
+            ctx.stroke();
+          }
+        } else {
+          ctx.strokeStyle = "#3E2723";
+          ctx.lineWidth = 2.6;
+          for (let i = 0; i < 8; i++) {
+            const sx = cx - bodyRx * 0.85 + i * ((bodyRx * 1.7) / 7);
+            ctx.beginPath();
+            ctx.moveTo(sx, cy - bodyRy);
+            ctx.lineTo(sx, cy + bodyRy);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
 
       // Outline
       ctx.strokeStyle = "#4b5563";
@@ -145,15 +190,16 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
       ctx.ellipse(cx, cy, 58 * scale * 1.25, 32 * scale * 1.25, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Head (Perched Forward: positioned lower-forward with 18 deg inclination)
+      // Head (Respect standard real-opossum posture vs perched-forward tilt, plus 100% furry face for Ivan/Isaac)
       const hx = cx + 55 * scale * 1.25;
-      const hy = cy - 8 * scale * 1.25; // Lower and perched forward
+      const hy = cy - (isStandardHeadPosture ? 12 : 8) * scale * 1.25;
       const hw = 30 * scale * 1.25;
       const hh = 26 * scale * 1.25;
+      const headTilt = isStandardHeadPosture ? 0.05 : 0.28;
 
-      ctx.fillStyle = "#f3f4f6"; // Classic opossum pale face
+      ctx.fillStyle = isIvan ? "#FFD1DC" : (isIsaac ? "#E5E7EB" : "#f3f4f6");
       ctx.beginPath();
-      ctx.ellipse(hx, hy, hw, hh, 0.28, 0, Math.PI * 2); // 0.28 rad ≈ 16-18 deg tilt forward
+      ctx.ellipse(hx, hy, hw, hh, headTilt, 0, Math.PI * 2);
       ctx.fill();
       ctx.strokeStyle = "#4b5563";
       ctx.stroke();
@@ -259,9 +305,11 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
       ctx.font = "11px 'JetBrains Mono', monospace";
       ctx.fillStyle = "#fbbf24";
       ctx.fillText(`Shoulder Height: ${heightStr} (${heightInches} in) - High Cadence (2.2 Hz)`, 25, 50);
-      ctx.fillText(`Posture: ${selectedCompactOpossum.headPosture}`, 25, 65);
+      const headOrientText = craftedMatch?.headOrientation || selectedCompactOpossum.headPosture;
+      const vocalText = craftedMatch ? "Crafted Opossum Bark SFX" : "Procedural Natural SFX (Offline Synthesizer)";
+      ctx.fillText(`Posture: ${headOrientText}`, 25, 65);
       ctx.fillText(`Outer Ears: ${selectedCompactOpossum.outerEarColor}`, 25, 80);
-      ctx.fillText(`Vocalizations: Procedural Natural SFX (Offline Synthesizer)`, 25, 95);
+      ctx.fillText(`Vocalizations: ${vocalText}`, 25, 95);
       return;
     }
 
@@ -540,7 +588,12 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
 
         <OpossumSelectionTabs 
           activeTab={activeTab} 
-          onTabChange={setActiveTab} 
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            if (onTabChange) {
+              onTabChange(tab);
+            }
+          }} 
           showAITab={hasAnyKey}
           showCompactTab={isShortRider}
           compactCount={ALL_COMPACT_OPOSSUMS_REGISTRY.length}
@@ -610,27 +663,32 @@ export const OpossumSelectionMain: React.FC<OpossumSelectionMainProps> = ({
             ) : activeTab === "COMPACT" ? (
               selectedCompactOpossum ? (
                 (() => {
+                  const craftedMatch = COMPACT_CRAFTED_OPOSSUMS_REGISTRY[selectedCompactOpossum.id as keyof typeof COMPACT_CRAFTED_OPOSSUMS_REGISTRY];
                   const sexLabel = selectedCompactOpossum.sex || (selectedCompactOpossum.gender === "Male" ? "Jack" : "Jill");
                   const heightInches = selectedCompactOpossum.shoulderHeightInches || 36;
                   const feet = Math.floor(heightInches / 12);
                   const inches = heightInches % 12;
                   const heightStr = `${feet}'${inches > 0 ? inches + '"' : '0"'}`;
+                  const displayHeight = craftedMatch?.shoulderHeight || `${heightStr} (${heightInches} inches)`;
+                  const displayPosture = craftedMatch?.headOrientation || selectedCompactOpossum.headPosture;
+                  const displayDescription = craftedMatch?.description ||
+                    `A compact ${heightStr} shoulder height ${sexLabel.toLowerCase()} opossum steed featuring ${selectedCompactOpossum.headPosture.toLowerCase()} head posture and high-cadence strides (2.2 Hz). Specially proportioned for riders up to 4 feet and 4.44 inches tall (Sean White & George Blake).`;
                   return (
                     <>
                       <p className="font-semibold text-amber-300">{selectedCompactOpossum.name} ({sexLabel}):</p>
                       <p className="text-stone-300">
-                        A compact {heightStr} shoulder height {sexLabel.toLowerCase()} opossum steed featuring {selectedCompactOpossum.headPosture.toLowerCase()} head posture and high-cadence strides (2.2 Hz). Specially proportioned for riders up to 4 feet and 4.44 inches tall (Sean White & George Blake).
+                        {displayDescription}
                       </p>
                       <div className="bg-black/60 p-3 rounded border border-amber-900/60 font-mono text-[11px] space-y-1 text-amber-400">
                         <p>• Steed ID: {selectedCompactOpossum.id}</p>
                         <p>• Sex / Gender: {sexLabel}</p>
-                        <p>• Shoulder Height: {heightStr} ({heightInches} inches)</p>
+                        <p>• Shoulder Height: {displayHeight}</p>
                         <p>• Body Width: {selectedCompactOpossum.bodyWidthInches} inches | Length: {selectedCompactOpossum.bodyLengthInches} inches</p>
-                        <p>• Body Fur: {selectedCompactOpossum.bodyFurColor}</p>
+                        <p>• Body Fur: {selectedCompactOpossum.bodyFurColor} ({selectedCompactOpossum.colorName})</p>
                         <p>• Outer Ears: {selectedCompactOpossum.outerEarColor}</p>
                         <p>• Inner Ears: {selectedCompactOpossum.innerEarColor}</p>
-                        <p>• Head Posture: {selectedCompactOpossum.headPosture}</p>
-                        <p>• Sound Architecture: Offline Procedural Synthesizer</p>
+                        <p>• Head Posture: {displayPosture}</p>
+                        <p>• Sound Architecture: {craftedMatch ? "Crafted Opossum Bark Synthesizer" : "Offline Procedural Synthesizer"}</p>
                       </div>
                     </>
                   );

@@ -361,3 +361,59 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
 - **World 2 & World 3 Alignment**:
   - World 2 decluttered to `Level_0`–`Level_7` (Temple Courtyard + 7 unique Temple arenas).
   - World 3 Index & Levels metadata aligned with Simulated & Natural Mines (`Level_0`–`Level_30`).
+
+---
+
+## 16. Ivan Opossum & Isaac Opossum Fallback-Elimination Wiring Specification
+- **Compact Crafted Registry (`src/System/Registry/Characters/Opossums/Compact/Crafted/index.tsx`)**:
+  - Registered `ivan_opossum: IvanOpossum` and `isaac_opossum: IsaacOpossum` in `COMPACT_CRAFTED_OPOSSUMS_REGISTRY` and `COMPACT_CRAFTED_OPOSSUMS_LIST`, eliminating generic `3 feet` dimension, `"Perched Forward"` posture, generic bio, and `"snuffle"` SFX fallbacks during `convertCompactToCharacter()`.
+  - `OPOSSUM_CHARACTERS` in `src/Characters/Opossums/index.ts` remains strictly isolated to the 24 Sacred Crafted Jills.
+- **Design Attribute Maps (`src/System/Registry/Characters/Opossums/Attributes/Design/index.tsx`)**:
+  - Synchronized `ivan_opossum` and `isaac_opossum` across all 39 attribute lookup maps (`Skin_Color`, `With_Patterns`, `Fur_Color`, `Tail_Color`, `Tail_Color_With_Design`, `Nose_Color`, `Shoulder_Height`, `Body_Width`, `Body_Length_excluding_head_and_tail`, `Full_Body_Length`, `Head_Width`, `Head_Height_excluding_ears`, `Full_Head_Height`, `Total_Height_excluding_ears`, `Total_Height`, `Eye_Color`, `Snout_Length`, `Furry_Face` (`100.0`), `Accessories`, `Tail_Length`, `Ear_Orientation`, `Ear_Length`, `Paw_Color`, `Paw_Pad_Color`, `Ear_Color`, `Inner_Ear_Color`, `Ear_Color_With_Patterns`, `Head_Fur_Color`, `_Furry_Face_Color`, `Body_Fur_Thickness`, `Furry_Tail_Percentage`, `Paw_Size`, `Leg_Length`, `Paw_Width`, `Leg_Width`, `Has_Elegant_Chatter` (`false`), `Has_Elegant_Trot` (`false`), `Tail_Thickness`, `Visual_Mapping`).
+- **Accessibility & Hotkey Narration**:
+  - `Base_Narration.tsx` maps `"Standard for real opossums"` / `"Same as real opossums"` to `"standard real-opossum"` rather than `"upright"`.
+  - `Opossum_Selection_Screen/index.tsx` routes pressing `'r'` on the `COMPACT` tab to `convertCompactToCharacter(selectedCompact)` instead of falling back to `currentOpossum`.
+- **2D / 3D / Polygon / POV Renderers (`Ivan_Opossum/Animations/`, `Isaac_Opossum/Animations/`, `Graphical_Renderer/index.tsx`)**:
+  - Dedicated `drawIvan2D`/`drawIvan3D`/`drawIvanPolygons` (pink coat + 48 vertical brown stripes, 100% furry peach-pink face, black outer ears, dark-brown inner ears, brown eyes, red nose, red tail) and `drawIsaac2D`/`drawIsaac3D`/`drawIsaacPolygons` (light-gray coat + 8 evenly spaced dark-brown stripes, 100% furry face, dark outer ears, natural pink inner ears, dark-brown eyes, pinkish-red nose, natural pink tail), wired across 2D Foyer Blueprint, 2D Course World View, 3D/wireframe rider renderers, and POV view.
+- **Compact Selection UI & AI Preview Modules**:
+  - Added `AI/In-Game/Category/UI/Opossum_Selection_Screen/Compact/Crafted/{Ivan_Opossum,Isaac_Opossum}/` with `AGENTS.md` shields and registered them in `COMPACT_CRAFTED_AI_PREVIEWS`.
+  - Updated `Opossum_Selection_Screen/Main/Compact/index.tsx` and `Opossum_Selection_Screen/Main/index.tsx` to play crafted barks on selection, render authentic stripe counts on cards & canvas previews, and display exact crafted biographies, dimensions, and synthesizer labels.
+
+---
+
+## 17. Feral Pig AI Lane-Switching & Compact Jack Jump-Impact Stun Specification
+- **Path-Based Feral Pig AI (`FeralPigAIController.updateCoursePigAI`)**:
+  - Wired into `updateStandardPhysics` (`src/System/Engine/Science/Physics/index.tsx`) with level-scaled unpredictability (`computeLevelDifficulty(levelId)` spanning `0.08` at Level 1 up to `1.0` at Level 40+).
+  - Pigs unpredictably switch across **ANY lane (`-1`, `0`, `1`)** with smooth `xOffset` interpolation, Boar charging (`chargeSpeedMultiplier: 1.45`), and Sow evasive agility (`1.25×`).
+  - Emits typical pig grunts (`playPigLaneSwitchGrunt`: `GenericBoarSynthesizer.playBoarGrunt` / `GenericSowSynthesizer.playSowGrunt`) on lane transitions within `120 m`.
+- **Non-Stomp Jump-Impact Model & Compact Jack Calibration (`GeneralEngineUtils`)**:
+  - Preserves existing jump-impact checks (`playerY > 0.8`) for feral pigs and unmounted moose (no stomp mechanics).
+  - `calculateMountedJumpProfile` scales jump arc by `Shoulder_Height` and `Leg_Length` (`Short` `0.84×`, `Medium` `0.93×`, `Standard` `1.0×`, `Long` `1.04×`) and computes mounted momentum from allometric opossum + rider mass and forward velocity.
+  - `evaluateCompactPigImpact` compares mounted impulse against pig inertial mass (`Boar 99.79 kg` / `Sow 79.38 kg`): lighter compact Jack impacts stun active feral pigs (`state = "stunned"`, `stunnedUntil = now + 3200 ms`, `+25` points), while a follow-up jump impact on a stunned pig (or full-momentum / large Jill impact) smashes cleanly (`+100` points).
+- **Stun Audio & Zero Stunned TTS**:
+  - `FeralPigVocalSound.playStunned` synthesizes a realistic winded exhale burst + dazed downward formant groan (`playPigStunnedVocal`).
+  - Zero TTS description emitted on feral pig stun.
+
+---
+
+## 18. World 1 Level 40 -> World 2 Level 0 Progression, Temple Courtyard, & 40-ft Ceiling Temple Foyer Specification
+- **World Progression Bridge (`src/Levels/index.ts`, `src/System/Utilities/persistence.ts`, `src/System/Engine/Science/Physics/index.tsx`)**:
+  - Completing **World 1 Level 40** (`bell_pepper_field`) unlocks World 2 Level 0 (`temple_courtyard`) and transitions seamlessly into World 2 (`startLevel(0, 2)`).
+  - Entering the East wall archway of the **Temple Foyer** (`X = 7000, Y ∈ [1490, 1510], 20 ft × 20 ft`) completes World 2 `Level_0` and launches **World 2 Level 1** (`temple_grand_fairy`).
+  - `worldId` and `isExploration` flags allow World 2 areas to remain optionally exploratory rather than strictly path-bound. World 1 `Floor Foyer` (`floor_foyer`) and World 2 `Temple Courtyard` (`temple_courtyard`) remain strictly separated by `placeId`.
+- **Central Temple Courtyard (`4000 ft × 3000 ft`, `X ∈ [0, 4000]`, `Y ∈ [0, 3000]`)**:
+  - Outdoor stone-paved plaza (`stone` footstep profile), **`25 ft`** large stone-block perimeter walls.
+  - Excludes feral pigs, monkeys riding moose, unmounted moose, and edible treats.
+  - Spawn: `(X = 0, Y = 1500)` facing East.
+  - West wall (`X = 0`): Closed & locked door (`Y ∈ [1490, 1510]`) overlooking a long road and distant World 1 crop field horizon.
+  - East wall (`X = 4000`): Temple wall with large N64/007-inspired open windows and `20 ft × 20 ft` double pocket sliding stone doors centered at `Y ∈ [1490, 1510]`.
+- **North Flower Garden (`4000 ft × 2000 ft`, `X ∈ [0, 4000]`, `Y ∈ [3000, 5000]`)**:
+  - `grass` surface footsteps, `10 ft` North/South walls, North gate at `Y = 3000, X ∈ [2990, 3010]`, `36` large flowers, West crop-field overlook opening, East Temple window opening, North green horizon + game sky.
+- **South Outdoor Tea Area (`4000 ft × 2000 ft`, `X ∈ [0, 4000]`, `Y ∈ [-2000, 0]`)**:
+  - `tile` surface footsteps, South gate at `Y = 0, X ∈ [2990, 3010]`, `20 ft` high canopy with 3 skylights, 8 spaced outdoor tea tables with tea and pastries, West crop-field overlook opening, East Temple wall, South green horizon + game sky.
+- **Temple Entrance Foyer (`3000 ft × 3000 ft`, `X ∈ [4000, 7000]`, `Y ∈ [0, 3000]`)**:
+  - Enclosed buffer room before World 2 Level 1 with a **`40 ft` high ceiling** and `tile` footsteps over a **`24" × 24"` (`2 ft × 2 ft`) Black & Green checkerboard** tile floor.
+  - Carved interior walls keeping `1490–1510 ft` markers clear: East/West/South display light-blue sky, white clouds, and gold pyramids; North displays light-blue sky and a green horizon. East exit archway (`X = 7000, Y ∈ [1490, 1510]`) starts World 2 Level 1.
+- **Crafted Stone Door (`Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings`)**:
+  - Located under `System/Building_Blocks/Doors/Sliding_Doors/Crafted/`, SFX under `System/Sound/SFX/Door/Sliding_Door/Crafted/`, and AI under `System/AI/In-Game/Category/Building_Blocks/Doors/`.
+  - Double pocket doors carved with flowers, painted rainbows, diamonds, and 5-point stars disappearing into the Temple wall with audible stone friction sweeps on open/close, **zero post-close click**, and `screenReaderAnnouncement: false` by default.

@@ -15,7 +15,7 @@ import {
 import { VisualPaletteType } from "./System/Visuals";
 import { OPOSSUM_CHARACTERS } from "./Characters/Opossums";
 import { RIDER_CHARACTERS, FAIRY_RIDER } from "./Characters/Riders";
-import { generateLevel } from "./Levels";
+import { generateLevel, generateLevelForWorld } from "./Levels";
 import {
   LandingPage,
   BootingScreen,
@@ -63,6 +63,7 @@ export const App: React.FC = () => {
   const [layout, setLayout] = useState<KeyboardLayoutType>(
     KeyboardLayoutType.CEDELLA
   );
+  const [currentWorldId, setCurrentWorldId] = useState<number>(1);
   const [currentLevelId, setCurrentLevelId] = useState<number>(0);
   const [currentLevel, setCurrentLevel] = useState<GameLevel>(() =>
     generateLevel(0)
@@ -99,10 +100,10 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Update level object when currentLevelId changes
+  // Update level object when currentWorldId or currentLevelId changes
   useEffect(() => {
-    setCurrentLevel(generateLevel(currentLevelId));
-  }, [currentLevelId]);
+    setCurrentLevel(generateLevelForWorld(currentWorldId, currentLevelId));
+  }, [currentWorldId, currentLevelId]);
 
   // View state router
   const renderContent = () => {
@@ -191,6 +192,8 @@ export const App: React.FC = () => {
             onExitGame={() => setGameState(GameState.LANDING)}
             layout={layout}
             setLayout={setLayout}
+            currentWorldId={currentWorldId}
+            setCurrentWorldId={setCurrentWorldId}
             currentLevelId={currentLevelId}
             setCurrentLevelId={setCurrentLevelId}
             currentLevel={currentLevel}

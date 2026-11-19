@@ -26,7 +26,7 @@ export class FeralPigNavigator {
     bounds: ArenaNavigationBounds,
     deltaSec: number
   ): { nextX: number; nextY: number; nextDirection: 1 | -1 } {
-    if (behaviorState === "smashed" || behaviorState === "rooting" || behaviorState === "alert") {
+    if (behaviorState === "smashed" || behaviorState === "stunned" || behaviorState === "rooting" || behaviorState === "alert") {
       // Stationary actions
       return { nextX: x, nextY: y, nextDirection: direction };
     }

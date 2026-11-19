@@ -25,6 +25,8 @@ import { GenericBoarSynthesizer } from "./Synthesizer/Special_Effects/Animal/Gen
 import { GenericSowSynthesizer } from "./Synthesizer/Special_Effects/Animal/Generic/Pig/Sow";
 import { AIOpossumAcousticEngine } from "./Category/Opossum/AI-Generated";
 import { FeralPigSmashSound } from "./Category/Feral_Pig/Smash";
+import { FeralPigVocalSound } from "./Category/Feral_Pig/Vocals";
+import { FlowersStarsDiamondsRainbowStoneDoorSound } from "./Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings";
 
 /**
  * Standard Sound Effects (SFX) Volume and Frequency Configuration profiles.
@@ -356,6 +358,18 @@ export class DedicatedSFXSynthesizer {
       gainNode: clickGain,
       endTime: clickEndTime
     });
+  }
+
+  /**
+   * Play heavy carved stone double sliding door sound (no click after close, audible by design).
+   */
+  public playStoneCarvedSlidingDoors(ctx: AudioContext, destination: AudioNode, open: boolean) {
+    this.enforceVoiceLimit(ctx);
+    if (open) {
+      FlowersStarsDiamondsRainbowStoneDoorSound.playOpen(ctx, destination);
+    } else {
+      FlowersStarsDiamondsRainbowStoneDoorSound.playClose(ctx, destination);
+    }
   }
 
   /**
@@ -1059,6 +1073,37 @@ export class DedicatedSFXSynthesizer {
 
     const pitch = gender === "Boar" ? 0.92 : 1.15;
     FeralPigSmashSound.playSmash(ctx, smashGain, pitch);
+  }
+
+  /**
+   * Play typical pig grunt when a feral pig switches lanes on path-based arenas
+   */
+  public playPigLaneSwitchGrunt(ctx: AudioContext, destination: AudioNode, gender: "Boar" | "Sow" = "Boar", distance: number = 0) {
+    this.enforceVoiceLimit(ctx);
+    const volumeFalloff = Math.max(0.001, 1 - distance / 120);
+    const subGain = ctx.createGain();
+    subGain.gain.setValueAtTime(volumeFalloff, ctx.currentTime);
+    subGain.connect(destination);
+
+    const pitch = 0.94 + Math.random() * 0.12;
+    if (gender === "Sow") {
+      GenericSowSynthesizer.playSowGrunt(ctx, subGain, pitch);
+    } else {
+      GenericBoarSynthesizer.playBoarGrunt(ctx, subGain, pitch);
+    }
+  }
+
+  /**
+   * Play realistic dazed vocalization when a feral pig is stunned by a compact jack jump impact
+   */
+  public playPigStunnedVocal(ctx: AudioContext, destination: AudioNode, gender: "Boar" | "Sow" = "Boar", distance: number = 0) {
+    this.enforceVoiceLimit(ctx);
+    const volumeFalloff = Math.max(0.001, 1 - distance / 120);
+    const subGain = ctx.createGain();
+    subGain.gain.setValueAtTime(volumeFalloff, ctx.currentTime);
+    subGain.connect(destination);
+
+    FeralPigVocalSound.playStunned(ctx, subGain, gender, 0.96 + Math.random() * 0.08);
   }
 
   /**

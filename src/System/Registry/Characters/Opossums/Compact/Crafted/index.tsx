@@ -9,6 +9,8 @@ import { EugeneRoseOpossum } from "../../../../../../Characters/Opossums/Eugene_
 import { ArnoldRoseOpossum } from "../../../../../../Characters/Opossums/Arnold_Rose";
 import { MelvinQinOpossum } from "../../../../../../Characters/Opossums/Melvin_Qin";
 import { SaffordChinOpossum } from "../../../../../../Characters/Opossums/Safford_Chin";
+import { IvanOpossum } from "../../../../../../Characters/Opossums/Ivan_Opossum";
+import { IsaacOpossum } from "../../../../../../Characters/Opossums/Isaac_Opossum";
 
 export const COMPACT_CRAFTED_OPOSSUMS_REGISTRY = {
   drake_kone_reynolds: DrakeKoneReynoldsOpossum,
@@ -17,6 +19,8 @@ export const COMPACT_CRAFTED_OPOSSUMS_REGISTRY = {
   arnold_rose: ArnoldRoseOpossum,
   melvin_qin: MelvinQinOpossum,
   safford_chin: SaffordChinOpossum,
+  ivan_opossum: IvanOpossum,
+  isaac_opossum: IsaacOpossum,
 };
 
 export const COMPACT_CRAFTED_OPOSSUMS_LIST = [
@@ -26,6 +30,8 @@ export const COMPACT_CRAFTED_OPOSSUMS_LIST = [
   ArnoldRoseOpossum,
   MelvinQinOpossum,
   SaffordChinOpossum,
+  IvanOpossum,
+  IsaacOpossum,
 ];
 
 export default COMPACT_CRAFTED_OPOSSUMS_REGISTRY;

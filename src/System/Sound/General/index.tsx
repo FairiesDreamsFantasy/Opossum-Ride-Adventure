@@ -79,6 +79,8 @@ export const REVERB_MAPPING: Record<string, string> = {
   carpet: "carpeted_hallway",
   hanger: "hanger",
   alley: "alley",
+  temple_courtyard: "generic",
+  temple: "stone_room",
   none: "no_effect"
 };
 
@@ -121,6 +123,8 @@ export const SoundService = {
   playTriangularStoneFenceCollision: () => getSoundSystem().playTriangularStoneFenceCollision(),
   playSlidingDoorOpen: () => getSoundSystem().playSlidingDoors(true),
   playSlidingDoorClose: () => getSoundSystem().playSlidingDoors(false),
+  playStoneCarvedSlidingDoorOpen: () => getSoundSystem().playStoneCarvedSlidingDoors(true),
+  playStoneCarvedSlidingDoorClose: () => getSoundSystem().playStoneCarvedSlidingDoors(false),
   playAnimalVocal: (animal: "owl" | "frog", distance: number = 0) => {
     const sys = getSoundSystem();
     if (animal === "owl") sys.playOwlHoot(distance);
@@ -139,6 +143,8 @@ export const SoundService = {
   playRetroArcadeChatter: () => playProceduralSound("chatter", true),
   playPigVocal: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().playPigVocal(gender, distance),
   synthesizePigSmashedExplosion: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().synthesizePigSmashedExplosion(gender, distance),
+  playPigLaneSwitchGrunt: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().playPigLaneSwitchGrunt(gender, distance),
+  playPigStunnedVocal: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().playPigStunnedVocal(gender, distance),
   playPigTrot: (pitch: number = 1.0) => getSoundSystem().playPigTrot(pitch),
   getContext: () => getSoundSystem().getContext(),
   getSharedDestination: (ctx: AudioContext, wetness: number = 0.3675) => getSoundSystem().getSharedDestination(ctx, wetness),

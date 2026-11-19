@@ -9,7 +9,9 @@ import {
   CRAFTED_COMPACT_DEFINITIONS,
   CompactOpossumDefinition 
 } from "../../../../Registry/Characters/Opossums/Compact";
+import { COMPACT_CRAFTED_OPOSSUMS_REGISTRY } from "../../../../Registry/Characters/Opossums/Compact/Crafted";
 import { playCompactOpossumSound } from "../../../../Sound/SFX/Category/Opossum/Compact";
+import { getSharedAudioContext } from "../../../../Sound/TTS";
 
 interface CompactOpossumSelectionProps {
   selectedOpossumId?: string;
@@ -36,7 +38,20 @@ export const CompactOpossumSelection: React.FC<CompactOpossumSelectionProps> = (
   });
 
   const handleSelect = (opossum: CompactOpossumDefinition) => {
-    playCompactOpossumSound("snuffle");
+    const crafted = COMPACT_CRAFTED_OPOSSUMS_REGISTRY[opossum.id as keyof typeof COMPACT_CRAFTED_OPOSSUMS_REGISTRY];
+    if (crafted && crafted.playChatter) {
+      const ctx = getSharedAudioContext();
+      if (ctx) {
+        if (ctx.state === "suspended") {
+          ctx.resume().catch(() => {});
+        }
+        crafted.playChatter(ctx, false, ctx.destination);
+      } else {
+        playCompactOpossumSound("snuffle");
+      }
+    } else {
+      playCompactOpossumSound("snuffle");
+    }
     onSelectCompactOpossum(opossum);
   };
 
@@ -143,6 +158,20 @@ export const CompactOpossumSelection: React.FC<CompactOpossumSelectionProps> = (
                   <div className="absolute inset-0 flex justify-center items-center gap-1 opacity-90 pointer-events-none">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-950 border border-black" />
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-950 border border-black" />
+                  </div>
+                )}
+                {op.id === "ivan_opossum" && (
+                  <div className="absolute inset-0 flex justify-evenly items-center px-1 opacity-85 pointer-events-none">
+                    {Array.from({ length: 12 }).map((_, idx) => (
+                      <span key={idx} className="w-[1px] h-11 bg-[#5C3D2E]" />
+                    ))}
+                  </div>
+                )}
+                {op.id === "isaac_opossum" && (
+                  <div className="absolute inset-0 flex justify-evenly items-center px-1.5 opacity-90 pointer-events-none">
+                    {Array.from({ length: 8 }).map((_, idx) => (
+                      <span key={idx} className="w-[1.5px] h-11 bg-[#3E2723]" />
+                    ))}
                   </div>
                 )}
 

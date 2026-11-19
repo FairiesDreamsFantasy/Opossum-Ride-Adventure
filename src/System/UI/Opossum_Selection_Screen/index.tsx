@@ -9,6 +9,8 @@ import { OPOSSUM_CHARACTERS } from "../../../Characters/Opossums";
 import { ProceduralSoundSystem } from "../../Sound";
 import { OpossumSelectionHeader } from "./Header";
 import { OpossumSelectionMain } from "./Main";
+import type { OpossumSelectionTabType } from "./Main/Tabs";
+import { CompactOpossumDefinition, ALL_COMPACT_OPOSSUMS_REGISTRY } from "../../Registry/Characters/Opossums/Compact";
 import { OpossumSelectionFooter } from "./Footer";
 import { MobilePortraitOpossumSelection } from "./Mobile_Portrait_4_Phone";
 import { useMobilePortraitPhone } from "../../Keyboards_and_Controllers/Device_Detection";
@@ -34,6 +36,10 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
   selectedRider,
 }) => {
   const [selectedId, setSelectedId] = useState<OpossumId>(OpossumId.MELISSA);
+  const [activeTab, setActiveTab] = useState<OpossumSelectionTabType>("CRAFTED");
+  const [selectedCompact, setSelectedCompact] = useState<CompactOpossumDefinition | null>(
+    ALL_COMPACT_OPOSSUMS_REGISTRY[0] || null
+  );
   const soundSystemRef = useRef(new ProceduralSoundSystem());
   const { isMobilePortraitPhone } = useMobilePortraitPhone();
   
@@ -50,7 +56,11 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
         const spoken = InGameAccessibility.Narration.compileRiderPersonProfile(rider);
         ScreenReader.announceText(spoken, "USER_COMMAND");
       } else if (e.key === "r" || e.code === "KeyR") {
-        const spokenText = InGameAccessibility.Narration.compileSelectionOpossumProfile(currentOpossum);
+        const targetOpossum =
+          activeTab === "COMPACT" && selectedCompact
+            ? convertCompactToCharacter(selectedCompact)
+            : currentOpossum;
+        const spokenText = InGameAccessibility.Narration.compileSelectionOpossumProfile(targetOpossum);
         ScreenReader.announceText(spokenText, "USER_COMMAND");
       }
     };
@@ -59,7 +69,7 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
-  }, [currentOpossum, selectedRider]);
+  }, [currentOpossum, selectedRider, activeTab, selectedCompact]);
 
   const handleSelect = (id: OpossumId) => {
 
@@ -121,6 +131,8 @@ export const OpossumSelection: React.FC<OpossumSelectionScreenProps> = ({
         onStart={handleStart}
         onBack={onBack}
         selectedRider={selectedRider}
+        onTabChange={setActiveTab}
+        onCompactSelectionChange={setSelectedCompact}
       />
 
       <OpossumSelectionFooter />

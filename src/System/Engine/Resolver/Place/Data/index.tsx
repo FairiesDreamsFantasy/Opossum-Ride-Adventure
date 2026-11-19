@@ -158,6 +158,16 @@ export const PlaceSoundProfileMap: Record<string, PlaceSoundProfile> = {
   wilderness_cave_alluvial_gravel: { bgmCategory: "cave", ambientType: "wilderness_cavern", hasDedicatedBGMTrack: false },
   wilderness_cave_echosilt_hollow: { bgmCategory: "cave", ambientType: "wilderness_cavern", hasDedicatedBGMTrack: false },
 
+  // Temple Courtyard & World 2 Sanctuaries
+  temple_courtyard: { bgmCategory: "outdoor", ambientType: "breeze", hasDedicatedBGMTrack: false },
+  temple: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+  temple_grand_fairy: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+  temple_rainbow_passage: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+  temple_sacred_sanctuary: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+  temple_golden_chamber: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+  temple_jade_gallery: { bgmCategory: "meditation", ambientType: "breeze", hasDedicatedBGMTrack: false },
+  temple_silent_shrine: { bgmCategory: "meditation", ambientType: "reverb", hasDedicatedBGMTrack: false },
+
   // Other Outdoor Arenas
   quarry: { bgmCategory: "outdoor", ambientType: "breeze", hasDedicatedBGMTrack: true, dedicatedTrackName: "Quarry" },
   city: { bgmCategory: "outdoor", ambientType: "reverb", hasDedicatedBGMTrack: true, dedicatedTrackName: "City" },

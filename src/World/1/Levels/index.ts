@@ -10,6 +10,8 @@ export function generateLevel(levelId: number): GameLevel {
   if (levelId === 0) {
     return {
       id: 0,
+      worldId: 1,
+      isExploration: true,
       name: "Floor Foyer",
       placeId: "floor_foyer",
       targetDistance: 2000, // 2000 ft boundaries
@@ -232,6 +234,8 @@ export function generateLevel(levelId: number): GameLevel {
 
   return {
     id: levelId,
+    worldId: 1,
+    isExploration: false,
     name,
     placeId,
     targetDistance,

@@ -17,7 +17,7 @@ import {
   AnimalItem
 } from "../../../types";
 import { KeyboardSystem } from "../../Keyboards_and_Controllers/Keyboard";
-import { generateLevel } from "../../../Levels";
+import { generateLevel, generateLevelForWorld } from "../../../Levels";
 import { INITIAL_PLACES } from "../../../Arena";
 import { PlaceResolver } from "../../Engine/Resolver";
 import { speakWords, playProceduralSound, setSpeechEnabled, isSpeechEnabled, speakAnimalNarrative, canSpeakAnimalNarrative } from "../../Sound/TTS";
@@ -26,10 +26,11 @@ import {
   drawEdibleItem,
   getEdibleItemName,
   renderFoyer3D,
+  renderWorld2Courtyard3D,
   renderStandardLevel,
   render2DView
 } from "../../Engine/Science/Graphical_Renderer";
-import { updateFoyerPhysics, updateStandardPhysics, applyScientificReaction } from "../../Engine/Science/Physics";
+import { updateFoyerPhysics, updateWorld2CourtyardPhysics, updateStandardPhysics, applyScientificReaction } from "../../Engine/Science/Physics";
 import { Spawner } from "../../Engine/Spawner";
 import { Input } from "../../Engine/Input";
 import { AudioEngine, Configurater, MeasurementEngine } from "../../Engine";
@@ -137,6 +138,8 @@ interface PlayAreaProps {
   onExitGame: () => void;
   layout: KeyboardLayoutType;
   setLayout: (l: KeyboardLayoutType) => void;
+  currentWorldId?: number;
+  setCurrentWorldId?: (id: number) => void;
   currentLevelId: number;
   setCurrentLevelId: (id: number) => void;
   currentLevel: GameLevel;
@@ -173,6 +176,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   onExitGame,
   layout,
   setLayout,
+  currentWorldId = 1,
+  setCurrentWorldId,
   currentLevelId,
   setCurrentLevelId,
   currentLevel,
@@ -322,6 +327,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     foyerX: 1000,
     foyerY: 1000,
     foyerDirection: "North",
+    currentWorldId: currentWorldId,
     currentLevelId: 0,
     doorOpenProgress: 0,
     doorsOpen: false,
@@ -649,15 +655,15 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   }, [currentLevel]);
 
   // Level Setup Spawner
-  const startLevel = async (levelId: number) => {
+  const startLevel = async (levelId: number, worldId: number = stateRef.current.currentWorldId || 1) => {
     // Reset edible items count for each level cleanly
     setTicksEaten(0);
     stateRef.current.ticksEaten = 0;
 
     let levelObj: any;
     
-    // AI Arena Generation Logic
-    const shouldGenerateAI = levelId > 0 && GeminiSystem.isReady() && (GeminiSystem.getConfig()?.generateLevelsOnDemand ?? true);
+    // AI Arena Generation Logic (applies to World 1 standard stages when enabled)
+    const shouldGenerateAI = worldId === 1 && levelId > 0 && GeminiSystem.isReady() && (GeminiSystem.getConfig()?.generateLevelsOnDemand ?? true);
     if (shouldGenerateAI) {
       setIsAiGenerating(true);
       setAiProgressPercent(10);
@@ -682,6 +688,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         const aiLevel = arena.levels[levelInArena];
         levelObj = {
           ...aiLevel,
+          worldId: 1,
           targetDistance: (1500 + levelId * 300) * 0.7, // Keep length calculation consistent
           tickDensity: 6 + (levelId % 8),
           opponentFrequency: 0.5 + (levelId * 0.15),
@@ -691,18 +698,20 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         console.error("AI Level Generation Failed, falling back to local:", e);
         setAiProgressPercent(100);
         setAiLoadingStatus("Applying Fallback Wilderness Arena...");
-        levelObj = generateLevel(levelId);
+        levelObj = generateLevelForWorld(worldId, levelId);
       } finally {
         setTimeout(() => {
           setIsAiGenerating(false);
         }, 300);
       }
     } else {
-      levelObj = generateLevel(levelId);
+      levelObj = generateLevelForWorld(worldId, levelId);
     }
 
     setCurrentLevel(levelObj);
     currentLevelRef.current = levelObj;
+    setCurrentWorldId?.(worldId);
+    stateRef.current.currentWorldId = worldId;
     setCurrentLevelId(levelId);
     stateRef.current.currentLevelId = levelId;
     
@@ -740,37 +749,60 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     stateRef.current.isPressingBackward = false;
 
     if (levelId === 0) {
-      stateRef.current.foyerX = 1000;
-      stateRef.current.foyerY = 1000;
-      stateRef.current.foyerDirection = "North";
-      stateRef.current.doorOpenProgress = 0;
-      stateRef.current.doorsOpen = false;
-      stateRef.current.announcedZone = "foyer";
-      setFoyerX(1000);
-      setFoyerY(1000);
-      setFoyerDirection("North");
+      if (levelObj.placeId === "temple_courtyard") {
+        // World 2 Level 0: Spawn at West edge (X = 0, Y = 1500) oriented East
+        stateRef.current.foyerX = 0;
+        stateRef.current.foyerY = 1500;
+        stateRef.current.foyerDirection = "East";
+        stateRef.current.doorOpenProgress = 0;
+        stateRef.current.doorsOpen = false;
+        stateRef.current.announcedZone = "courtyard";
+        setFoyerX(0);
+        setFoyerY(1500);
+        setFoyerDirection("East");
 
-      if (soundSystemRef.current) {
-        soundSystemRef.current.stopBGM();
+        if (soundSystemRef.current) {
+          soundSystemRef.current.setPlaceId("temple_courtyard");
+          soundSystemRef.current.stopBGM();
+        }
+
+        speakWords(
+          `Entering World 2, Level 0: ${levelObj.name}. You stand at the west edge facing east across a 4000 by 3000 foot stone courtyard. A flower garden lies to the north, a covered tile tea garden lies to the south, and double carved stone doors ahead lead east into the Temple Foyer.`
+        );
+        setStatusMessage(`Entering World 2 Stage 0: ${levelObj.name}`);
+      } else {
+        stateRef.current.foyerX = 1000;
+        stateRef.current.foyerY = 1000;
+        stateRef.current.foyerDirection = "North";
+        stateRef.current.doorOpenProgress = 0;
+        stateRef.current.doorsOpen = false;
+        stateRef.current.announcedZone = "foyer";
+        setFoyerX(1000);
+        setFoyerY(1000);
+        setFoyerDirection("North");
+
+        if (soundSystemRef.current) {
+          soundSystemRef.current.stopBGM();
+        }
+
+        const welcomeMessage = InGameAccessibility.Narration.WelcomeMessage.compileWelcomeMessage({
+          rider: defaultRider,
+          opossum: selectedOpossum,
+          levelName: levelObj.name,
+          isImperial: stateRef.current.isImperial,
+          formatDistance: MeasurementEngine.formatDistance,
+          formatHeight: MeasurementEngine.formatHeight
+        });
+
+        speakWords(welcomeMessage);
+        setStatusMessage(`Entering Stage 0: ${levelObj.name}`);
       }
-
-      const welcomeMessage = InGameAccessibility.Narration.WelcomeMessage.compileWelcomeMessage({
-        rider: defaultRider,
-        opossum: selectedOpossum,
-        levelName: levelObj.name,
-        isImperial: stateRef.current.isImperial,
-        formatDistance: MeasurementEngine.formatDistance,
-        formatHeight: MeasurementEngine.formatHeight
-      });
-
-      speakWords(welcomeMessage);
-      setStatusMessage(`Entering Stage 0: ${levelObj.name}`);
     } else {
       // Speak stage enter with precise surface and reverb profile definitions rather than static placeholder values
       const isGardenSubarena = placeCheck.id === "garden" || placeCheck.id.includes("garden") || placeCheck.id.includes("maze") || placeCheck.id.includes("sanctuary") || placeCheck.id.includes("glasshouse");
       const reverbProfileName = placeCheck.id === "cave" ? "Cave" : (isGardenSubarena ? "Plain" : placeCheck.id.charAt(0).toUpperCase() + placeCheck.id.slice(1).replace(/_/g, " "));
-      speakWords(`Entering Level ${levelId}: ${levelObj.name}. Target distance ${Measured_Distance_Value(levelObj.targetDistance)}. Surface: ${placeCheck.surfaceType}. Reverb profile: ${reverbProfileName}. Begin riding!`);
-      setStatusMessage(`Entering Stage ${levelId}: ${levelObj.name}`);
+      speakWords(`Entering World ${worldId} Level ${levelId}: ${levelObj.name}. Target distance ${Measured_Distance_Value(levelObj.targetDistance)}. Surface: ${placeCheck.surfaceType}. Reverb profile: ${reverbProfileName}. Begin riding!`);
+      setStatusMessage(`Entering World ${worldId} Stage ${levelId}: ${levelObj.name}`);
 
       if (soundSystemRef.current) {
         soundSystemRef.current.setPlaceId(placeCheck.id);
@@ -862,6 +894,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
 
           const forwardObstacle = computeForwardNavigationTarget({
             currentLevel: lId,
+            placeId: activeLevel.placeId,
             foyerX: stateRef.current.foyerX,
             foyerY: stateRef.current.foyerY,
             foyerDirection: stateRef.current.foyerDirection,
@@ -1317,7 +1350,28 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
 
       // Physics logic
       if (stateRef.current.isPlaying && !stateRef.current.isGameOver) {
-        if (stateRef.current.currentLevelId === 0) {
+        if (stateRef.current.currentLevelId === 0 && currentLevelRef.current.placeId === "temple_courtyard") {
+          updateWorld2CourtyardPhysics(
+            delta,
+            stateRef,
+            setSpeed,
+            setFoyerX,
+            setFoyerY,
+            setPlayerZ,
+            setPlayerY,
+            setIsJumping,
+            lastFootstepZRef,
+            lastRenderedZRef,
+            soundSystemRef,
+            speakWords,
+            setStatusMessage,
+            playProceduralSound as (type: string) => void,
+            startLevel,
+            completeLevelSave,
+            announceDoors,
+            selectedOpossum
+          );
+        } else if (stateRef.current.currentLevelId === 0) {
           updateFoyerPhysics(
             delta,
             stateRef,
@@ -1369,7 +1423,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             getEdibleItemName,
             selectedOpossum,
             completeLevelSave,
-            announceSteering
+            announceSteering,
+            defaultRider
           );
         }
       }
@@ -1423,7 +1478,23 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           const horizonY = height * VISUAL_CONSTANTS.CAMERA.DEFAULT_HORIZON_RATIO;
           const focalLength = VISUAL_CONSTANTS.CAMERA.DEFAULT_FOCAL_LENGTH;
 
-          if (currentLevel.id === 0) {
+          if (currentLevel.id === 0 && currentLevel.placeId === "temple_courtyard") {
+            renderWorld2Courtyard3D(
+              ctx,
+              width,
+              height,
+              horizonY,
+              height - horizonY,
+              stateRef.current.foyerX,
+              stateRef.current.foyerY,
+              stateRef.current.foyerDirection,
+              stateRef.current.doorOpenProgress,
+              wireframe,
+              viewMode,
+              selectedOpossum,
+              defaultRider
+            );
+          } else if (currentLevel.id === 0) {
             renderFoyer3D(
               ctx,
               width,

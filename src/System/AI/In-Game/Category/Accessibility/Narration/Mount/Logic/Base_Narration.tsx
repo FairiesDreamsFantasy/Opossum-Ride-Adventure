@@ -51,7 +51,14 @@ export const BaseNarration = {
 
     // Formatting terms
     const earLengthTerm = earLength === "Long" ? "long and expressive" : (earLength === "Medium" ? "medium-length" : "conventional, balanced proportion");
-    const earOrientTerm = earOrient === "Forward Leaning" ? "forward-leaning" : "upright";
+    const earOrientLower = earOrient.toLowerCase();
+    const earOrientTerm = earOrientLower.includes("forward")
+      ? "forward-leaning"
+      : earOrientLower.includes("standard") || earOrientLower.includes("real opossum")
+        ? "standard real-opossum"
+        : earOrientLower.includes("downward") || earOrientLower.includes("side")
+          ? "side-down"
+          : "upright";
     const outerEarDesc = (earPattern && earPattern !== "Solid Plain") ? earPattern : `smooth ${outerEarColor}`;
     const coatPatternSentence = (pattern && pattern !== "none" && patternLabel !== "Plain / Solid No Pattern" && patternLabel !== "Solid Plain")
       ? `which is organized as a ${patternLabel}`

@@ -12,12 +12,18 @@ export interface GameSaveState {
   unlockedLevels: number[]; // e.g., [0, 1]
   totalTicksEaten: number;
   highScores: Record<number, number>; // levelId -> ticks count or score
+  unlockedWorlds?: number[];
+  unlockedWorldLevels?: Record<number, number[]>;
+  worldHighScores?: Record<string, number>;
 }
 
 const DEFAULT_SAVE: GameSaveState = {
   unlockedLevels: [0, 1], // levels 0 and 1 are unlocked by default
   totalTicksEaten: 0,
-  highScores: { 0: 0, 1: 0 }
+  highScores: { 0: 0, 1: 0 },
+  unlockedWorlds: [1],
+  unlockedWorldLevels: { 1: [0, 1] },
+  worldHighScores: { "1:0": 0, "1:1": 0 }
 };
 
 // --- IndexedDB helpers ---
@@ -96,7 +102,10 @@ export async function loadGameSave(): Promise<GameSaveState> {
       const merged: GameSaveState = {
         unlockedLevels: Array.from(new Set([...(localData?.unlockedLevels || []), ...idbData.unlockedLevels])),
         totalTicksEaten: Math.max(localData?.totalTicksEaten || 0, idbData.totalTicksEaten || 0),
-        highScores: { ...(localData?.highScores || {}), ...(idbData.highScores || {}) }
+        highScores: { ...(localData?.highScores || {}), ...(idbData.highScores || {}) },
+        unlockedWorlds: Array.from(new Set([...(localData?.unlockedWorlds || [1]), ...(idbData.unlockedWorlds || [1])])),
+        unlockedWorldLevels: { ...(localData?.unlockedWorldLevels || {}), ...(idbData.unlockedWorldLevels || {}) },
+        worldHighScores: { ...(localData?.worldHighScores || {}), ...(idbData.worldHighScores || {}) }
       };
       // Keep in sync
       saveGameSaveSync(merged);
@@ -126,27 +135,49 @@ export function saveGameSaveSync(state: GameSaveState): void {
 }
 
 /**
- * Register a level completed and update save state
+ * Register a level completed and update save state across worlds cleanly
  */
-export async function completeLevelSave(levelId: number, ticksEaten: number): Promise<GameSaveState> {
+export async function completeLevelSave(
+  levelId: number,
+  ticksEaten: number,
+  worldId: number = 1
+): Promise<GameSaveState> {
   const current = await loadGameSave();
-  
-  // Unlock next level (up to 20)
-  const nextLevelId = levelId + 1;
+
+  const nextWorldId = worldId === 1 && levelId >= 40 ? 2 : worldId;
+  const nextLevelId = worldId === 1 && levelId >= 40 ? 0 : levelId + 1;
+
   const unlocked = [...current.unlockedLevels];
-  if (!unlocked.includes(nextLevelId) && nextLevelId <= 20) {
+  if (worldId === 1 && !unlocked.includes(nextLevelId) && nextWorldId === 1) {
     unlocked.push(nextLevelId);
   }
 
+  const unlockedWorlds = Array.from(new Set([...(current.unlockedWorlds || [1]), worldId, nextWorldId]));
+  const unlockedWorldLevels = { ...(current.unlockedWorldLevels || { 1: [...unlocked] }) };
+  const worldList = unlockedWorldLevels[nextWorldId] ? [...unlockedWorldLevels[nextWorldId]] : [];
+  if (!worldList.includes(nextLevelId)) {
+    worldList.push(nextLevelId);
+  }
+  unlockedWorldLevels[nextWorldId] = worldList;
+
   // Update high score
   const scores = { ...current.highScores };
-  const prevBest = scores[levelId] || 0;
-  scores[levelId] = Math.max(prevBest, ticksEaten);
+  if (worldId === 1) {
+    const prevBest = scores[levelId] || 0;
+    scores[levelId] = Math.max(prevBest, ticksEaten);
+  }
+
+  const worldHighScores = { ...(current.worldHighScores || {}) };
+  const scoreKey = `${worldId}:${levelId}`;
+  worldHighScores[scoreKey] = Math.max(worldHighScores[scoreKey] || 0, ticksEaten);
 
   const updated: GameSaveState = {
     unlockedLevels: unlocked,
     totalTicksEaten: current.totalTicksEaten + ticksEaten,
-    highScores: scores
+    highScores: scores,
+    unlockedWorlds,
+    unlockedWorldLevels,
+    worldHighScores
   };
 
   saveGameSaveSync(updated);

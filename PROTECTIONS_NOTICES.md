@@ -187,3 +187,47 @@ To protect the standardization of the accessibility system, the following mandat
 *   **Wilderness Ambience & Surface Profiles**: Dedicated procedural synthesizers (`System/Sound/BGM/Category/Ambience/Wilderness/`) and expanded surface profiles (`basalt`, `limestone`, `moss`, `peat`, `silt`, `ice`, `sand`, `gravel`, `slate`, `granite`, `marble`) in `SURFACE_PROFILES` and `FLOORING_SURFACE_PROFILES_64BIT`.
 *   **World 4 ("The Great Outdoors, Wilderness and Mountains")**: `src/World/4/Levels/` contains strictly **`Level_1` through `Level_40`** (**no `Level_0`**, **no `Level_N`/`Level_*`**) arranged in 8 assorted 5-biome rounds (`[Desert, Forest, Plain, Mountains, Cave] × 8`).
 *   **World 2 & World 3 Sync**: `src/World/2/Levels/` decluttered to `Level_0`–`Level_7` (Temple Courtyard + 7 unique Temple arenas, removing obsolete Redwood Canopy / Silent Thicket references); `src/World/3/` Index & Levels metadata synchronized to Simulated & Natural Mines (`Level_0`–`Level_30`).
+
+---
+
+### 14. Ivan Opossum (`ivan_opossum`) & Isaac Opossum (`isaac_opossum`) Complete Fallback-Elimination Wiring
+*   **Compact Crafted Registry (`System/Registry/Characters/Opossums/Compact/Crafted/`)**: Registered `IvanOpossum` (`ivan_opossum`) and `IsaacOpossum` (`isaac_opossum`) in `COMPACT_CRAFTED_OPOSSUMS_REGISTRY` and `COMPACT_CRAFTED_OPOSSUMS_LIST`, ensuring `convertCompactToCharacter()` preserves authentic dimensions, descriptions, `"Standard"` real-opossum head posture, and dedicated bark synthesizers (`playIvanOpossumBark` / `playIsaacOpossumBark`) instead of falling back to generic `3 feet` defaults or `"snuffle"` SFX.
+*   **Master Design Attribute Lookup Maps (`System/Registry/Characters/Opossums/Attributes/Design/`)**: Added full `ivan_opossum` and `isaac_opossum` entries across all 39 biometric, coat pattern, ear, paw, eye, tail, furry face (`100%`), and vocal/gait lookup maps (`Has_Elegant_Chatter` & `Has_Elegant_Trot` strictly `false`).
+*   **Real-Opossum Ear Orientation Narration (`Base_Narration.tsx`)**: Mapped `"Standard for real opossums"` and `"Same as real opossums"` to `"standard real-opossum"` rather than falling back to `"upright"`.
+*   **2D / 3D / Polygon / POV Rendering (`Ivan_Opossum/Animations/`, `Isaac_Opossum/Animations/`, `Graphical_Renderer/`)**: Implemented and wired `drawIvan2D`/`drawIvan3D`/`drawIvanPolygons` (pink coat with 48 vertical brown stripes, black outer ears, dark-brown inner ears, red nose & tail, 100% furry face) and `drawIsaac2D`/`drawIsaac3D`/`drawIsaacPolygons` (light-gray coat with 8 evenly spaced dark-brown stripes, natural dark outer ears, natural pink inner ears & tail, pinkish-red nose, 100% furry face), plus POV & 2D Blueprint/World dispatch without diluting the 24 Sacred Jills in `OPOSSUM_CHARACTERS`.
+*   **Compact Selection UI, Preview Configs & `'r'` Hotkey Narration**: Added dedicated `AI/In-Game/Category/UI/Opossum_Selection_Screen/Compact/Crafted/{Ivan_Opossum,Isaac_Opossum}/` preview configs with `AGENTS.md` shields, wired compact selection cards & canvas previews to render authentic stripe counts and trigger `playIvanOpossumBark`/`playIsaacOpossumBark`, and routed the `'r'` key on the `COMPACT` tab to announce the active compact steed profile.
+
+---
+
+### 15. Feral Pig AI Lane-Switching & Compact Jack Jump-Impact Stun Calibration
+*   **Unpredictable Path-Based Lane Switching (`FeralPigAIController.updateCoursePigAI`)**: Wired the feral pig AI subsystem into `updateStandardPhysics`, enabling feral pigs on path-based arenas to randomly switch between ANY lane (`-1` Left, `0` Center, `1` Right) with smooth lateral interpolation, Boar charge speed scaling (`1.45×`), and Sow lateral agility (`1.25×`), scaled continuously from Level 1 (easiest) to Level 40+ (hardest).
+*   **Typical Pig Grunts on Lane Switch**: Triggered spatial `playPigLaneSwitchGrunt(gender, distance)` using `GenericBoarSynthesizer.playBoarGrunt` and `GenericSowSynthesizer.playSowGrunt` whenever a feral pig changes lanes within audible range.
+*   **No Stomp Mechanics**: Preserved the existing jump-impact collision system (`playerY > 0.8`) across both feral pigs and unmounted moose without adding stomp mechanics.
+*   **Compact Jack Jump Calibration & Realistic Stun SFX (`calculateMountedJumpProfile` / `evaluateCompactPigImpact`)**: Calibrated compact Jack jump arcs (`Shoulder_Height`, `Leg_Length`) and impact momentum (opossum + rider mass vs. Boar `220 lbs` / Sow `175 lbs`). Insufficient impact impulse stuns active feral pigs (`state: "stunned"`, `3200 ms` duration, dazed visual wobble, ground bypass, follow-up jump impact smashes cleanly) accompanied by a realistic winded/dazed vocalization (`FeralPigVocalSound.playStunned`) with **zero TTS stunned description** added at this stage.
+
+---
+
+### 16. World 1 Level 40 -> World 2 Level 0 Transition, Temple Courtyard Suite, Temple Foyer (40 ft Ceiling), & Crafted Carved Stone Sliding Door Subsystem
+*   **Multi-World Progression Routing (`src/Levels/index.ts`, `src/System/Utilities/persistence.ts`, `src/System/Engine/Science/Physics/index.tsx`)**:
+    *   Passing **World 1 Level 40** (`bell_pepper_field`) unlocks and transitions directly to **World 2 Level 0** (`temple_courtyard`).
+    *   Exiting East through the **Temple Foyer Exit Archway** (`X = 7000, Y ∈ [1490, 1510], 20 ft × 20 ft`) transitions into **World 2 Level 1** (`temple_grand_fairy` — *The Ancient Relic Temple*).
+    *   World 2 supports optional open exploratory areas (`isExploration: true`) without forcing every arena onto a 3-lane track; existing World 1 **Floor Foyer** (`placeId === "floor_foyer"`) stays 100% isolated from World 2 `Level_0` (`placeId === "temple_courtyard"`).
+*   **World 2 `Level_0` Central Temple Courtyard (`4000 ft × 3000 ft`, `X ∈ [0, 4000]`, `Y ∈ [0, 3000]`)**:
+    *   **Spawn**: `(X = 0, Y = 1500)` oriented East.
+    *   **Surface & Obstacles**: **`stone`** surface footsteps, `25 ft` large stone-block walls, **ZERO** feral pigs, **ZERO** monkeys riding moose, **ZERO** unmounted moose, and **ZERO** edible treats.
+    *   **West Wall (`X = 0`)**: Closed & locked door (`Y ∈ [1490, 1510]`) overlooking a long road and distant World 1 crop field horizon.
+    *   **East Wall (`X = 4000`)**: Temple facade with large 007/N64-inspired open windows and `20 ft × 20 ft` pocket double sliding stone doors centered at `Y ∈ [1490, 1510]`.
+*   **North Flower Garden (`src/World/2/Levels/Level_0/North_Garden/`, `4000 ft × 2000 ft`, `X ∈ [0, 4000]`, `Y ∈ [3000, 5000]`)**:
+    *   **`grass`** surface footsteps; North gate at `Y = 3000, X ∈ [2990, 3010]`; `10 ft` South/North walls; `36` deterministically spaced large flowers; West crop-field overlook opening; East Temple wall window opening; North overlooks green horizon under the game sky.
+*   **South Outdoor Tea Area (`src/World/2/Levels/Level_0/South_Tea_Area/`, `4000 ft × 2000 ft`, `X ∈ [0, 4000]`, `Y ∈ [-2000, 0]`)**:
+    *   **`tile`** surface footsteps; South gate at `Y = 0, X ∈ [2990, 3010]`; `20 ft` high canopy with 3 skylights; 8 spaced outdoor tea tables with tea and pastries; West crop-field overlook opening; East Temple wall; South overlooks green horizon under the sky.
+*   **Temple Entrance Foyer (`src/World/2/Levels/Level_0/Temple_Foyer/`, `3000 ft × 3000 ft`, `X ∈ [4000, 7000]`, `Y ∈ [0, 3000]`)**:
+    *   Enclosed indoor exploratory buffer with **`40 ft` high ceiling** and **`tile`** surface footsteps across a **`24" × 24"` (`2 ft × 2 ft`) Black & Green checkerboard** floor pattern.
+    *   Wall carvings leave **`1490–1510 ft`** markers clear on all four walls: East/West/South feature light-blue sky, white clouds, and gold-painted pyramids; North features light-blue sky and a green horizon. East wall archway (`X = 7000, Y ∈ [1490, 1510]`, `20 ft × 20 ft`) leads to World 2 Level 1.
+*   **Crafted Carved Stone Sliding Door Building Block, SFX, & AI**:
+    *   `src/System/Building_Blocks/Doors/Sliding_Doors/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings/`: Double pocket stone doors with carved flowers, painted rainbows, diamonds, and 5-point stars that slide into walls (`screenReaderAnnouncement: false` default).
+    *   `src/System/Sound/SFX/Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings/`: Audible heavy stone sliding sweeps on open & close with **NO post-close latching click**.
+    *   `src/System/AI/In-Game/Category/Building_Blocks/Doors/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings/`: Proximity opening/closing AI controller.
+
+
+

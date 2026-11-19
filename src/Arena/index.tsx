@@ -376,6 +376,18 @@ export const INITIAL_PLACES: Record<string, PlaceDefinition> = {
     colorBase: "#581c87", // Regal purple interior
     ambientNoise: "ambient silent chamber breeze"
   },
+  temple_courtyard: {
+    id: "temple_courtyard",
+    name: "Temple Courtyard & Entrance Foyer",
+    description: "A 4000x3000 ft outdoor stone temple courtyard connected to a north flower garden (grass), south covered tea garden (tile), and a 3000x3000 ft 40-foot-tall checkered tile temple foyer behind double carved sliding stone doors.",
+    surfaceType: "stone courtyard, grass north garden, tile tea area & checkerboard temple foyer",
+    footstepSound: "stone, grass, and tile footsteps",
+    colorBase: "#57534e",
+    ambientNoise: "open-air temple breeze overlooking distant crop fields",
+    tickFree: true,
+    longDescription: "An exploratory 2D/3D outdoor stone temple courtyard measuring 4000 by 3000 feet with 25-foot stone walls, a north flower garden with grass footing, a south 20-foot canopy tea garden with skylights and spaced tea tables on tile, and monumental 20-foot carved stone pocket sliding doors opening east into a 40-foot-tall black-and-green checkerboard tile foyer.",
+    accessibilityInfo: "West locked door overlooks the road to the crop fields; East carved stone sliding doors lead into the 3000x3000 ft Temple Foyer and East archway to World 2 Level 1."
+  },
   temple: TempleArena,
   temple_grand_fairy: {
     ...GrandFairyTemple,
