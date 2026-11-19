@@ -229,5 +229,18 @@ To protect the standardization of the accessibility system, the following mandat
     *   `src/System/Sound/SFX/Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings/`: Audible heavy stone sliding sweeps on open & close with **NO post-close latching click**.
     *   `src/System/AI/In-Game/Category/Building_Blocks/Doors/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings/`: Proximity opening/closing AI controller.
 
+---
+
+### 17. Caprine Cameo Roster (16 Core Goats + Juvenile Kids) & `Goat_Farm` Off-Path Herd Integration
+*   **Modular Character Packages (`src/Characters/Goats/`)**:
+    *   Preserves native `General/` (`GoatCharacter`) and `Generic/` (`GenericGoatCharacter`) synthesizers untouched.
+    *   Documents the roster in root `src/Characters/Goats/README.md` alongside standardized per-goat modular folders for all **16 Core Goats** (`Snowy`, `Thunder`, `Shadow`, `Bella`, `Goliath`, `Freckles`, `Obsidian`, `Ginger`, `Quicksilver`, `Patches`, `Dusty`, `Luna`, `Aurum`, `Alpine`, `Willow`, `Ruby`) and **`Kids/`** (`Pip`, `Clover`, `Pebble`, `Bramble`, `Sprout`, `Sunny`), each containing flat standardized files (`Description.ts`, `Dimensions.ts`, `Animations.ts`, `Movements.ts`, `index.ts`, `README.md`, `AGENTS.md`).
+    *   Preserves 100% authentic biometrics (`length`, `height`, `chest`, `width`, `size`), `AUDIO_PARAMS`, `GAIT_FREQUENCIES`, coat colors/patterns, eye colors, and horn morphologies (including hornless `Shadow`, curved black ram horns on `Thunder` & `Alpine`, budding horns on `Willow`, ivory giant scale on `Goliath`, and kid nubs).
+*   **Dedicated Soft Caprine Audio Subsystem (`src/System/Sound/SFX/Category/Goat/`)**:
+    *   Ports multi-harmonic FM vocal-cord bleats (`GoatVocalSound`) and dual-clop hooves + graze rustles (`GoatMovementSound`), strictly calibrated at soft pasture gains (`~0.048–0.056` base gain with smooth distance attenuation) so bleats enrich pasture serenity without overpowering `Goat_Farm` ambience or BGM.
+*   **Dedicated Goat Herd & Grazing AI (`src/System/AI/In-Game/Category/Animal/Goat/`)**:
+    *   `GoatHerdAIEngine` groups adults and juvenile kids into 6 social hillside herds exclusively on **`goat_farm` (`World 1, Level 14`)**, strictly **off-path** (`|xOffset| ∈ [8.2 m, 17.4 m]`, never entering playable track lanes), cycling cleanly through `grazing` (animated head-dip & chew bob), `socializing` (gentle call-and-response bleats), `trotting`, `perched` (wooden pasture ramps & grassy knolls), and `idle` with zero player damage/collision.
+
+
 
 

@@ -27,6 +27,7 @@ import {
 import { AIGeneratedOpossum } from "../../../../Characters/Opossums/AI-Generated/Drawing";
 import { MonkeyCharacterModel } from "../../../../Characters/Monkeys";
 import { MooseCharacterModel } from "../../../../Characters/Moose";
+import { drawGoatCameo2D, drawGoatCameo3D } from "../../../../Characters/Goats";
 
 import { drawEdibleItem, getEdibleItemName } from "./Items";
 import { IntegrityShadow } from "../../../Security/Phantom/Integrity_Shadow";
@@ -519,6 +520,8 @@ export function render2DView(
           ctx.moveTo(screenX, screenY + 6);
           ctx.quadraticCurveTo(screenX + 8, screenY + 12, screenX + 5, screenY + 16);
           ctx.stroke();
+        } else if (animal.species === "goat") {
+          drawGoatCameo2D(ctx, screenX, screenY, animal);
         } else {
           ctx.fillStyle = animal.species === "owl" ? "#451a03" : "#22c55e";
           ctx.beginPath();
@@ -1679,6 +1682,8 @@ export function renderStandardLevel(
         sway,
         armSway
       );
+    } else if (animal.species === "goat") {
+      drawGoatCameo3D(ctx, proj.x, proj.y, proj.scale, animal);
     } else {
       ctx.fillStyle = "#16a34a";
       ctx.beginPath();

@@ -4,6 +4,7 @@
  */
 
 export * from "./Feral_Pig";
+export * from "./Goat";
 export * from "./Monkeys";
 export * from "./Moose";
 export * from "./Opossum";

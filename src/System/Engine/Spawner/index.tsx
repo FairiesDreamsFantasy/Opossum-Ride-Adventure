@@ -16,6 +16,8 @@ import { isCropFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narr
 import { isVegetableFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
 import { isWildernessPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Wilderness";
 import { TRIANGULAR_STONE_FENCE_SPEC } from "../../Building_Blocks/Triangular_Stone_Fence";
+import { CORE_GOAT_CAMEOS, GOAT_KIDS } from "../../../Characters/Goats";
+import { GOAT_PASTURE_BOUNDS } from "../../AI/In-Game/Category/Animal/Goat";
 
 export { MOOSE_BABYLON_NAMES, MONKEY_BABYLON_NAMES };
 
@@ -331,6 +333,102 @@ export const Spawner = {
           nextVocalTime: 1.5 + (i % 4) * 1.4
         });
       }
+    }
+
+    // 5. Friendly Caprine Cameos & Juvenile Kids (Strictly off-path social herds, exclusively on The Goat Farm)
+    if (id === "goat_farm" && levelObj.targetDistance > 120) {
+      const startZ = 55;
+      const endZ = Math.max(startZ + 120, levelObj.targetDistance - 55);
+      const spanZ = endZ - startZ;
+      const herdCount = 6;
+
+      // Distribute all 16 Core Goats into 6 social hillside herds alternating Left and Right pastures
+      CORE_GOAT_CAMEOS.forEach((goatProfile, idx) => {
+        const herdId = idx % herdCount;
+        const herdSide: "left" | "right" = herdId % 2 === 0 ? "left" : "right";
+        const memberSlot = Math.floor(idx / herdCount);
+        const herdBaseZ = startZ + (herdId / Math.max(1, herdCount - 1)) * spanZ;
+        const homeZ = Math.round(herdBaseZ + (memberSlot - 1) * 7.5 + ((idx * 3) % 5));
+        const pastureDistanceOut = 9.4 + (memberSlot % 3) * 2.2 + ((idx % 2) * 0.9);
+        const homeX = herdSide === "left" ? -pastureDistanceOut : pastureDistanceOut;
+
+        // Place agile mountain/climber goats on wooden pasture ramps or grassy knolls
+        const canClimbRamp = goatProfile.grazePreference.rampAgility >= 1.25 && idx % 3 === 0;
+        const heightOffset = canClimbRamp ? GOAT_PASTURE_BOUNDS.DEFAULT_HEIGHT_RAMP : 0;
+
+        spawnedAnimals.push({
+          id: currentAnimalId++,
+          species: "goat",
+          goatGender: goatProfile.gender === "male" ? "Male" : "Female",
+          goatId: goatProfile.id,
+          name: goatProfile.name,
+          isKid: false,
+          hornColor: goatProfile.hornColor,
+          eyeColor: goatProfile.eyeColor,
+          sizeClass: goatProfile.dimensions.size,
+          herdId,
+          herdSide,
+          pastureHomeX: homeX,
+          pastureHomeZ: homeZ,
+          grazePhase: (idx * 0.9) % (Math.PI * 2),
+          headDip: idx % 2 === 0 ? 1.0 : 0.0,
+          onRamp: canClimbRamp,
+          coatColor: goatProfile.palette.coatPrimary,
+          secondaryColor: goatProfile.palette.coatSecondary,
+          z: homeZ,
+          lane: 0, // Off-path pasture coordinate encoded via xOffset outside [-7.8, +7.8]
+          xOffset: homeX,
+          heightOffset,
+          state: canClimbRamp ? "perched" : (idx % 2 === 0 ? "grazing" : "socializing"),
+          goatBehaviorState: canClimbRamp ? "perched" : (idx % 2 === 0 ? "grazing" : "socializing"),
+          stateElapsedMs: (idx * 700) % 2500,
+          nextVocalTime: 3.0 + (idx % 6) * 2.1
+        });
+      });
+
+      // Pair each of the 6 juvenile kids into social herds beside their adult companion
+      GOAT_KIDS.forEach((kidProfile, kIdx) => {
+        const companionIdx = CORE_GOAT_CAMEOS.findIndex((g) => g.id === kidProfile.companionAdultId);
+        const adultAnimal = spawnedAnimals.find(
+          (a) => a.species === "goat" && a.goatId === kidProfile.companionAdultId
+        );
+        const herdId = companionIdx >= 0 ? companionIdx % herdCount : kIdx % herdCount;
+        const herdSide: "left" | "right" = adultAnimal?.herdSide || (herdId % 2 === 0 ? "left" : "right");
+        const baseX = adultAnimal?.pastureHomeX ?? (herdSide === "left" ? -11.2 : 11.2);
+        const baseZ = adultAnimal?.pastureHomeZ ?? (startZ + ((herdId / Math.max(1, herdCount - 1)) * spanZ));
+        const kidHomeX = baseX + (herdSide === "left" ? -1.4 : 1.4);
+        const kidHomeZ = Math.round(baseZ + 2.6);
+        const kidOnKnoll = kIdx % 3 === 2;
+
+        spawnedAnimals.push({
+          id: currentAnimalId++,
+          species: "goat",
+          goatGender: kidProfile.gender === "male" ? "Male" : "Female",
+          goatId: kidProfile.id,
+          name: kidProfile.name,
+          isKid: true,
+          hornColor: kidProfile.hornColor,
+          eyeColor: kidProfile.eyeColor,
+          sizeClass: "kid",
+          herdId,
+          herdSide,
+          pastureHomeX: kidHomeX,
+          pastureHomeZ: kidHomeZ,
+          grazePhase: (kIdx * 1.1) % (Math.PI * 2),
+          headDip: kIdx % 2 === 1 ? 1.0 : 0.0,
+          onRamp: kidOnKnoll,
+          coatColor: kidProfile.palette.coatPrimary,
+          secondaryColor: kidProfile.palette.coatSecondary,
+          z: kidHomeZ,
+          lane: 0,
+          xOffset: kidHomeX,
+          heightOffset: kidOnKnoll ? GOAT_PASTURE_BOUNDS.DEFAULT_HEIGHT_KNOLL : 0,
+          state: kidOnKnoll ? "perched" : "socializing",
+          goatBehaviorState: kidOnKnoll ? "perched" : "socializing",
+          stateElapsedMs: (kIdx * 550) % 2000,
+          nextVocalTime: 2.5 + kIdx * 1.8
+        });
+      });
     }
 
     return spawnedAnimals;

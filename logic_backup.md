@@ -417,3 +417,29 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
 - **Crafted Stone Door (`Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings`)**:
   - Located under `System/Building_Blocks/Doors/Sliding_Doors/Crafted/`, SFX under `System/Sound/SFX/Door/Sliding_Door/Crafted/`, and AI under `System/AI/In-Game/Category/Building_Blocks/Doors/`.
   - Double pocket doors carved with flowers, painted rainbows, diamonds, and 5-point stars disappearing into the Temple wall with audible stone friction sweeps on open/close, **zero post-close click**, and `screenReaderAnnouncement: false` by default.
+
+---
+
+## 19. Caprine Cameo Roster (16 Core Goats + Juvenile Kids) & `Goat_Farm` Herd Specification
+- **Origin & Attribution**: Friendly non-blocking NPC cameos adapted from *Goat Ride Adventure* (`FairiesDreamsFantasy/Goat_Ride_Adventure`, `main` branch, Fairies Dreams & Fantasy Arcade), integrated exclusively into **`goat_farm` (`World 1, Level 14`)**.
+- **16 Core Goat Cameos (`src/Characters/Goats/<GoatName>/`)**:
+  1. **Snowy** (`female`, White, Cream horns, Amber eyes, `8.5 ft × 5.5 ft`, `small`, `230 Hz` sawtooth)
+  2. **Thunder** (`male`, Grey, Black curved horns, Brown eyes, `9.2 ft × 6.5 ft`, `large`, `125 Hz` sawtooth+triangle)
+  3. **Shadow** (`female`, Charcoal, Hornless `None`, Black eyes, `8.2 ft × 5.2 ft`, `small`, `180 Hz` triangle+sawtooth)
+  4. **Bella** (`female`, Cream, Gold-tinted horns, Blue eyes, `8.8 ft × 5.8 ft`, `large`, `330 Hz` sine+triangle)
+  5. **Goliath** (`male`, Brown, Ivory horns, Green eyes, `12 ft × 8.5 ft`, `largest`, `85 Hz` sawtooth+sub-sine)
+  6. **Freckles** (`female`, Spotted, Tan horns, Hazel eyes, `8.2 ft × 5.4 ft`, `small`, `295 Hz` square sweep)
+  7. **Obsidian** (`male`, Jet Black, Obsidian horns, Dark Red eyes, `9.2 ft × 6.1 ft`, `large`, `110 Hz` sawtooth+square)
+  8. **Ginger** (`female`, Orange, White horns, Amber eyes, `8.4 ft × 5.5 ft`, `small`, `250 Hz` sawtooth)
+  9. **Quicksilver** (`male`, Silver, Silver horns, Blue eyes, `8.9 ft × 5.9 ft`, `large`, `350 Hz` sine sweep)
+  10. **Patches** (`female`, Tri-color, Cream horns, Brown eyes, `8.3 ft × 5.4 ft`, `small`, `195 Hz` sawtooth)
+  11. **Dusty** (`male`, Tan, Grey horns, Hazel eyes, `9.1 ft × 6.0 ft`, `large`, `175 Hz` bandpass sawtooth)
+  12. **Luna** (`female`, Deep Purple, Pearly horns, Violet eyes, `8.6 ft × 5.6 ft`, `small`, `270 Hz` sine+triangle)
+  13. **Aurum** (`male`, Golden, Gold horns, Golden eyes, `9.3 ft × 6.2 ft`, `large`, `200 Hz` triangle+sawtooth)
+  14. **Alpine** (`female`, White/Grey, Curved Black horns, Ice Blue eyes, `8.8 ft × 5.7 ft`, `large`, `240 Hz` sawtooth)
+  15. **Willow** (`female`, Dappled Brown, Budding horns, Green eyes, `8.1 ft × 5.3 ft`, `small`, `310 Hz` triangle)
+  16. **Ruby** (`female`, Reddish-Brown, Dark Brown horns, Amber eyes, `8.8 ft × 5.8 ft`, `large`, `150 Hz` dual sawtooth)
+- **6 Juvenile Goat Kids (`src/Characters/Goats/Kids/`)**: **Pip**, **Clover**, **Pebble**, **Bramble**, **Sprout**, and **Sunny** (`4.1 ft × 2.8 ft`, `size: "kid"`, `405–470 Hz` soft kid bleats), paired with companion adults in hillside herds.
+- **Off-Path Pasture Placement & Soft Audio**:
+  - Herd boundaries strictly clamped to Left/Right pastures (`|xOffset| ∈ [8.2 m, 17.4 m]`, outside the 3-lane track) with wooden climbing ramps/knolls (`onRamp`, `heightOffset`), smooth grazing head-dip animation (`headDip`, `grazePhase`), and gently attenuated FM vocal/hoof SFX (`System/Sound/SFX/Category/Goat/`).
+

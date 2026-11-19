@@ -19,6 +19,7 @@ import { canSpeakAnimalNarrative, speakAnimalNarrative } from "../../../Sound/TT
 import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
 import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
 import { FeralPigAIController } from "../../../AI/In-Game/Category/Animal/Feral_Pig";
+import { GoatHerdAIEngine } from "../../../AI/In-Game/Category/Animal/Goat";
 import { OpossumsAttributesDesign } from "../../../Registry/Characters/Opossums/Attributes/Design";
 import { FlowersStarsDiamondsRainbowStoneDoorAI } from "../../../AI/In-Game/Category/Building_Blocks";
 import {
@@ -1314,6 +1315,32 @@ export function updateStandardPhysics(
           speakAnimalNarrative(`Opossum darted past a loose ${isFemale ? "female" : "male"} monkey ${isFieldPath ? "on the slate path" : "along the wilderness trail"}.`);
         }
       }
+    }
+
+    if (animal.species === "goat") {
+      const goatTick = GoatHerdAIEngine.updatePastureGoatAI(
+        animal,
+        localAnimals,
+        stateRef.current.playerZ,
+        delta,
+        nowMs
+      );
+      if (goatTick.shouldEmitBleat) {
+        soundSystemRef.current?.playGoatBleat(
+          animal.goatId || "snowy",
+          goatTick.distanceToPlayer,
+          goatTick.isKid
+        );
+      } else if (goatTick.shouldEmitStepClop) {
+        soundSystemRef.current?.playGoatHoofClop(
+          goatTick.distanceToPlayer,
+          goatTick.isKid,
+          goatTick.onWoodRamp
+        );
+      } else if (goatTick.shouldEmitGrazeRustle) {
+        soundSystemRef.current?.playGoatGrazeRustle(goatTick.distanceToPlayer);
+      }
+      return;
     }
 
     if (animal.state === "smashed" || animal.state === "stunned") return;

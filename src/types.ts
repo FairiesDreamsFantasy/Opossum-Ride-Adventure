@@ -169,15 +169,30 @@ export interface ObstacleItem {
 
 export interface AnimalItem {
   id: number;
-  species: "owl" | "frog" | "feral_pig" | "monkey";
+  species: "owl" | "frog" | "feral_pig" | "monkey" | "goat";
   gender?: "Boar" | "Sow";
+  goatGender?: "Male" | "Female";
+  goatId?: string;
+  name?: string;
+  isKid?: boolean;
+  hornColor?: string;
+  eyeColor?: string;
+  sizeClass?: "kid" | "small" | "large" | "largest";
+  herdId?: number;
+  herdSide?: "left" | "right";
+  pastureHomeX?: number;
+  pastureHomeZ?: number;
+  grazePhase?: number;
+  headDip?: number;
+  onRamp?: boolean;
+  goatBehaviorState?: "grazing" | "socializing" | "trotting" | "perched" | "idle";
   coatColor?: string;
   secondaryColor?: string;
   z: number;
   lane: number;
   targetLane?: number;
-  xOffset?: number; // For non-track positioning (e.g. perched in trees, foraging on verge)
-  heightOffset?: number; // For flying or perched height
+  xOffset?: number; // For non-track positioning (e.g. perched in trees, foraging on verge, pasture herds)
+  heightOffset?: number; // For flying, perched, or ramp height
   state: string;
   behaviorState?: "rooting" | "patrolling" | "alert" | "charging" | "evading" | "stunned" | "smashed";
   stateElapsedMs?: number;

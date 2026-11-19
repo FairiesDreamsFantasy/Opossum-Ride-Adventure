@@ -26,6 +26,7 @@ import { GenericSowSynthesizer } from "./Synthesizer/Special_Effects/Animal/Gene
 import { AIOpossumAcousticEngine } from "./Category/Opossum/AI-Generated";
 import { FeralPigSmashSound } from "./Category/Feral_Pig/Smash";
 import { FeralPigVocalSound } from "./Category/Feral_Pig/Vocals";
+import { GoatVocalSound, GoatMovementSound } from "./Category/Goat";
 import { FlowersStarsDiamondsRainbowStoneDoorSound } from "./Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings";
 
 /**
@@ -1230,5 +1231,29 @@ export class DedicatedSFXSynthesizer {
   public playMooseCautionaryGrunt(ctx: AudioContext, destination: AudioNode) {
     this.enforceVoiceLimit(ctx);
     synthCautionaryDoubleGrunt(ctx, destination, ctx.currentTime);
+  }
+
+  /**
+   * Soft caprine cameo vocalization (faithful Goat Ride Adventure FM synthesis, softly blended)
+   */
+  public playGoatBleat(ctx: AudioContext, destination: AudioNode, goatId: string, distance: number = 0, isKid: boolean = false) {
+    this.enforceVoiceLimit(ctx);
+    GoatVocalSound.playCameoBleat(ctx, destination, goatId, distance, isKid);
+  }
+
+  /**
+   * Soft caprine hoof clop across rocky farm pasture or wooden climbing ramps
+   */
+  public playGoatHoofClop(ctx: AudioContext, destination: AudioNode, distance: number = 0, isKid: boolean = false, onWoodRamp: boolean = false) {
+    this.enforceVoiceLimit(ctx);
+    GoatMovementSound.playHoofClop(ctx, destination, distance, isKid, onWoodRamp);
+  }
+
+  /**
+   * Soft grass nibble graze rustle
+   */
+  public playGoatGrazeRustle(ctx: AudioContext, destination: AudioNode, distance: number = 0) {
+    this.enforceVoiceLimit(ctx);
+    GoatMovementSound.playGrazeRustle(ctx, destination, distance);
   }
 }

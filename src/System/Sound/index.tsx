@@ -865,6 +865,27 @@ export class ProceduralSoundSystem {
     const dest = this.getSharedDestination(ctx, 0.6);
     playProceduralWindmill(ctx, dest);
   }
+
+  public playGoatBleat(goatId: string, distance: number = 0, isKid: boolean = false) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.32);
+    this.sfx.playGoatBleat(ctx, dest, goatId, distance, isKid);
+  }
+
+  public playGoatHoofClop(distance: number = 0, isKid: boolean = false, onWoodRamp: boolean = false) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.25);
+    this.sfx.playGoatHoofClop(ctx, dest, distance, isKid, onWoodRamp);
+  }
+
+  public playGoatGrazeRustle(distance: number = 0) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.22);
+    this.sfx.playGoatGrazeRustle(ctx, dest, distance);
+  }
 }
 
 export * from "./General";
