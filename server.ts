@@ -63,7 +63,7 @@ async function startServer() {
   // Mount Vite development middleware in non-production environments
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
-      server: { middlewareMode: true, host: "0.0.0.0", port: Number(PORT) },
+      server: { middlewareMode: true, host: "0.0.0.0", port: Number(PORT), allowedHosts: true, hmr: false },
       appType: "spa"
     });
     app.use(vite.middlewares);

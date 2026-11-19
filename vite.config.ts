@@ -14,7 +14,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     port: 3000,
-    host: "0.0.0.0"
+    host: "0.0.0.0",
+    allowedHosts: true,
+    hmr: false
   },
   optimizeDeps: {
     include: ["react", "react-dom", "motion", "lucide-react", "@google/genai"],
