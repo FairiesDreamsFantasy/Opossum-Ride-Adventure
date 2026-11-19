@@ -1205,8 +1205,27 @@ export function updateStandardPhysics(
         stateRef.current.visualLaneX,
         currentLevel.id,
         delta,
-        nowMs
+        nowMs,
+        currentLevel.placeId,
+        currentLevel.targetDistance
       );
+      if (pigAiTick.shouldEmitFootfall) {
+        soundSystemRef.current?.playPigGaitStep(
+          pigAiTick.gaitMode,
+          animal.gender || "Boar",
+          pigAiTick.distanceToPlayer,
+          pigAiTick.surfaceAcoustics,
+          pigAiTick.lateralOffsetMeters
+        );
+      }
+      if (pigAiTick.shouldEmitBehaviorVocal) {
+        soundSystemRef.current?.playPigBehaviorVocal(
+          pigAiTick.behaviorVocalKind,
+          animal.gender || "Boar",
+          pigAiTick.distanceToPlayer,
+          pigAiTick.lateralOffsetMeters
+        );
+      }
       if (pigAiTick.switchedLane && pigAiTick.distanceToPlayer < 120) {
         soundSystemRef.current?.playPigLaneSwitchGrunt(animal.gender || "Boar", pigAiTick.distanceToPlayer);
       }
@@ -1358,7 +1377,16 @@ export function updateStandardPhysics(
         } else if (animal.species === "frog") {
           soundSystemRef.current?.playFrogCroak(distance);
         } else if (animal.species === "feral_pig") {
-          soundSystemRef.current?.playPigVocal(animal.gender || "Boar", distance);
+          const pigWorldX = animal.lane * 4 + (animal.xOffset || 0);
+          const lateralMeters = pigWorldX - stateRef.current.visualLaneX;
+          const kind = animal.state === "rooting"
+            ? "forage_snuffle"
+            : animal.state === "alert" || animal.state === "charging"
+              ? "alert_chuff"
+              : animal.gender === "Sow"
+                ? (Math.random() > 0.45 ? "squeal" : "grunt")
+                : (Math.random() > 0.5 ? "snort" : "grunt");
+          soundSystemRef.current?.playPigBehaviorVocal(kind, animal.gender || "Boar", distance, lateralMeters);
         } else if (animal.species === "monkey") {
           const isFemale = animal.state === "roaming_female";
           soundSystemRef.current?.playMonkeyModularVocal(isFemale ? "hoot" : "pant_hoot", isFemale ? 1.12 : 0.95);

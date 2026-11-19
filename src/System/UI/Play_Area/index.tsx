@@ -53,7 +53,9 @@ import {
   isMooseAndMonkeysAllowedInPlace,
   isMooseHotspotLevel,
   InGameAccessibility,
-  InGameKeyTapManager
+  InGameKeyTapManager,
+  RadarCursorState,
+  createInitialRadarCursorState
 } from "../../AI/In-Game";
 import { GeminiSystem, AIErrorBoundary } from "../../AI/External/Gemini";
 import { SmartArenaConfig } from "../../AI/External/Gemini/Smart_Arenas";
@@ -354,6 +356,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   const smartChatterStateRef = useRef<SmartChatterState>({
     lastChatterTime: 0
   });
+  const radarCursorRef = useRef<RadarCursorState>(createInitialRadarCursorState());
 
   useEffect(() => {
     if (soundSystemRef.current) {
@@ -747,6 +750,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     stateRef.current.isGameOver = false;
     stateRef.current.isPressingForward = false;
     stateRef.current.isPressingBackward = false;
+    stateRef.current.scannedOpponentId = -1;
+    radarCursorRef.current = createInitialRadarCursorState();
 
     if (levelId === 0) {
       if (levelObj.placeId === "temple_courtyard") {
@@ -1056,57 +1061,25 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           speakWords(`Toggled to ${nextMode === GameViewMode.POV ? "First person POV" : "Third Person Rider View"}`);
           break;
         }
-        case "scan_opponents": {
-          // Find nearest opponent or feral pig
-          let nearestTarget: any = null;
-          let minDistance = Infinity;
-
-          opponentsRef.current.forEach((opp) => {
-            const distance = opp.z - stateRef.current.playerZ;
-            if (distance > 0 && distance < minDistance) {
-              minDistance = distance;
-              nearestTarget = { type: "opponent", z: opp.z, data: opp };
-            }
+        case "scan_opponents":
+        case "cycle_opponents": {
+          const scanResult = InGameAccessibility.Radar.executeDynamicScan({
+            levelId: stateRef.current.currentLevelId,
+            playerZ: stateRef.current.playerZ,
+            playerVisualX: stateRef.current.visualLaneX,
+            playerSpeed: stateRef.current.speed,
+            opponents: opponentsRef.current,
+            animals: animalsRef.current,
+            formatDistance: Measured_Distance_Value,
+            cursorState: radarCursorRef.current,
+            nowMs: Date.now(),
+            cycleTarget: binding.action === "cycle_opponents"
           });
-
-          animalsRef.current.forEach((animal) => {
-            if (animal.species === "feral_pig") {
-              const distance = animal.z - stateRef.current.playerZ;
-              if (distance > 0 && distance < minDistance) {
-                minDistance = distance;
-                nearestTarget = { type: "feral_pig", z: animal.z, data: animal };
-              }
-            }
-          });
-
-          if (nearestTarget) {
-            if (nearestTarget.type === "feral_pig") {
-              const pig = nearestTarget.data as AnimalItem;
-              const genderLabel = pig.gender || "Boar";
-              const coat = pig.coatColor || "Dark Brown";
-              const laneStr = pig.lane === -1 ? "left lane" : (pig.lane === 1 ? "right lane" : "center lane");
-              speakWords(
-                `Scan reports: Nearest opponent is a ${genderLabel} Feral Pig with ${coat} coat in the ${laneStr}, ${Measured_Distance_Value(minDistance)} ahead.`
-              );
-            } else {
-              const castOpp = nearestTarget.data as Opponent;
-              const direction = castOpp.lane === -1 ? "left lane" : (castOpp.lane === 1 ? "right lane" : "center lane");
-              const isWild = castOpp.isWildMoose || !castOpp.mooseName || castOpp.mooseName.trim() === "";
-              const hasRider = !!(castOpp.monkeyName && castOpp.monkeyName.trim() !== "");
-
-              if (isWild || !hasRider) {
-                speakWords(
-                  `Scan reports: Nearest opponent is a wild ${castOpp.mooseType} Moose in the ${direction}, ${Measured_Distance_Value(minDistance)} ahead.`
-                );
-              } else {
-                const riderGender = (castOpp.monkeyGender || (castOpp.mooseType === "Bull" ? "Female" : "Male")).toLowerCase();
-                speakWords(
-                  `Scan reports: Nearest opponent is ${riderGender} monkey ${castOpp.monkeyName} riding ${castOpp.mooseType} Moose ${castOpp.mooseName} in the ${direction}, ${Measured_Distance_Value(minDistance)} ahead.`
-                );
-              }
-            }
-          } else {
-            speakWords("No opponents detected in immediate vicinity.");
+          radarCursorRef.current = scanResult.cursorState;
+          stateRef.current.scannedOpponentId = scanResult.cursorState.lastScannedTargetId;
+          speakWords(scanResult.reportText, true);
+          if (scanResult.target) {
+            setStatusMessage(`Radar: ${scanResult.target.summaryLabel} (${Measured_Distance_Value(scanResult.target.distance)})`);
           }
           break;
         }

@@ -146,6 +146,22 @@ export const SoundService = {
   playPigLaneSwitchGrunt: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().playPigLaneSwitchGrunt(gender, distance),
   playPigStunnedVocal: (gender: "Boar" | "Sow" = "Boar", distance: number = 0) => getSoundSystem().playPigStunnedVocal(gender, distance),
   playPigTrot: (pitch: number = 1.0) => getSoundSystem().playPigTrot(pitch),
+  playPigWalk: (pitch: number = 1.0) => getSoundSystem().playPigWalk(pitch),
+  playPigGallop: (pitch: number = 1.0) => getSoundSystem().playPigGallop(pitch),
+  playPigCharge: (pitch: number = 1.0, gender: "Boar" | "Sow" = "Boar") => getSoundSystem().playPigCharge(pitch, "dirt", gender),
+  playPigGaitStep: (
+    gait: "walk" | "trot" | "gallop" | "charge",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    surface: "soil" | "stone" | "grass" | "dirt" | "wood" = "soil",
+    lateralOffsetMeters: number = 0
+  ) => getSoundSystem().playPigGaitStep(gait, gender, distance, surface, lateralOffsetMeters),
+  playPigBehaviorVocal: (
+    kind: "forage_snuffle" | "alert_chuff" | "snort" | "squeal" | "grunt",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    lateralOffsetMeters: number = 0
+  ) => getSoundSystem().playPigBehaviorVocal(kind, gender, distance, lateralOffsetMeters),
   getContext: () => getSoundSystem().getContext(),
   getSharedDestination: (ctx: AudioContext, wetness: number = 0.3675) => getSoundSystem().getSharedDestination(ctx, wetness),
   updateMovementAmbient: (speedRatio: number, isMoving: boolean = true) => getSoundSystem().updateMovementAmbient(speedRatio, isMoving),

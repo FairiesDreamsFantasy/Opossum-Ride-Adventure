@@ -11,6 +11,7 @@ import { GeminiSystem } from "../../AI/External/Gemini";
 import { PseudorandomGenerator, PseudorandomFunctions } from "../../AI/In-Game/Category/Psudorandom_Functions";
 import { OpponentAIEngine, MOOSE_BABYLON_NAMES, MONKEY_BABYLON_NAMES } from "../../AI/In-Game/Category/Opponents";
 import { FeralPigArenaInclusionEngine } from "../../AI/In-Game/Category/Animal/Feral_Pig/Included_Via_Any_Arena";
+import { FeralPigNavigator } from "../../AI/In-Game/Category/Animal/Feral_Pig/Navigation";
 import { BASE_PIG_COAT_HUES } from "../../../Characters/Pigs/Animations/Color_Palette/General";
 import { isCropFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Crop_Field";
 import { isVegetableFieldPlaceId } from "../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
@@ -259,10 +260,15 @@ export const Spawner = {
         const gender: "Boar" | "Sow" = inclusionProfile.allowedGenders[i % inclusionProfile.allowedGenders.length];
         const coatIndex = i % BASE_PIG_COAT_HUES.length;
         const coat = BASE_PIG_COAT_HUES[coatIndex];
-        
-        // Mathematical verge placement: slightly off track or foraging along lane edge
+
+        // Course or wilderness off-path initial lateral coordinate
         const side = i % 2 === 0 ? 1 : -1;
-        const vergeOffset = side * (1.5 + (i % 3) * 0.8);
+        const rawWorldX = isWilderness
+          ? side * (2.6 + (i % 4) * 2.15) // Spread naturally across trail and outside path in wilderness
+          : side * (1.5 + (i % 3) * 1.45);
+        const decomposed = FeralPigNavigator.decomposeWorldX(rawWorldX);
+        const spawnZ = 40 + i * baseSpacing + ((i * 17) % 25);
+        const initialDir: 1 | -1 = i % 2 === 0 ? -1 : 1;
 
         spawnedAnimals.push({
           id: currentAnimalId++,
@@ -270,11 +276,21 @@ export const Spawner = {
           gender,
           coatColor: coat.base,
           secondaryColor: coat.secondary,
-          z: 40 + i * baseSpacing + ((i * 17) % 25),
-          lane: side > 0 ? 1 : -1,
-          xOffset: vergeOffset,
+          z: spawnZ,
+          lane: decomposed.lane,
+          targetLane: decomposed.lane,
+          xOffset: decomposed.xOffset,
           heightOffset: inclusionProfile.groundLevelZ,
           state: inclusionProfile.initialState,
+          behaviorState: inclusionProfile.initialState,
+          patrolOriginZ: spawnZ,
+          patrolDirection: initialDir,
+          vx: side * 1.35,
+          vz: initialDir * (inclusionProfile.initialState === "rooting" ? 1.0 : 2.9),
+          gaitPhase: (i * 1.15) % (Math.PI * 2),
+          lastStepDistance: 0,
+          gaitMode: inclusionProfile.initialState === "rooting" ? "walk" : "trot",
+          isWildernessRoamer: isWilderness,
           nextVocalTime: 2.0 + (i % 5) * 1.5
         });
       }

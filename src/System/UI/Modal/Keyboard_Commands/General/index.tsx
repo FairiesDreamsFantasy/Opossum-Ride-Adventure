@@ -36,7 +36,7 @@ export const CEDELLA_COMMANDS_DATA: KeyboardCommandCategory[] = [
     category: "Opossum Vocalization & Scan",
     commands: [
       { key: "S", description: "Opossum Elegant Chatter", notes: "Triggers local synthesis vocalization" },
-      { key: "O", description: "Scan Opponents & Wildlife", notes: "Scans for Moose, Monkeys, and Feral Pigs" },
+      { key: "o / Shift+O", description: "Scan & Toggle Opponents", notes: "Single o: nearest + far horizon summary; Shift+O to toggle/cycle Moose, Monkeys & Feral Pigs" },
       { key: "R", description: "Announce Ridden Opossum", notes: "Narrates active opossum physical traits" },
       { key: "Shift + 1 (!)", description: "Toggle Chatter Notifications", notes: "On/Off spoken chatter alerts" }
     ]
@@ -76,7 +76,7 @@ export const ARDEN_DENIS_COMMANDS_DATA: KeyboardCommandCategory[] = [
     category: "Opossum Vocalization & Scan",
     commands: [
       { key: "L", description: "Opossum Elegant Chatter", notes: "Calibrated key for chatter (prevents collision with 'S' reverse!)" },
-      { key: "O", description: "Scan Opponents & Wildlife", notes: "Scans for Moose, Monkeys, and Feral Pigs" },
+      { key: "o / Shift+O", description: "Scan & Toggle Opponents", notes: "Single o: nearest + far horizon summary; Shift+O to toggle/cycle Moose, Monkeys & Feral Pigs" },
       { key: "R", description: "Announce Ridden Opossum", notes: "Narrates active opossum physical traits" },
       { key: "Shift + 1 (!)", description: "Toggle Chatter Notifications", notes: "On/Off spoken chatter alerts" }
     ]

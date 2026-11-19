@@ -443,3 +443,13 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
 - **Off-Path Pasture Placement & Soft Audio**:
   - Herd boundaries strictly clamped to Left/Right pastures (`|xOffset| ∈ [8.2 m, 17.4 m]`, outside the 3-lane track) with wooden climbing ramps/knolls (`onRamp`, `heightOffset`), smooth grazing head-dip animation (`headDip`, `grazePhase`), and gently attenuated FM vocal/hoof SFX (`System/Sound/SFX/Category/Goat/`).
 
+---
+
+## 20. Dynamic Opponent Radar (`o` / `Shift+O`) & Kinematic Moving Feral Pigs
+- **Opponent Scan (`InGameRadarScanner` in `System/AI/In-Game/Category/Accessibility/Radar/`)**:
+  - Active on both **Cedella** and **Arden Denis** layouts via `"o"` (`scan_opponents`) and `Shift+O` (`cycle_opponents`).
+  - Spatially indexes and sorts Moose/Monkey opponents, Feral Pigs, and loose Monkeys by 3D Euclidean distance ($O(N \log N)$), classifying `close` ($\le 50\text{ m}$), `mid` ($50\text{--}180\text{ m}$), and `far` ($> 180\text{ m}$) horizons with closing-speed ETA projection (`projectTrajectory`). Peacefully off-path cameo NPC goats stay strictly excluded.
+  - **Controls (`o` / `Shift+O`)**: Single `o` announces nearest threat + dynamic mid/far horizon summary ending with `"Press Shift-O to toggle."` when multiple targets exist; pressing `Shift+O` toggles cleanly through `2nd -> 3rd -> ... -> farthest -> 1st` targets without a timed window using `scannedOpponentId`.
+- **Moving Feral Pigs (`FeralPigAIController` / `FeralPigNavigator` / `FeralPigBehaviorEngine`)**:
+  - Pure SI kinematics ($\text{m}, \text{m/s}, \text{s}$) moving pigs continuously along $Z$ patrol corridors and laterally across all lanes/verges (`[-5.6 m, +5.6 m]` on track arenas; expanded outside-path wilderness envelope `[-11.8 m, +11.8 m]` on Wilderness arenas).
+  - Real gait-classified stride footsteps (`walk`, `trot`, `gallop`, `charge`) calibrated to arena surfaces (`soil`, `grass`, `dirt`, `stone`, `wood`) with stereo panning + `forage_snuffle` and `alert_chuff` vocals, animated trotter legs from `gaitPhase`, and interactive sound cards in `Learn_Game_Sounds/Feral_Pigs/`.

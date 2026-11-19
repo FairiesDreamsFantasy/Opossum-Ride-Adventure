@@ -3,30 +3,42 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { PseudorandomGenerator } from "../../../../Psudorandom_Functions";
+
 export type FeralPigBehaviorState = "rooting" | "patrolling" | "alert" | "charging" | "evading" | "stunned" | "smashed";
+export type FeralPigGaitMode = "walk" | "trot" | "gallop" | "charge";
 
 export interface FeralPigBehaviorParams {
   detectionRadius: number;
+  alertRadius: number;
   chargeSpeedMultiplier: number;
   rootingDurationMinMs: number;
   rootingDurationMaxMs: number;
+  patrolDurationMinMs: number;
+  patrolDurationMaxMs: number;
   turnProbability: number;
 }
 
 export const DEFAULT_FERAL_PIG_BEHAVIOR_CONFIG: Record<"Boar" | "Sow", FeralPigBehaviorParams> = {
   Boar: {
-    detectionRadius: 240,
+    detectionRadius: 28,
+    alertRadius: 48,
     chargeSpeedMultiplier: 1.45,
-    rootingDurationMinMs: 1800,
-    rootingDurationMaxMs: 4200,
-    turnProbability: 0.25
+    rootingDurationMinMs: 1600,
+    rootingDurationMaxMs: 3600,
+    patrolDurationMinMs: 2800,
+    patrolDurationMaxMs: 5400,
+    turnProbability: 0.32
   },
   Sow: {
-    detectionRadius: 280,
-    chargeSpeedMultiplier: 1.25,
-    rootingDurationMinMs: 2200,
-    rootingDurationMaxMs: 5000,
-    turnProbability: 0.40
+    detectionRadius: 24,
+    alertRadius: 52,
+    chargeSpeedMultiplier: 1.28,
+    rootingDurationMinMs: 1800,
+    rootingDurationMaxMs: 3800,
+    patrolDurationMinMs: 3000,
+    patrolDurationMaxMs: 5800,
+    turnProbability: 0.44
   }
 };
 
@@ -41,7 +53,26 @@ export class FeralPigBehaviorEngine {
   }
 
   /**
-   * Computes next state transition via dynamic distance calculations and probabilistic timers
+   * Classifies physical movement gait from live speed (m/s) and state.
+   */
+  public static resolveGaitForMotion(behaviorState: FeralPigBehaviorState, speedMetersPerSec: number): FeralPigGaitMode {
+    if (behaviorState === "charging") {
+      return speedMetersPerSec >= 6.8 ? "charge" : "gallop";
+    }
+    if (behaviorState === "evading") {
+      return speedMetersPerSec >= 5.2 ? "gallop" : "trot";
+    }
+    if (behaviorState === "rooting" || speedMetersPerSec < 2.2) {
+      return "walk";
+    }
+    if (speedMetersPerSec < 5.0) {
+      return "trot";
+    }
+    return "gallop";
+  }
+
+  /**
+   * Computes next state transition via calibrated sensory distance radii and deterministic PRNG.
    */
   public static evaluateBehaviorState(
     currentState: FeralPigBehaviorState,
@@ -49,7 +80,8 @@ export class FeralPigBehaviorEngine {
     stateElapsedMs: number,
     gender: "Boar" | "Sow",
     rngSeed: number,
-    config: FeralPigBehaviorParams = DEFAULT_FERAL_PIG_BEHAVIOR_CONFIG[gender]
+    config: FeralPigBehaviorParams = DEFAULT_FERAL_PIG_BEHAVIOR_CONFIG[gender],
+    levelDifficulty: number = 0.25
   ): { nextState: FeralPigBehaviorState; shouldChangeDirection: boolean } {
     if (currentState === "smashed") {
       return { nextState: "smashed", shouldChangeDirection: false };
@@ -58,33 +90,48 @@ export class FeralPigBehaviorEngine {
       return { nextState: "stunned", shouldChangeDirection: false };
     }
 
-    // Proximity trigger: player nearby
-    if (distanceToPlayer <= config.detectionRadius) {
+    const scaledDetect = config.detectionRadius * (0.75 + levelDifficulty * 0.85);
+    const scaledAlert = config.alertRadius * (0.8 + levelDifficulty * 0.7);
+    const rng = new PseudorandomGenerator(Math.abs(Math.floor(rngSeed)) + 17);
+
+    // 1. Direct engagement radius
+    if (distanceToPlayer <= scaledDetect) {
       if (gender === "Boar") {
-        // Boars charge aggressively when encroached upon
         return { nextState: "charging", shouldChangeDirection: false };
-      } else {
-        // Sows assume alert stance or evasive withdrawal
-        return { nextState: distanceToPlayer < 120 ? "evading" : "alert", shouldChangeDirection: true };
       }
+      return {
+        nextState: distanceToPlayer < scaledDetect * 0.72 ? "evading" : "alert",
+        shouldChangeDirection: currentState !== "evading"
+      };
     }
 
-    // Ambient state cycle when player is far away
-    const currentRootDuration = config.rootingDurationMinMs + 
-      ((rngSeed * 9301 + 49297) % 233280 / 233280) * (config.rootingDurationMaxMs - config.rootingDurationMinMs);
+    // 2. Outer alert/vigilance band
+    if (distanceToPlayer <= scaledAlert) {
+      if (currentState === "charging" && gender === "Boar" && stateElapsedMs < 1400) {
+        return { nextState: "charging", shouldChangeDirection: false };
+      }
+      if (currentState === "evading" && gender === "Sow" && stateElapsedMs < 1200) {
+        return { nextState: "evading", shouldChangeDirection: false };
+      }
+      return { nextState: "alert", shouldChangeDirection: false };
+    }
 
+    // 3. Ambient foraging & active patrolling cycles when outside threat range
     if (currentState === "charging" || currentState === "evading" || currentState === "alert") {
-      // Revert to patrolling once player leaves sensory boundary
-      return { nextState: "patrolling", shouldChangeDirection: false };
+      return { nextState: "patrolling", shouldChangeDirection: true };
     }
 
-    if (currentState === "rooting" && stateElapsedMs >= currentRootDuration) {
-      const turnRng = ((rngSeed * 13) % 100) / 100;
-      return { nextState: "patrolling", shouldChangeDirection: turnRng < config.turnProbability };
+    const rootDuration = config.rootingDurationMinMs +
+      rng.next() * (config.rootingDurationMaxMs - config.rootingDurationMinMs);
+    const patrolDuration = config.patrolDurationMinMs +
+      rng.next() * (config.patrolDurationMaxMs - config.patrolDurationMinMs);
+
+    if (currentState === "rooting" && stateElapsedMs >= rootDuration) {
+      return { nextState: "patrolling", shouldChangeDirection: rng.next() < config.turnProbability };
     }
 
-    if (currentState === "patrolling" && stateElapsedMs >= 3500) {
-      return { nextState: "rooting", shouldChangeDirection: false };
+    if (currentState === "patrolling" && stateElapsedMs >= patrolDuration) {
+      return { nextState: "rooting", shouldChangeDirection: rng.next() < (config.turnProbability * 0.5) };
     }
 
     return { nextState: currentState, shouldChangeDirection: false };

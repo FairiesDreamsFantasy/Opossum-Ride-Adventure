@@ -26,6 +26,7 @@ import { GenericSowSynthesizer } from "./Synthesizer/Special_Effects/Animal/Gene
 import { AIOpossumAcousticEngine } from "./Category/Opossum/AI-Generated";
 import { FeralPigSmashSound } from "./Category/Feral_Pig/Smash";
 import { FeralPigVocalSound } from "./Category/Feral_Pig/Vocals";
+import { FeralPigMovementSound, FeralPigSurfaceAcoustic } from "./Category/Feral_Pig/Movements";
 import { GoatVocalSound, GoatMovementSound } from "./Category/Goat";
 import { FlowersStarsDiamondsRainbowStoneDoorSound } from "./Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings";
 
@@ -1105,6 +1106,88 @@ export class DedicatedSFXSynthesizer {
     subGain.connect(destination);
 
     FeralPigVocalSound.playStunned(ctx, subGain, gender, 0.96 + Math.random() * 0.08);
+  }
+
+  /**
+   * Play stereo-panned, distance-attenuated feral pig locomotion gait (walk, trot, gallop, charge).
+   */
+  public playPigGaitStep(
+    ctx: AudioContext,
+    destination: AudioNode,
+    gait: "walk" | "trot" | "gallop" | "charge",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    surface: FeralPigSurfaceAcoustic = "soil",
+    lateralOffsetMeters: number = 0
+  ) {
+    this.enforceVoiceLimit(ctx);
+    const audibleRadius = gait === "charge" ? 125 : 105;
+    const volumeFalloff = Math.max(0.001, 1 - distance / audibleRadius);
+    if (volumeFalloff <= 0.01) return;
+
+    const subGain = ctx.createGain();
+    subGain.gain.setValueAtTime(volumeFalloff, ctx.currentTime);
+    if (typeof ctx.createStereoPanner === "function") {
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(Math.max(-0.95, Math.min(0.95, lateralOffsetMeters / 12)), ctx.currentTime);
+      subGain.connect(panner);
+      panner.connect(destination);
+    } else {
+      subGain.connect(destination);
+    }
+
+    const pitch = (gender === "Sow" ? 1.1 : 0.94) + (Math.random() * 0.08 - 0.04);
+    if (gait === "walk") {
+      FeralPigMovementSound.playWalk(ctx, subGain, pitch, surface);
+    } else if (gait === "trot") {
+      FeralPigMovementSound.playTrot(ctx, subGain, pitch, surface);
+    } else if (gait === "gallop") {
+      FeralPigMovementSound.playGallop(ctx, subGain, pitch, surface);
+    } else {
+      FeralPigMovementSound.playCharge(ctx, subGain, pitch, surface, gender);
+    }
+  }
+
+  /**
+   * Play rhythmic feral pig forage snuffle or territorial alert chuff with stereo placement.
+   */
+  public playPigBehaviorVocal(
+    ctx: AudioContext,
+    destination: AudioNode,
+    kind: "forage_snuffle" | "alert_chuff" | "snort" | "squeal" | "grunt",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    lateralOffsetMeters: number = 0
+  ) {
+    this.enforceVoiceLimit(ctx);
+    const volumeFalloff = Math.max(0.001, 1 - distance / 115);
+    if (volumeFalloff <= 0.01) return;
+
+    const subGain = ctx.createGain();
+    subGain.gain.setValueAtTime(volumeFalloff, ctx.currentTime);
+    if (typeof ctx.createStereoPanner === "function") {
+      const panner = ctx.createStereoPanner();
+      panner.pan.setValueAtTime(Math.max(-0.95, Math.min(0.95, lateralOffsetMeters / 12)), ctx.currentTime);
+      subGain.connect(panner);
+      panner.connect(destination);
+    } else {
+      subGain.connect(destination);
+    }
+
+    const pitch = (gender === "Sow" ? 1.08 : 0.96) + (Math.random() * 0.08 - 0.04);
+    if (kind === "forage_snuffle") {
+      FeralPigVocalSound.playForageSnuffle(ctx, subGain, gender, pitch);
+    } else if (kind === "alert_chuff") {
+      FeralPigVocalSound.playAlertChuff(ctx, subGain, gender, pitch);
+    } else if (kind === "snort") {
+      GenericBoarSynthesizer.playBoarSnort(ctx, subGain, pitch);
+    } else if (kind === "squeal") {
+      GenericSowSynthesizer.playSowSqueal(ctx, subGain, pitch);
+    } else if (gender === "Sow") {
+      GenericSowSynthesizer.playSowGrunt(ctx, subGain, pitch);
+    } else {
+      GenericBoarSynthesizer.playBoarGrunt(ctx, subGain, pitch);
+    }
   }
 
   /**

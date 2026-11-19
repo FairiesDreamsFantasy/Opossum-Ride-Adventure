@@ -24,7 +24,7 @@ import {
 } from "./BGM";
 import { OpossumSynthesizer } from "./Synthesizer";
 import { PlaceResolver } from "../Engine/Resolver";
-import { FeralPigMovementSound } from "./SFX/Category/Feral_Pig/Movements";
+import { FeralPigMovementSound, FeralPigSurfaceAcoustic } from "./SFX/Category/Feral_Pig/Movements";
 import {
   playProceduralWindChimes,
   playProceduralFountain,
@@ -831,11 +831,57 @@ export class ProceduralSoundSystem {
     this.sfx.playPigStunnedVocal(ctx, dest, gender, distance);
   }
 
-  public playPigTrot(pitch: number = 1.0) {
+  public playPigTrot(pitch: number = 1.0, surface: FeralPigSurfaceAcoustic = "soil") {
     const ctx = this.getContext();
     if (!ctx || ctx.state === "suspended") return;
-    const dest = this.getSharedDestination(ctx, 0.4);
-    FeralPigMovementSound.playTrot(ctx, dest, pitch);
+    const dest = this.getSharedDestination(ctx, 0.45);
+    FeralPigMovementSound.playTrot(ctx, dest, pitch, surface);
+  }
+
+  public playPigWalk(pitch: number = 1.0, surface: FeralPigSurfaceAcoustic = "soil") {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.44);
+    FeralPigMovementSound.playWalk(ctx, dest, pitch, surface);
+  }
+
+  public playPigGallop(pitch: number = 1.0, surface: FeralPigSurfaceAcoustic = "dirt") {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.46);
+    FeralPigMovementSound.playGallop(ctx, dest, pitch, surface);
+  }
+
+  public playPigCharge(pitch: number = 1.0, surface: FeralPigSurfaceAcoustic = "dirt", gender: "Boar" | "Sow" = "Boar") {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.5);
+    FeralPigMovementSound.playCharge(ctx, dest, pitch, surface, gender);
+  }
+
+  public playPigGaitStep(
+    gait: "walk" | "trot" | "gallop" | "charge",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    surface: FeralPigSurfaceAcoustic = "soil",
+    lateralOffsetMeters: number = 0
+  ) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, gait === "charge" ? 0.52 : 0.48);
+    this.sfx.playPigGaitStep(ctx, dest, gait, gender, distance, surface, lateralOffsetMeters);
+  }
+
+  public playPigBehaviorVocal(
+    kind: "forage_snuffle" | "alert_chuff" | "snort" | "squeal" | "grunt",
+    gender: "Boar" | "Sow" = "Boar",
+    distance: number = 0,
+    lateralOffsetMeters: number = 0
+  ) {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+    const dest = this.getSharedDestination(ctx, 0.44);
+    this.sfx.playPigBehaviorVocal(ctx, dest, kind, gender, distance, lateralOffsetMeters);
   }
 
   public synthesizeMooseSmashedVocal(name: string, type: "Bull" | "Cow") {

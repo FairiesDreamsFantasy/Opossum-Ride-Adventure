@@ -41,11 +41,46 @@ export const FERAL_PIG_SOUND_DEFINITIONS: FeralPigSoundDefinition[] = [
     description: "High-register 540Hz ascending scream with 16Hz LFO flutter and 1100Hz formant filter."
   },
   {
+    id: "feral_pig_walk",
+    name: "Feral Pig Foraging Walk Footfalls",
+    category: "movement",
+    pigType: "Universal",
+    description: "Two-step cloven-hoof earth strikes with soft soil rustle for slow foraging walks."
+  },
+  {
     id: "feral_pig_trot",
     name: "Feral Pig Rapid Trot Footfalls",
     category: "movement",
     pigType: "Universal",
-    description: "Low-pitch 80Hz rapid ground strike simulating thick hooves on terrain."
+    description: "Brisk diagonal paired cloven hoof strike simulating active patrolling trots."
+  },
+  {
+    id: "feral_pig_gallop",
+    name: "Feral Pig Bounding Gallop",
+    category: "movement",
+    pigType: "Universal",
+    description: "Rapid 3-beat bounding hoof cascade for evading or fast-roaming feral pigs."
+  },
+  {
+    id: "feral_pig_charge",
+    name: "Feral Pig Heavy Charge Rush",
+    category: "movement",
+    pigType: "Boar",
+    description: "Thunderous heavy hoof strike bursts layered with an aggressive nasal charge huff."
+  },
+  {
+    id: "feral_pig_forage_snuffle",
+    name: "Feral Pig Root & Forage Snuffle",
+    category: "vocal",
+    pigType: "Universal",
+    description: "Double nasal rooting snuffle with soft low-frequency oink pulses."
+  },
+  {
+    id: "feral_pig_alert_chuff",
+    name: "Feral Pig Territorial Alert Chuff",
+    category: "vocal",
+    pigType: "Boar",
+    description: "Sharp double-burst warning exhalation when locking onto an approaching opossum."
   },
   {
     id: "sow_smashed_pop",

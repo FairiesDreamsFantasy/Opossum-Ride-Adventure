@@ -241,6 +241,13 @@ To protect the standardization of the accessibility system, the following mandat
 *   **Dedicated Goat Herd & Grazing AI (`src/System/AI/In-Game/Category/Animal/Goat/`)**:
     *   `GoatHerdAIEngine` groups adults and juvenile kids into 6 social hillside herds exclusively on **`goat_farm` (`World 1, Level 14`)**, strictly **off-path** (`|xOffset| ∈ [8.2 m, 17.4 m]`, never entering playable track lanes), cycling cleanly through `grazing` (animated head-dip & chew bob), `socializing` (gentle call-and-response bleats), `trotting`, `perched` (wooden pasture ramps & grassy knolls), and `idle` with zero player damage/collision.
 
+---
 
-
-
+### 18. Multi-Horizon Opponent Radar (`o` / `Shift+O`) & Kinematic Moving Feral Pigs + Gait Audio
+*   **Dynamic Spatial Radar (`System/AI/In-Game/Category/Accessibility/Radar/`)**:
+    *   `InGameRadarScanner.executeDynamicScan` replaces hardcoded nearest-only UI scanning across both **Cedella** and **Arden Denis** keyboard layouts, indexing Moose/Monkey opponents, active Feral Pigs, and loose Monkeys by 3D Euclidean separation (`close <= 50 m`, `mid <= 180 m`, `far > 180 m`) with kinematic closing ETA (`projectTrajectory`). Cameo NPC goats remain strictly excluded from paths and threat scans.
+    *   **Controls (`o` / `Shift+O`)**: Single `o` (`scan_opponents`) reports nearest threat + dynamic mid/far horizon summary ending with `"Press Shift-O to toggle."` when multiple targets are ahead; `Shift+O` (`cycle_opponents`) toggles sequentially through `2nd -> 3rd -> ... -> farthest -> 1st` targets via `scannedOpponentId` without a timed window.
+*   **Continuous SI Kinematics & Wilderness Off-Path Roaming (`FeralPigAIController` / `FeralPigNavigator` / `FeralPigBehaviorEngine`)**:
+    *   Eliminates static `z` freeze, immediate `xOffset -> 0` collapse, magic `+200` distance offsets, and `deltaSec * 60` framerate pseudoscience. Feral pigs move actively in both longitudinal course $Z$ and continuous lateral $X$ (`[-5.6 m, +5.6 m]` across lanes on course arenas; `[-11.8 m, +11.8 m]` extending outside the path system in World 4 Wilderness arenas), with gait-phase leg animation in 2D/3D renderers.
+*   **Audible Cloven-Hoof Gaits & Bio-Acoustic Vocals (`FeralPigMovementSound` & `FeralPigVocalSound`)**:
+    *   Synthesizes distance-attenuated, stereo-panned, surface-tuned (`soil`, `grass`, `dirt`, `stone`, `wood`) **`walk`**, **`trot`**, **`gallop`**, and **`charge`** cloven-hoof strikes locked to real stride displacement alongside **`forage_snuffle`** and **`alert_chuff`** vocals (plus previews in `Learn_Game_Sounds/Feral_Pigs/`).

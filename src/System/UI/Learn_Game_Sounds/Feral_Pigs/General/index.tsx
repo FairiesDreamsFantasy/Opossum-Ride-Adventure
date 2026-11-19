@@ -48,12 +48,52 @@ export const FERAL_PIG_PLAYABLE_SOUNDS: FeralPigPlayableSound[] = [
     description: "Piercing 540Hz upward sweep (up to 729Hz) with 16Hz LFO flutter and 1100Hz formant peak."
   },
   {
+    id: "feral_pig_walk",
+    name: "Feral Pig Foraging Walk Footfalls",
+    buttonLabel: "Play Pig Walk Footfalls",
+    category: "movement",
+    pigType: "Universal",
+    description: "Steady 2-step cloven hoof earth strikes with soft soil rustle during slow foraging walks."
+  },
+  {
     id: "feral_pig_trot",
     name: "Feral Pig Rapid Trot Footfalls",
     buttonLabel: "Play Pig Trot Footfalls",
     category: "movement",
     pigType: "Universal",
-    description: "Low-pitch 80Hz rapid ground strike simulating thick hooves on terrain."
+    description: "Brisk paired diagonal cloven-hoof strike with crisp terrain transient during arena patrols."
+  },
+  {
+    id: "feral_pig_gallop",
+    name: "Feral Pig Bounding Gallop",
+    buttonLabel: "Play Pig Gallop Footfalls",
+    category: "movement",
+    pigType: "Universal",
+    description: "Rapid 3-beat bounding hoof cascade triggered when fleeing sows or pacing boars break into full gallop."
+  },
+  {
+    id: "feral_pig_charge",
+    name: "Feral Pig Heavy Charge Rush",
+    buttonLabel: "Play Pig Charge Rush",
+    category: "movement",
+    pigType: "Boar",
+    description: "Thunderous heavy hoof strike bursts layered with an aggressive rushing nasal huff."
+  },
+  {
+    id: "feral_pig_forage_snuffle",
+    name: "Feral Pig Root & Forage Snuffle",
+    buttonLabel: "Play Pig Forage Snuffle",
+    category: "vocal",
+    pigType: "Universal",
+    description: "Double nasal rooting snuffle with soft earth-grazing grunt pulses while nosing through terrain."
+  },
+  {
+    id: "feral_pig_alert_chuff",
+    name: "Feral Pig Territorial Alert Chuff",
+    buttonLabel: "Play Pig Alert Chuff",
+    category: "vocal",
+    pigType: "Boar",
+    description: "Sharp double-burst warning exhalation fired when a feral pig locks onto an approaching opossum."
   },
   {
     id: "sow_smashed_pop",

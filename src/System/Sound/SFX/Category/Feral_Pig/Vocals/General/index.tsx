@@ -99,4 +99,94 @@ export class FeralPigVocalSound {
     osc.stop(now + duration + 0.03);
     lfo.stop(now + duration + 0.03);
   }
+
+  /**
+   * Rhythmic snout-rooting forage snuffle while pigs nose through soil/brush.
+   */
+  public static playForageSnuffle(
+    ctx: AudioContext,
+    dest: AudioNode,
+    gender: "Boar" | "Sow" = "Boar",
+    pitchOffset: number = 1.0
+  ) {
+    const now = ctx.currentTime;
+    const pulses = 2;
+    for (let i = 0; i < pulses; i++) {
+      const t = now + i * 0.11;
+      const bufSize = Math.max(1, Math.floor(ctx.sampleRate * 0.075));
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let s = 0; s < bufSize; s++) {
+        data[s] = (Math.random() * 2 - 1) * Math.sin((s / bufSize) * Math.PI);
+      }
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const bp = ctx.createBiquadFilter();
+      bp.type = "bandpass";
+      bp.frequency.setValueAtTime((gender === "Boar" ? 360 : 490) * pitchOffset, t);
+      bp.Q.setValueAtTime(3.8, t);
+
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.24, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.075);
+
+      src.connect(bp);
+      bp.connect(g);
+      g.connect(dest);
+      src.start(t);
+
+      // Soft low nasal oink undertone
+      const osc = ctx.createOscillator();
+      const og = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime((gender === "Boar" ? 110 : 155) * pitchOffset, t);
+      osc.frequency.exponentialRampToValueAtTime((gender === "Boar" ? 82 : 120) * pitchOffset, t + 0.07);
+      og.gain.setValueAtTime(0.001, t);
+      og.gain.linearRampToValueAtTime(0.14, t + 0.015);
+      og.gain.exponentialRampToValueAtTime(0.0001, t + 0.07);
+      osc.connect(og);
+      og.connect(dest);
+      osc.start(t);
+      osc.stop(t + 0.08);
+    }
+  }
+
+  /**
+   * Sharp territorial double-chuff challenge emitted when an alert feral pig locks onto an intruder.
+   */
+  public static playAlertChuff(
+    ctx: AudioContext,
+    dest: AudioNode,
+    gender: "Boar" | "Sow" = "Boar",
+    pitchOffset: number = 1.0
+  ) {
+    const now = ctx.currentTime;
+    [0, 0.13].forEach((offset, idx) => {
+      const t = now + offset;
+      const osc = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const g = ctx.createGain();
+
+      const startHz = (gender === "Boar" ? 155 : 225) * pitchOffset * (idx === 0 ? 1.0 : 1.08);
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(startHz, t);
+      osc.frequency.exponentialRampToValueAtTime(startHz * 0.62, t + 0.1);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(gender === "Boar" ? 480 : 720, t);
+      filter.Q.setValueAtTime(3.6, t);
+
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.28, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.105);
+
+      osc.connect(filter);
+      filter.connect(g);
+      g.connect(dest);
+      osc.start(t);
+      osc.stop(t + 0.115);
+    });
+  }
 }

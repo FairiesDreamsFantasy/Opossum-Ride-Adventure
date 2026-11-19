@@ -199,6 +199,14 @@ export interface AnimalItem {
   stunnedUntil?: number;
   nextLaneSwitchTime?: number;
   speed?: number;
+  vx?: number;
+  vz?: number;
+  patrolOriginZ?: number;
+  patrolDirection?: 1 | -1;
+  gaitPhase?: number;
+  lastStepDistance?: number;
+  gaitMode?: "walk" | "trot" | "gallop" | "charge";
+  isWildernessRoamer?: boolean;
   nextVocalTime: number;
   smashedTime?: number;
 }

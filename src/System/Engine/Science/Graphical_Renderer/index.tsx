@@ -475,32 +475,37 @@ export function render2DView(
             ctx.translate(-screenX, -screenY);
           }
           
+          const strideWave = animal.gaitPhase !== undefined ? Math.sin(animal.gaitPhase) : 0;
+          const isMoving = !isSmashed && !isStunned && (animal.speed || 0) > 0.3;
+          const bobX = isMoving ? strideWave * 1.4 : 0;
+          const facingX = Math.sign(animal.vx || 0) * 1.6;
+
           ctx.fillStyle = baseCol;
           ctx.beginPath();
-          ctx.ellipse(screenX, screenY, 11, 7, 0, 0, Math.PI * 2);
+          ctx.ellipse(screenX + bobX * 0.5, screenY, 11, 7, 0, 0, Math.PI * 2);
           ctx.fill();
 
           // Head & Snout
           ctx.fillStyle = secCol;
           ctx.beginPath();
-          ctx.arc(screenX, screenY - 6, 5, 0, Math.PI * 2);
+          ctx.arc(screenX + facingX, screenY - 6 + (isMoving ? Math.cos(animal.gaitPhase || 0) * 0.8 : 0), 5, 0, Math.PI * 2);
           ctx.fill();
           
           ctx.fillStyle = "#D48888"; // Pig snout pink
           ctx.beginPath();
-          ctx.ellipse(screenX, screenY - 9, 3, 2, 0, 0, Math.PI * 2);
+          ctx.ellipse(screenX + facingX * 1.2, screenY - 9, 3, 2, 0, 0, Math.PI * 2);
           ctx.fill();
 
           // Ivory tusks for Boar
           if (animal.gender === "Boar") {
             ctx.fillStyle = "#FFFBF0";
             ctx.beginPath();
-            ctx.moveTo(screenX - 4, screenY - 8);
-            ctx.lineTo(screenX - 7, screenY - 11);
-            ctx.lineTo(screenX - 3, screenY - 9);
-            ctx.moveTo(screenX + 4, screenY - 8);
-            ctx.lineTo(screenX + 7, screenY - 11);
-            ctx.lineTo(screenX + 3, screenY - 9);
+            ctx.moveTo(screenX - 4 + facingX, screenY - 8);
+            ctx.lineTo(screenX - 7 + facingX, screenY - 11);
+            ctx.lineTo(screenX - 3 + facingX, screenY - 9);
+            ctx.moveTo(screenX + 4 + facingX, screenY - 8);
+            ctx.lineTo(screenX + 7 + facingX, screenY - 11);
+            ctx.lineTo(screenX + 3 + facingX, screenY - 9);
             ctx.fill();
           }
 
@@ -1586,62 +1591,76 @@ export function renderStandardLevel(
         ctx.translate(-proj.x, -proj.y);
       }
 
-      // 4 Trotter Legs
+      const phase = animal.gaitPhase ?? 0;
+      const strideAmp = (!isSmashed && !isStunned) ? Math.min(4.5, (animal.speed || 0) * 0.65) : 0;
+      const legA = Math.sin(phase) * strideAmp * sc;
+      const legB = Math.sin(phase + Math.PI) * strideAmp * sc;
+      const bodyBounce = (!isSmashed && !isStunned) ? Math.abs(Math.sin(phase)) * (strideAmp * 0.45) * sc : 0;
+      const rootDip = animal.state === "rooting" && !isSmashed && !isStunned ? (2.8 + Math.sin(Date.now() * 0.012 + animal.id) * 1.4) * sc : 0;
+      const dirFlip = (animal.vx !== undefined && animal.vx > 0.35) ? -1 : 1;
+
+      if (dirFlip === -1) {
+        ctx.translate(proj.x, proj.y);
+        ctx.scale(-1, 1);
+        ctx.translate(-proj.x, -proj.y);
+      }
+
+      // 4 Animated Trotter Legs driven by actual kinetic gaitPhase
       ctx.fillStyle = "#1E1E1E"; // Hooves
-      ctx.fillRect(proj.x - 12 * sc, proj.y + 4 * sc, 4 * sc, 8 * sc);
-      ctx.fillRect(proj.x - 5 * sc, proj.y + 5 * sc, 4 * sc, 7 * sc);
-      ctx.fillRect(proj.x + 4 * sc, proj.y + 5 * sc, 4 * sc, 7 * sc);
-      ctx.fillRect(proj.x + 10 * sc, proj.y + 4 * sc, 4 * sc, 8 * sc);
+      ctx.fillRect(proj.x - 12 * sc + legA, proj.y + 4 * sc - Math.max(0, legA * 0.3), 4 * sc, 8 * sc);
+      ctx.fillRect(proj.x - 5 * sc + legB, proj.y + 5 * sc - Math.max(0, legB * 0.3), 4 * sc, 7 * sc);
+      ctx.fillRect(proj.x + 4 * sc + legA, proj.y + 5 * sc - Math.max(0, legA * 0.3), 4 * sc, 7 * sc);
+      ctx.fillRect(proj.x + 10 * sc + legB, proj.y + 4 * sc - Math.max(0, legB * 0.3), 4 * sc, 8 * sc);
 
       // Barrel Body
       ctx.fillStyle = baseCol;
       ctx.beginPath();
-      ctx.ellipse(proj.x, proj.y - 2 * sc, 18 * sc, 12 * sc, 0, 0, Math.PI * 2);
+      ctx.ellipse(proj.x, proj.y - 2 * sc - bodyBounce, 18 * sc, 12 * sc, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Bristle ridge along back
       ctx.fillStyle = secCol;
       ctx.beginPath();
-      ctx.moveTo(proj.x - 14 * sc, proj.y - 12 * sc);
-      ctx.lineTo(proj.x, proj.y - 15 * sc);
-      ctx.lineTo(proj.x + 12 * sc, proj.y - 12 * sc);
-      ctx.lineTo(proj.x + 12 * sc, proj.y - 8 * sc);
-      ctx.lineTo(proj.x - 14 * sc, proj.y - 8 * sc);
+      ctx.moveTo(proj.x - 14 * sc, proj.y - 12 * sc - bodyBounce);
+      ctx.lineTo(proj.x, proj.y - 15 * sc - bodyBounce);
+      ctx.lineTo(proj.x + 12 * sc, proj.y - 12 * sc - bodyBounce);
+      ctx.lineTo(proj.x + 12 * sc, proj.y - 8 * sc - bodyBounce);
+      ctx.lineTo(proj.x - 14 * sc, proj.y - 8 * sc - bodyBounce);
       ctx.fill();
 
       // Head & Snout (Rooting downward or forward)
       ctx.fillStyle = secCol;
       ctx.beginPath();
-      ctx.ellipse(proj.x - 14 * sc, proj.y + 1 * sc, 8 * sc, 7 * sc, 0, 0, Math.PI * 2);
+      ctx.ellipse(proj.x - 14 * sc, proj.y + 1 * sc - bodyBounce * 0.6 + rootDip, 8 * sc, 7 * sc, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Snout disc
       ctx.fillStyle = "#D48888";
       ctx.beginPath();
-      ctx.ellipse(proj.x - 20 * sc, proj.y + 3 * sc, 4 * sc, 3 * sc, 0, 0, Math.PI * 2);
+      ctx.ellipse(proj.x - 20 * sc, proj.y + 3 * sc - bodyBounce * 0.6 + rootDip * 1.15, 4 * sc, 3 * sc, 0, 0, Math.PI * 2);
       ctx.fill();
 
       // Nostrils
       ctx.fillStyle = "#5A2828";
       ctx.beginPath();
-      ctx.arc(proj.x - 21 * sc, proj.y + 3 * sc, 1 * sc, 0, Math.PI * 2);
-      ctx.arc(proj.x - 19 * sc, proj.y + 3 * sc, 1 * sc, 0, Math.PI * 2);
+      ctx.arc(proj.x - 21 * sc, proj.y + 3 * sc - bodyBounce * 0.6 + rootDip * 1.15, 1 * sc, 0, Math.PI * 2);
+      ctx.arc(proj.x - 19 * sc, proj.y + 3 * sc - bodyBounce * 0.6 + rootDip * 1.15, 1 * sc, 0, Math.PI * 2);
       ctx.fill();
 
       // Sharp ivory tusks for boars
       if (animal.gender === "Boar") {
         ctx.fillStyle = "#FFFDF5";
         ctx.beginPath();
-        ctx.moveTo(proj.x - 18 * sc, proj.y + 3 * sc);
-        ctx.lineTo(proj.x - 22 * sc, proj.y - 2 * sc);
-        ctx.lineTo(proj.x - 16 * sc, proj.y + 2 * sc);
+        ctx.moveTo(proj.x - 18 * sc, proj.y + 3 * sc - bodyBounce * 0.6 + rootDip);
+        ctx.lineTo(proj.x - 22 * sc, proj.y - 2 * sc - bodyBounce * 0.6 + rootDip);
+        ctx.lineTo(proj.x - 16 * sc, proj.y + 2 * sc - bodyBounce * 0.6 + rootDip);
         ctx.fill();
       }
 
       // Eye
       ctx.fillStyle = "#2B1B0E";
       ctx.beginPath();
-      ctx.arc(proj.x - 14 * sc, proj.y - 2 * sc, 2 * sc, 0, Math.PI * 2);
+      ctx.arc(proj.x - 14 * sc, proj.y - 2 * sc - bodyBounce * 0.6 + rootDip * 0.7, 2 * sc, 0, Math.PI * 2);
       ctx.fill();
 
       // Small curled tail

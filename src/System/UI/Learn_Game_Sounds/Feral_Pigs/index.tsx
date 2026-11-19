@@ -25,8 +25,18 @@ export const FeralPigsSoundsView: React.FC = () => {
         SoundService.playPigVocal("Boar", 0);
       } else if (sound.id === "sow_high_squeal") {
         SoundService.playPigVocal("Sow", 0);
+      } else if (sound.id === "feral_pig_walk") {
+        SoundService.playPigWalk();
       } else if (sound.id === "feral_pig_trot") {
         SoundService.playPigTrot();
+      } else if (sound.id === "feral_pig_gallop") {
+        SoundService.playPigGallop();
+      } else if (sound.id === "feral_pig_charge") {
+        SoundService.playPigCharge(1.0, "Boar");
+      } else if (sound.id === "feral_pig_forage_snuffle") {
+        SoundService.playPigBehaviorVocal("forage_snuffle", "Boar", 0, 0);
+      } else if (sound.id === "feral_pig_alert_chuff") {
+        SoundService.playPigBehaviorVocal("alert_chuff", "Boar", 0, 0);
       } else {
         SoundService.playPigVocal("Boar", 0);
       }
