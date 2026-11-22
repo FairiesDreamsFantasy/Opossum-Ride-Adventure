@@ -34,7 +34,7 @@ import { updateFoyerPhysics, updateWorld2CourtyardPhysics, updateStandardPhysics
 import { Spawner } from "../../Engine/Spawner";
 import { Input } from "../../Engine/Input";
 import { AudioEngine, Configurater, MeasurementEngine } from "../../Engine";
-import { SystemRegistry } from "../../Registry";
+import { SystemRegistry, SystemRegistryContractCSharp } from "../../Registry";
 import { DOMEngine } from "../../DOM";
 import { MelissaOpossum, AshleyOpossum, AmaraQinOpossum, SaffronRoseOpossum, JalissaChinOpossum, ArdenRosieOpossum, JahmellaRoseOpossum, DagmarKoneReynoldsOpossum } from "../../../Characters/Opossums";
 import { AIGeneratedOpossum } from "../../../Characters/Opossums/AI-Generated/Drawing";
@@ -72,7 +72,7 @@ export * from "./Mobile_Portrait_4_Phone";
 export * from "./Portrait_Orientation_4_Tablets";
 export * from "./Mobile_Landscape_4_Phones";
 
-import { DeltaTimerFilter, PhysicsBufferPool } from "../../Engine/Optimization";
+import { DeltaTimerFilter, PhysicsBufferPool, HardwareSpikeStabilizer } from "../../Engine/Optimization";
 
 import { MenuBar, ChalkboardColorConfig, DEFAULT_CHALKBOARD_CONFIG, QuiltedMenuBar, GardenMenuBar, ForestMenuBar, StorybookMenuBar, ImmersionLowMenuBar } from "../../Components/Menu_Bar";
 import { HUD } from "./Main/HUD";
@@ -1167,7 +1167,13 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
         stateRef.current.lastTime = timestamp;
       }
       const rawDelta = (timestamp - stateRef.current.lastTime) / 1000;
-      const delta = deltaFilterRef.current.smooth(rawDelta);
+      const sanitizedDelta = HardwareSpikeStabilizer.sanitizeDelta(rawDelta);
+      const frameInvariants = SystemRegistryContractCSharp.validateFrameAndAcousticInvariants(
+        sanitizedDelta,
+        stateRef.current.playerZ,
+        1.0
+      );
+      const delta = deltaFilterRef.current.smooth(frameInvariants.safeDeltaSec);
       stateRef.current.lastTime = timestamp;
 
       if (!stateRef.current.isGameOver && stateRef.current.isPlaying) {

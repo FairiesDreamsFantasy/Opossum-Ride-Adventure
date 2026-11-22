@@ -122,6 +122,29 @@ export class WebAssemblyCoreEngine {
   public writeMemory(address: number, val: number): void {
     this.memoryManager.writeFloat64(address, val);
   }
+
+  /**
+   * 9. IEEE 754 Float64 Subnormal Flush & Finite Guard
+   */
+  public stabilizeFloat64(value: number, fallback: number = 0): number {
+    this.cpuCycles += 3;
+    if (!Number.isFinite(value) || Math.abs(value) < 1e-18) {
+      return fallback;
+    }
+    return value;
+  }
+
+  /**
+   * 10. WebAssembly Polyphonic Soft-Limiter Gain Clamp
+   */
+  public computeDspSafetyGain(linearGain: number, ceiling: number = 0.985): number {
+    this.cpuCycles += 6;
+    const clean = this.stabilizeFloat64(linearGain, 0);
+    if (clean <= 0) return 0;
+    if (clean <= 0.72) return clean;
+    const headroom = Math.max(0.05, ceiling - 0.72);
+    return Math.min(ceiling, 0.72 + headroom * Math.tanh((clean - 0.72) / headroom));
+  }
 }
 
 // React context or component wrapper (as requested by React Guidelines for single source architecture)

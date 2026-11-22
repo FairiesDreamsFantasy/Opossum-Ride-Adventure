@@ -3,6 +3,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { ProceduralNoiseFields } from "./ProceduralNoiseFields";
+import { SurfaceBRDFCalculator } from "./SurfaceBRDFCalculator";
+
+export * from "./ProceduralNoiseFields";
+export * from "./SurfaceBRDFCalculator";
+
 /**
  * Texture Palette Definition
  * Manages material texture properties, bump mapping scales, and roughness coefficients.
@@ -37,5 +43,32 @@ export const TexturePalette = {
     bump: 0.25,
     roughness: 0.8,
     description: "Knotted grain of structural mahogany."
+  }
+};
+
+export type TextureMaterialKey = keyof typeof TexturePalette;
+
+export const TexturePalettePhysics = {
+  Noise: ProceduralNoiseFields,
+  BRDF: SurfaceBRDFCalculator,
+
+  evaluateMaterialShading: (
+    material: TextureMaterialKey,
+    u: number,
+    v: number,
+    nDotL: number,
+    nDotV: number,
+    nDotH: number
+  ): number => {
+    const spec = TexturePalette[material] ?? TexturePalette.stone;
+    const microDetail = ProceduralNoiseFields.fbm2D(u * 4, v * 4, 3);
+    const brdf = SurfaceBRDFCalculator.computeMicrofacetResponse(
+      nDotL,
+      nDotV,
+      nDotH,
+      spec.roughness,
+      spec.bump
+    );
+    return Math.max(0, Math.min(1, brdf * (0.85 + 0.3 * microDetail)));
   }
 };

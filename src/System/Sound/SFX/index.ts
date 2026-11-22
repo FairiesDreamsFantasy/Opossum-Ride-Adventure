@@ -29,6 +29,9 @@ import { FeralPigVocalSound } from "./Category/Feral_Pig/Vocals";
 import { FeralPigMovementSound, FeralPigSurfaceAcoustic } from "./Category/Feral_Pig/Movements";
 import { GoatVocalSound, GoatMovementSound } from "./Category/Goat";
 import { FlowersStarsDiamondsRainbowStoneDoorSound } from "./Door/Sliding_Door/Crafted/Flowers_Stars_Diamonds_and_Rainbow_Stone_Door_With_Carvings";
+import { AcousticStabilizer, SurfaceImpactResonance } from "../../Engine/Science/Acoustics";
+import { VoiceBudgetScheduler } from "../Engine/PolyphonicVoiceScheduler";
+import { SoundEngineStabilizer } from "../Engine/AudioGraphStabilizer";
 
 /**
  * Standard Sound Effects (SFX) Volume and Frequency Configuration profiles.
@@ -123,16 +126,21 @@ export class DedicatedSFXSynthesizer {
     const now = ctx.currentTime;
     this.pruneActiveVoices(now);
     if (this.activeSFXVoices.length >= 128) {
-      const oldest = this.activeSFXVoices.shift();
-      if (oldest) {
+      const victimIndex = VoiceBudgetScheduler.selectStealCandidateIndex(
+        this.activeSFXVoices.map((v) => ({ endTimeSec: v.endTime, priority: 1 }))
+      );
+      const removed = victimIndex >= 0
+        ? this.activeSFXVoices.splice(victimIndex, 1)[0]
+        : this.activeSFXVoices.shift();
+      if (removed) {
         try {
-          if ('stop' in oldest.source) {
-            oldest.source.stop();
+          if ("stop" in removed.source) {
+            removed.source.stop();
           }
         } catch (e) {}
-        try { oldest.source.disconnect(); } catch (e) {}
-        try { oldest.gainNode.disconnect(); } catch (e) {}
-        try { oldest.filterNode?.disconnect(); } catch (e) {}
+        try { removed.source.disconnect(); } catch (e) {}
+        try { removed.gainNode.disconnect(); } catch (e) {}
+        try { removed.filterNode?.disconnect(); } catch (e) {}
       }
     }
   }
@@ -150,11 +158,13 @@ export class DedicatedSFXSynthesizer {
     gain.connect(destination);
 
     osc.type = "sine";
-    // Standard high-def frequencies with double-precision schedule curves
-    osc.frequency.setValueAtTime(SFX_CONFIG.frequencies.tickStart, now);
-    osc.frequency.exponentialRampToValueAtTime(SFX_CONFIG.frequencies.tickEnd, now + 0.08);
+    // Standard high-def frequencies with double-precision schedule curves + Nyquist stabilization
+    const tickStartHz = SoundEngineStabilizer.clampFrequencyHz(SFX_CONFIG.frequencies.tickStart, ctx.sampleRate);
+    const tickEndHz = SoundEngineStabilizer.clampFrequencyHz(SFX_CONFIG.frequencies.tickEnd, ctx.sampleRate);
+    osc.frequency.setValueAtTime(tickStartHz, now);
+    osc.frequency.exponentialRampToValueAtTime(tickEndHz, now + 0.08);
 
-    gain.gain.setValueAtTime(SFX_CONFIG.volumes.tickChime, now);
+    gain.gain.setValueAtTime(SoundEngineStabilizer.clampAudioGain(SFX_CONFIG.volumes.tickChime), now);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.14);
 
     const endTime = now + 0.15;
@@ -383,10 +393,17 @@ export class DedicatedSFXSynthesizer {
     this.enforceVoiceLimit(ctx);
     const now = ctx.currentTime;
     
-    // Resolve profile from registry
-    const lowerType = surfaceType.toLowerCase();
+    // Resolve profile from registry & SurfaceImpactResonance scientific baseline
+    const lowerType = (surfaceType || "soil").toLowerCase();
     const profileKey = Object.keys(SURFACE_PROFILES).find(key => lowerType.includes(key)) || "default";
     const profile = SURFACE_PROFILES[profileKey];
+    const scientificResonance = SurfaceImpactResonance.getProfile(surfaceType);
+    const thudFreq = AcousticStabilizer.clampNyquistFrequency(profile.thudFreq || scientificResonance.fundamentalFreqHz, ctx.sampleRate);
+    const crunchFreq = AcousticStabilizer.clampNyquistFrequency(profile.freq || scientificResonance.transientFreqHz, ctx.sampleRate);
+    const filterQ = AcousticStabilizer.clampFinite(profile.q || scientificResonance.qFactor, 0.25, 24.0, 2.0);
+    const activeVoices = Math.max(1, this.activeSFXVoices.length);
+    const thudGain = AcousticStabilizer.normalizePolyphonicGain(SFX_CONFIG.volumes.footstepSoil * profile.gain, activeVoices);
+    const crunchGainVal = AcousticStabilizer.normalizePolyphonicGain(SFX_CONFIG.volumes.footstepGravel * profile.gain, activeVoices);
 
     // Bass thud
     const drumOsc = ctx.createOscillator();
@@ -395,10 +412,10 @@ export class DedicatedSFXSynthesizer {
     drumGain.connect(destination);
 
     drumOsc.type = "triangle";
-    drumOsc.frequency.setValueAtTime(profile.thudFreq, now);
-    drumOsc.frequency.exponentialRampToValueAtTime(profile.thudFreq * 0.125, now + 0.12);
+    drumOsc.frequency.setValueAtTime(thudFreq, now);
+    drumOsc.frequency.exponentialRampToValueAtTime(Math.max(20, thudFreq * 0.125), now + 0.12);
 
-    drumGain.gain.setValueAtTime(SFX_CONFIG.volumes.footstepSoil * profile.gain, now);
+    drumGain.gain.setValueAtTime(thudGain, now);
     drumGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
 
     const drumEndTime = now + 0.13;
@@ -425,11 +442,11 @@ export class DedicatedSFXSynthesizer {
 
     const filter = ctx.createBiquadFilter();
     filter.type = "bandpass";
-    filter.frequency.setValueAtTime(profile.freq, now);
-    filter.Q.setValueAtTime(profile.q, now);
+    filter.frequency.setValueAtTime(crunchFreq, now);
+    filter.Q.setValueAtTime(filterQ, now);
 
     const crunchGain = ctx.createGain();
-    crunchGain.gain.setValueAtTime(SFX_CONFIG.volumes.footstepGravel * profile.gain, now);
+    crunchGain.gain.setValueAtTime(crunchGainVal, now);
     crunchGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
 
     noise.connect(filter);

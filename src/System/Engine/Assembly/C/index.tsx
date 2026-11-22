@@ -99,6 +99,31 @@ export class NativeCEngine {
   public executeCSharpLerp(start: number, end: number, step: number): number {
     return start + (end - start) * Math.max(0.0, Math.min(1.0, step));
   }
+
+  /**
+   * C-Style Finite Float64 Sanitizer & Clamp Guard.
+   * Prevents NaN/Infinity propagation inside virtual heap pointer math.
+   */
+  public sanitizeFloat64Bounds(value: number, minVal: number, maxVal: number, fallback: number = 0): number {
+    if (!Number.isFinite(value)) return fallback;
+    if (value < minVal) return minVal;
+    if (value > maxVal) return maxVal;
+    return Math.abs(value) < 1e-18 ? 0 : value;
+  }
+
+  /**
+   * C-Style Deterministic Fletcher-16 Integrity Checksum over float telemetry tuples.
+   */
+  public computeTelemetryChecksum16(values: readonly number[]): number {
+    let sum1 = 0;
+    let sum2 = 0;
+    for (let i = 0; i < values.length; i++) {
+      const scaled = Math.abs(Math.round(this.sanitizeFloat64Bounds(values[i], -1e6, 1e6, 0) * 100)) & 0xff;
+      sum1 = (sum1 + scaled) % 255;
+      sum2 = (sum2 + sum1) % 255;
+    }
+    return (sum2 << 8) | sum1;
+  }
 }
 
 export const NativeCEngineComponent: React.FC = () => {

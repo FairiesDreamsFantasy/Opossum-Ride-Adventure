@@ -11,6 +11,7 @@ export * from "./Animations/Dot_Matrix";
 export * from "./Animations/Geometry";
 export * from "./Animations/Hybrid_Mixer_Layers";
 export * from "./Pixelations";
+export * from "./Animations/Color_Palette";
 export * from "./Text";
 export * from "./Grayscale";
 export * from "./Colors";
@@ -30,6 +31,9 @@ export * from "./Engine";
 export * from "./Mobile";
 
 import { VISUAL_CONSTANTS } from "./General";
+import { DownsampleBlockSolver } from "./Pixelations/DownsampleBlockSolver";
+import { LuminanceWeightsKernel } from "./Animations/Color_Palette/Monochrome/LuminanceWeightsKernel";
+import { SpatialStabilizer3D } from "./Animations/3-D/SpatialStabilizer3D";
 
 /**
  * Visual Display Configuration & Retro Filters System
@@ -66,28 +70,7 @@ export class VisualRenderingFilterEngine {
 
       // 1. Optional Pixelation (Downsample block size)
       if (settings.pixelationBlockSize > 1) {
-        const blockSize = settings.pixelationBlockSize;
-        for (let y = 0; y < height; y += blockSize) {
-          for (let x = 0; x < width; x += blockSize) {
-            // Find starting index of block
-            const idx = (y * width + x) * 4;
-            const r = data[idx];
-            const g = data[idx + 1];
-            const b = data[idx + 2];
-            const a = data[idx + 3];
-
-            // Fill all pixels in block with first pixel's color
-            for (let by = 0; by < blockSize && y + by < height; by++) {
-              for (let bx = 0; bx < blockSize && x + bx < width; bx++) {
-                const bIdx = ((y + by) * width + (x + bx)) * 4;
-                data[bIdx] = r;
-                data[bIdx + 1] = g;
-                data[bIdx + 2] = b;
-                data[bIdx + 3] = a;
-              }
-            }
-          }
-        }
+        DownsampleBlockSolver.applyBlockMosaicRGBA(data, width, height, settings.pixelationBlockSize);
       }
 
       // 2. Color Palette filters
@@ -98,7 +81,7 @@ export class VisualRenderingFilterEngine {
           const b = data[i + 2];
 
           // Compute grayscale luminance
-          const gray = VISUAL_CONSTANTS.LUMINANCE.R * r + VISUAL_CONSTANTS.LUMINANCE.G * g + VISUAL_CONSTANTS.LUMINANCE.B * b;
+          const gray = LuminanceWeightsKernel.computeRec601Luminance(r, g, b);
 
           if (settings.palette === "grayscale") {
             data[i] = gray;
@@ -151,21 +134,26 @@ export class VisualRenderingFilterEngine {
     height: number,
     horizonY: number
   ) {
-    const relZ = wz - cameraZ;
+    const safeWz = SpatialStabilizer3D.sanitizeFinite(wz, 0);
+    const safeCamZ = SpatialStabilizer3D.sanitizeFinite(cameraZ, 0);
+    const relZ = safeWz - safeCamZ;
     if (relZ <= VISUAL_CONSTANTS.CAMERA.MIN_Z) {
       return { x: 0, y: 0, visible: false, scale: 0 };
     }
 
-    const scale = focalLength / relZ;
-    const px = width / 2 + (wx - cameraX) * scale;
-    const py = horizonY + (cameraY - wy) * scale;
+    const safeFocal = Math.max(1, SpatialStabilizer3D.sanitizeFinite(focalLength, 250));
+    const safeWidth = Math.max(1, SpatialStabilizer3D.sanitizeFinite(width, 640));
+    const safeHorizonY = SpatialStabilizer3D.sanitizeFinite(horizonY, 180);
+    const scale = safeFocal / relZ;
+    const px = safeWidth / 2 + (SpatialStabilizer3D.sanitizeFinite(wx, 0) - SpatialStabilizer3D.sanitizeFinite(cameraX, 0)) * scale;
+    const py = safeHorizonY + (SpatialStabilizer3D.sanitizeFinite(cameraY, 0) - SpatialStabilizer3D.sanitizeFinite(wy, 0)) * scale;
 
     const clip = VISUAL_CONSTANTS.CAMERA.CLIP_OFFSET;
     return {
-      x: px,
-      y: py,
-      visible: px >= -clip && px <= width + clip && py >= -clip && py <= height + clip,
-      scale
+      x: SpatialStabilizer3D.flushDenormal(px),
+      y: SpatialStabilizer3D.flushDenormal(py),
+      visible: Number.isFinite(px) && Number.isFinite(py) && px >= -clip && px <= width + clip && py >= -clip && py <= height + clip,
+      scale: SpatialStabilizer3D.flushDenormal(scale)
     };
   }
 }

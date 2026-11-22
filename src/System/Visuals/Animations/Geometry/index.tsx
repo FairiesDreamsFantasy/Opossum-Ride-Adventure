@@ -1,4 +1,11 @@
 import React from "react";
+import { GeometryVectorMath2D } from "./GeometryVectorMath2D";
+import { GeometryCurveEvaluator } from "./GeometryCurveEvaluator";
+import { GeometryCollisionShapes } from "./GeometryCollisionShapes";
+
+export * from "./GeometryVectorMath2D";
+export * from "./GeometryCurveEvaluator";
+export * from "./GeometryCollisionShapes";
 
 /**
  * Geometry Animation Module
@@ -6,18 +13,18 @@ import React from "react";
  * coordinate space utilities.
  */
 export const GeometrySystem = {
+  Vectors: GeometryVectorMath2D,
+  Curves: GeometryCurveEvaluator,
+  Shapes: GeometryCollisionShapes,
+
   distance: (x1: number, y1: number, x2: number, y2: number) => {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    return GeometryVectorMath2D.distance(x1, y1, x2, y2);
   },
   
-  toRad: (deg: number) => (deg * Math.PI) / 180,
+  toRad: (deg: number) => GeometryCurveEvaluator.toRadians(deg),
   
   getPointOnCircle: (radius: number, angleDeg: number, centerX: number, centerY: number) => {
-    const rad = (angleDeg * Math.PI) / 180;
-    return {
-      x: centerX + radius * Math.cos(rad),
-      y: centerY + radius * Math.sin(rad)
-    };
+    return GeometryCurveEvaluator.pointOnCircle(radius, angleDeg, centerX, centerY);
   }
 };
 
@@ -34,10 +41,10 @@ export const Rect: React.FC<{
       className="system-geo-rect"
       style={{
         position: "absolute",
-        left: x,
-        top: y,
-        width,
-        height,
+        left: Number.isFinite(x) ? x : 0,
+        top: Number.isFinite(y) ? y : 0,
+        width: Math.max(0, Number.isFinite(width) ? width : 0),
+        height: Math.max(0, Number.isFinite(height) ? height : 0),
         backgroundColor: fill,
         border: stroke !== "none" ? `1px solid ${stroke}` : "none"
       }}

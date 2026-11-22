@@ -61,6 +61,12 @@ import { TTS_DSP_Logic } from "./TTS/DSP";
 import { TTS_Master_Volume_Control_Logic } from "./TTS/Master_Volume_Control";
 import { GeminiSoundCPPDSP } from "./C_Plus_Plus";
 import { GeminiSoundRustBuffer } from "./Rust";
+import {
+  AcousticsEngine,
+  AcousticStabilizer,
+  RoomReverbAcoustics,
+  ArenaRoomAcousticSpec
+} from "../Engine/Science/Acoustics";
 
 /**
  * Master Procedural Sound System v4.0
@@ -102,6 +108,8 @@ export class ProceduralSoundSystem {
   // Subsystems
   public sfx = new DedicatedSFXSynthesizer();
   public synth = new OpossumSynthesizer();
+  public acoustics = AcousticsEngine;
+  private currentArenaAcousticSpec: ArenaRoomAcousticSpec = RoomReverbAcoustics.resolveArenaSpec("garden");
   
   // Audio Graph Nodes
   private masterGain: GainNode | null = null;
@@ -140,28 +148,28 @@ export class ProceduralSoundSystem {
    * Dynamic Volume Control Setters
    */
   public setMasterVolume(vol: number) {
-    this.currentMasterVolume = Math.max(0, Math.min(2, vol));
+    this.currentMasterVolume = AcousticStabilizer.clampFinite(vol, 0, 2, this.currentMasterVolume);
     if (this.ctx && this.masterGain) {
       this.masterGain.gain.setTargetAtTime(1.6698 * this.currentMasterVolume, this.ctx.currentTime, 0.05);
     }
   }
 
   public setBGMVolume(vol: number) {
-    this.currentBGMVolume = Math.max(0, Math.min(2, vol));
+    this.currentBGMVolume = AcousticStabilizer.clampFinite(vol, 0, 2, this.currentBGMVolume);
     if (this.ctx && this.bgmGain) {
       this.bgmGain.gain.setTargetAtTime(this.currentBGMVolume, this.ctx.currentTime, 0.05);
     }
   }
 
   public setSFXVolume(vol: number) {
-    this.currentSFXVolume = Math.max(0, Math.min(2, vol));
+    this.currentSFXVolume = AcousticStabilizer.clampFinite(vol, 0, 2, this.currentSFXVolume);
     if (this.ctx && this.sfxGain) {
       this.sfxGain.gain.setTargetAtTime(this.currentSFXVolume, this.ctx.currentTime, 0.05);
     }
   }
 
   public setAmbientVolume(vol: number) {
-    this.currentAmbientVolume = Math.max(0, Math.min(2, vol));
+    this.currentAmbientVolume = AcousticStabilizer.clampFinite(vol, 0, 2, this.currentAmbientVolume);
     if (this.ctx && this.ambientGain) {
       this.ambientGain.gain.setTargetAtTime(this.currentAmbientVolume, this.ctx.currentTime, 0.05);
     }
@@ -174,9 +182,14 @@ export class ProceduralSoundSystem {
    */
   public updateMovementAmbient(speedRatio: number, isMoving: boolean = true) {
     if (!this.ctx || !this.ambientGain) return;
-    const boost = isMoving ? 1.0 + Math.min(0.35, Math.abs(speedRatio) * 0.25) : 1.0;
-    const targetVol = this.currentAmbientVolume * boost;
+    const safeRatio = AcousticStabilizer.sanitizeFinite(speedRatio, 0);
+    const boost = isMoving ? 1.0 + Math.min(0.35, Math.abs(safeRatio) * 0.25) : 1.0;
+    const targetVol = AcousticStabilizer.clampFinite(this.currentAmbientVolume * boost, 0, 2.75, this.currentAmbientVolume);
     this.ambientGain.gain.setTargetAtTime(targetVol, this.ctx.currentTime, 0.1);
+  }
+
+  public getActiveAcousticSpec(): ArenaRoomAcousticSpec {
+    return this.currentArenaAcousticSpec;
   }
 
   public getVolumeSettings() {
@@ -329,10 +342,11 @@ export class ProceduralSoundSystem {
    */
   public getSharedDestination(ctx: AudioContext, wetness: number = 0.3675): AudioNode {
     this.initAudioGraph(ctx);
+    const safeWetness = AcousticStabilizer.clampFinite(wetness, 0.0, 1.0, 0.3675);
     
     if (this.drySubmix && this.wetSubmix && this.sharedSubmixInput) {
-      this.drySubmix.gain.setTargetAtTime(1.0 - wetness, ctx.currentTime, 0.05);
-      this.wetSubmix.gain.setTargetAtTime(wetness, ctx.currentTime, 0.05);
+      this.drySubmix.gain.setTargetAtTime(1.0 - safeWetness, ctx.currentTime, 0.05);
+      this.wetSubmix.gain.setTargetAtTime(safeWetness, ctx.currentTime, 0.05);
       return this.sharedSubmixInput;
     }
     
@@ -344,6 +358,7 @@ export class ProceduralSoundSystem {
     if (this.placeId === id && this.isAIGenerated === autoAIGen) return;
     this.placeId = id;
     this.isAIGenerated = autoAIGen;
+    this.currentArenaAcousticSpec = RoomReverbAcoustics.resolveArenaSpec(id);
     console.log(`Sound System: Environment Shift to ${id}${autoAIGen ? " (AI Generated)" : ""}.`);
 
     const bgmProfile = PlaceResolver.getBGMProfile(id);

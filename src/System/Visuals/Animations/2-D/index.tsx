@@ -1,4 +1,11 @@
 import React from "react";
+import { TwoDTransformKernel } from "./TwoDTransformKernel";
+import { TwoDSpriteSequencer } from "./TwoDSpriteSequencer";
+import { TwoDEasingCurves } from "./TwoDEasingCurves";
+
+export * from "./TwoDTransformKernel";
+export * from "./TwoDSpriteSequencer";
+export * from "./TwoDEasingCurves";
 
 /**
  * 2-D Animation Module
@@ -6,16 +13,22 @@ import React from "react";
  * layer positioning.
  */
 export const TwoDAnimationSystem = {
+  Transform: TwoDTransformKernel,
+  Sequencer: TwoDSpriteSequencer,
+  Easing: TwoDEasingCurves,
+
   calculateParallax: (offset: number, speed: number) => {
-    return offset * speed;
+    const cleanOffset = TwoDTransformKernel.sanitizeFinite(offset, 0);
+    const cleanSpeed = TwoDTransformKernel.sanitizeFinite(speed, 1);
+    return cleanOffset * cleanSpeed;
   },
   
   lerp: (start: number, end: number, t: number) => {
-    return start * (1 - t) + end * t;
+    return TwoDEasingCurves.lerp(start, end, t);
   },
 
   calculateFrameOffset: (frame: number, width: number, sx: number) => {
-    return sx + frame * width;
+    return TwoDSpriteSequencer.computeFrameOffset(frame, width, sx);
   }
 };
 

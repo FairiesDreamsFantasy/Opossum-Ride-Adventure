@@ -1,40 +1,47 @@
 import React from "react";
+import { SpatialStabilizer3D, VertexFloat64Pool } from "./SpatialStabilizer3D";
+import { QuaternionKinematics3D } from "./QuaternionKinematics3D";
+import { PerspectiveFrustumProjection } from "./PerspectiveFrustumProjection";
+import { SkeletalGaitKinematics3D } from "./SkeletalGaitKinematics3D";
+import { SurfaceNormalLighting3D } from "./SurfaceNormalLighting3D";
+import { BoundingVolumeCulling3D } from "./BoundingVolumeCulling3D";
+
+export * from "./SpatialStabilizer3D";
+export * from "./QuaternionKinematics3D";
+export * from "./PerspectiveFrustumProjection";
+export * from "./SkeletalGaitKinematics3D";
+export * from "./SurfaceNormalLighting3D";
+export * from "./BoundingVolumeCulling3D";
 
 /**
  * 3-D Animation Module
- * Handles spatial transformations, perspective projections, and 3-axis rotations
- * for high-fidelity depth simulation.
+ * Handles spatial transformations, perspective projections, quaternion rotations,
+ * skeletal gait kinematics, surface normals, and frustum culling.
  */
 export const ThreeDAnimationSystem = {
+  Stabilizer: SpatialStabilizer3D,
+  VertexPool: VertexFloat64Pool,
+  Quaternion: QuaternionKinematics3D,
+  Projection: PerspectiveFrustumProjection,
+  SkeletalGait: SkeletalGaitKinematics3D,
+  Lighting: SurfaceNormalLighting3D,
+  Culling: BoundingVolumeCulling3D,
+
   calculatePerspective: (z: number, fov: number = 250) => {
-    return fov / (fov + z);
+    return PerspectiveFrustumProjection.calculatePerspectiveScale(z, fov);
   },
   
-  applyRotation: (x: number, y: number, z: number, angleX: number, angleY: number) => {
-    // Rotation logic for X and Y axes
-    const cosX = Math.cos(angleX);
-    const sinX = Math.sin(angleX);
-    const cosY = Math.cos(angleY);
-    const sinY = Math.sin(angleY);
-
-    // Y-axis rotation
-    let tx = x * cosY - z * sinY;
-    let tz = x * sinY + z * cosY;
-
-    // X-axis rotation
-    let ty = y * cosX - tz * sinX;
-    tz = y * sinX + tz * cosX;
-
-    return { x: tx, y: ty, z: tz };
+  applyRotation: (x: number, y: number, z: number, angleX: number, angleY: number, angleZ: number = 0) => {
+    const q = QuaternionKinematics3D.fromEulerYXZ(angleX, angleY, angleZ);
+    return QuaternionKinematics3D.rotatePoint(q, { x, y, z });
   },
 
   project3DPoint: (x: number, y: number, z: number, angleX: number, angleY: number, fov: number = 250) => {
-    const rotated = ThreeDAnimationSystem.applyRotation(x, y, z, angleX, angleY);
-    const scale = ThreeDAnimationSystem.calculatePerspective(rotated.z, fov);
+    const projected = PerspectiveFrustumProjection.projectPoint(x, y, z, angleX, angleY, fov);
     return {
-      x: rotated.x * scale,
-      y: rotated.y * scale,
-      scale
+      x: projected.x,
+      y: projected.y,
+      scale: projected.scale
     };
   }
 };

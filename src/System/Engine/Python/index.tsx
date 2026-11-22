@@ -91,6 +91,31 @@ export class ScientificPythonEngine {
   public pythonInterp1D(xVal: number, scalePoints: number[], valuePoints: number[]): number {
     return numpyInterp(xVal, scalePoints, valuePoints);
   }
+
+  /**
+   * SciPy-style Trimmed-Mean Outlier Stabilizer for frame delta / acoustic telemetry windows.
+   */
+  public stabilizeDeltaSeries(samples: readonly number[], maxDeltaSec: number = 0.05): number {
+    if (!samples.length) return 0.016667;
+    const clean: number[] = [];
+    for (let i = 0; i < samples.length; i++) {
+      const s = samples[i];
+      if (Number.isFinite(s) && s > 0) {
+        clean.push(Math.min(maxDeltaSec, s));
+      }
+    }
+    if (!clean.length) return 0.016667;
+    clean.sort((a, b) => a - b);
+    if (clean.length <= 2) {
+      return clean.reduce((acc, v) => acc + v, 0) / clean.length;
+    }
+    // Trim extreme low & high jitter sample
+    let sum = 0;
+    for (let i = 1; i < clean.length - 1; i++) {
+      sum += clean[i];
+    }
+    return sum / (clean.length - 2);
+  }
 }
 
 export const ScientificPythonEngineComponent: React.FC = () => {

@@ -19,6 +19,7 @@ export * from "./Category/Animal";
 export * from "./Category/TTS";
 export * from "./Category/Accessibility";
 export * from "./Category/Utilities";
+export * from "./Category/Visuals";
 export * from "./Moose_and_Monkeys_Not_Included_In_the_Garden";
 export * from "./General";
 export * from "./Engine";

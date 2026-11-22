@@ -20,6 +20,19 @@ import { DifferentialEquationsEngine } from "./Differential_Equations";
 import { Vector3Engine } from "./Vector3";
 import { Matrix4x4Engine } from "./Matrix4x4";
 import { CollisionEngine } from "./Collision";
+import { MathStabilizer } from "./NumericalStabilizer";
+import { QuaternionKinematicsSolver } from "./QuaternionKinematics";
+import { Matrix4x4Float64 } from "./MatrixTransformSolver";
+import { NumericalIntegratorKernel } from "./NumericalIntegrators";
+import { SplineInterpolationSolver } from "./InterpolationSplines";
+import { RobustStatisticsSolver } from "./StatisticalRobustness";
+
+export * from "./NumericalStabilizer";
+export * from "./QuaternionKinematics";
+export * from "./MatrixTransformSolver";
+export * from "./NumericalIntegrators";
+export * from "./InterpolationSplines";
+export * from "./StatisticalRobustness";
 
 /**
  * Opossum Ride Adventure - Master Mathematics Engine
@@ -49,6 +62,12 @@ export class MathematicsEngine {
   public static vector3 = Vector3Engine;
   public static matrix4x4 = Matrix4x4Engine;
   public static collision = CollisionEngine;
+  public static stabilizer = MathStabilizer;
+  public static quaternionSolver = QuaternionKinematicsSolver;
+  public static matrixFloat64 = Matrix4x4Float64;
+  public static integrators = NumericalIntegratorKernel;
+  public static splines = SplineInterpolationSolver;
+  public static robustStats = RobustStatisticsSolver;
 
   public static getGeneralConfig(): MathGeneralConfig {
     return MathematicsGeneral;

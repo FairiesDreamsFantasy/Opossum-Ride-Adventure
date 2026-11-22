@@ -13,3 +13,4 @@
 4. **Anti-Shadow File Invariant**: Never introduce duplicate extension stems (e.g., creating a rogue `index.tsx` alongside an authentic `index.ts`, or duplicate module stems) that shadow genuine source implementations through compiler resolution precedence.
 5. **Preserve Audio & Mathematical Logic**: All Web Audio API synthesizers, physics constants, coordinate geometry, and screen reader accessibility controls must remain intact with 100% fidelity.
 6. **Sacred Build Infrastructure & Plugin Protection**: All build plugins (@tailwindcss/vite, @vitejs/plugin-react, tailwindcss, vite) and configuration modules must remain strictly mounted and defended against automated removal or omission.
+7. **Protected Modular Flat Files**: Never delete or stub `AudioGraphStabilizer.ts`, `EnvelopeDynamicsProcessor.ts`, `BiquadFilterDesigner.ts`, `HarmonicOscillatorBank.ts`, `SpectralMeteringAnalyzer.ts`, or `PolyphonicVoiceScheduler.ts`.

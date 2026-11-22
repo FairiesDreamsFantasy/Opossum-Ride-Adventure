@@ -1,4 +1,11 @@
 import React from "react";
+import { PolygonTessellationKernel } from "./PolygonTessellationKernel";
+import { PolygonTransformPipeline } from "./PolygonTransformPipeline";
+import { PolygonDeformationSolver } from "./PolygonDeformationSolver";
+
+export * from "./PolygonTessellationKernel";
+export * from "./PolygonTransformPipeline";
+export * from "./PolygonDeformationSolver";
 
 /**
  * Polygons Animation Module
@@ -11,13 +18,21 @@ export interface Point {
 }
 
 export const PolygonSystem = {
+  Tessellation: PolygonTessellationKernel,
+  Transform: PolygonTransformPipeline,
+  Deformation: PolygonDeformationSolver,
+
   createRegularPolygon: (sides: number, radius: number, centerX: number, centerY: number): Point[] => {
+    const safeSides = Math.max(3, Math.floor(Number.isFinite(sides) ? sides : 3));
+    const safeRadius = Number.isFinite(radius) ? radius : 0;
+    const safeCx = Number.isFinite(centerX) ? centerX : 0;
+    const safeCy = Number.isFinite(centerY) ? centerY : 0;
     const points: Point[] = [];
-    for (let i = 0; i < sides; i++) {
-      const angle = (i * 2 * Math.PI) / sides;
+    for (let i = 0; i < safeSides; i++) {
+      const angle = (i * 2 * Math.PI) / safeSides;
       points.push({
-        x: centerX + radius * Math.cos(angle),
-        y: centerY + radius * Math.sin(angle)
+        x: safeCx + safeRadius * Math.cos(angle),
+        y: safeCy + safeRadius * Math.sin(angle)
       });
     }
     return points;
@@ -29,20 +44,25 @@ export const PolygonSystem = {
  */
 export const PolygonShapeRegistry = {
   star: (cx: number, cy: number, spikes: number = 5, outerRadius: number = 12, innerRadius: number = 5): Point[] => {
+    const safeSpikes = Math.max(2, Math.floor(Number.isFinite(spikes) ? spikes : 5));
+    const safeCx = Number.isFinite(cx) ? cx : 0;
+    const safeCy = Number.isFinite(cy) ? cy : 0;
+    const safeOuter = Number.isFinite(outerRadius) ? outerRadius : 12;
+    const safeInner = Number.isFinite(innerRadius) ? innerRadius : 5;
     const points: Point[] = [];
     let rot = (Math.PI / 2) * 3;
-    const step = Math.PI / spikes;
+    const step = Math.PI / safeSpikes;
 
-    for (let i = 0; i < spikes; i++) {
+    for (let i = 0; i < safeSpikes; i++) {
       points.push({
-        x: cx + Math.cos(rot) * outerRadius,
-        y: cy + Math.sin(rot) * outerRadius
+        x: safeCx + Math.cos(rot) * safeOuter,
+        y: safeCy + Math.sin(rot) * safeOuter
       });
       rot += step;
 
       points.push({
-        x: cx + Math.cos(rot) * innerRadius,
-        y: cy + Math.sin(rot) * innerRadius
+        x: safeCx + Math.cos(rot) * safeInner,
+        y: safeCy + Math.sin(rot) * safeInner
       });
       rot += step;
     }
@@ -50,11 +70,15 @@ export const PolygonShapeRegistry = {
   },
   
   diamond: (cx: number, cy: number, w: number = 16, h: number = 24): Point[] => {
+    const safeCx = Number.isFinite(cx) ? cx : 0;
+    const safeCy = Number.isFinite(cy) ? cy : 0;
+    const safeW = Number.isFinite(w) ? w : 16;
+    const safeH = Number.isFinite(h) ? h : 24;
     return [
-      { x: cx, y: cy - h / 2 },
-      { x: cx + w / 2, y: cy },
-      { x: cx, y: cy + h / 2 },
-      { x: cx - w / 2, y: cy }
+      { x: safeCx, y: safeCy - safeH / 2 },
+      { x: safeCx + safeW / 2, y: safeCy },
+      { x: safeCx, y: safeCy + safeH / 2 },
+      { x: safeCx - safeW / 2, y: safeCy }
     ];
   }
 };
@@ -65,9 +89,7 @@ export const PolygonRenderer: React.FC<{
   stroke?: string;
   strokeWidth?: number;
 }> = ({ points, fill = "transparent", stroke = "currentColor", strokeWidth = 1 }) => {
-  const pathData = points.length > 0 
-    ? `M ${points[0].x} ${points[0].y} ` + points.slice(1).map(p => `L ${p.x} ${p.y}`).join(" ") + " Z"
-    : "";
+  const pathData = PolygonTransformPipeline.toSvgPath(points);
 
   return (
     <svg className="system-polygon-svg" width="100%" height="100%" style={{ position: "absolute", inset: 0 }}>

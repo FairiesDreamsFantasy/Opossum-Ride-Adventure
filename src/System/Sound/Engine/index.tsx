@@ -16,9 +16,28 @@ import { XMLSoundMixGraphParser } from "./XML";
 import { CSVSoundTableParser } from "./CSV";
 import { SwiftAudioEngineBridge } from "./Swift";
 import { Holophonic4DEngine } from "./Holophonic_4D";
+import {
+  AcousticsEngine,
+  AcousticStabilizer,
+  WavePropagationPhysics,
+  RoomReverbAcoustics,
+  SpatialBinauralSolver
+} from "../../Engine/Science/Acoustics";
+import { SoundEngineStabilizer } from "./AudioGraphStabilizer";
+import { EnvelopeDynamicsKernel } from "./EnvelopeDynamicsProcessor";
+import { BiquadFilterKernel } from "./BiquadFilterDesigner";
+import { HarmonicSynthesisKernel } from "./HarmonicOscillatorBank";
+import { SpectralMeteringKernel } from "./SpectralMeteringAnalyzer";
+import { VoiceBudgetScheduler } from "./PolyphonicVoiceScheduler";
 
 export { SoundEngineGeneral } from "./General";
 export * from "./DSP";
+export * from "./AudioGraphStabilizer";
+export * from "./EnvelopeDynamicsProcessor";
+export * from "./BiquadFilterDesigner";
+export * from "./HarmonicOscillatorBank";
+export * from "./SpectralMeteringAnalyzer";
+export * from "./PolyphonicVoiceScheduler";
 export * from "./Assembly";
 export * from "./Python";
 export * from "./Cotlin";
@@ -49,18 +68,20 @@ class SoundEngineSubsystem {
   public readonly CSV = CSVSoundTableParser;
   public readonly Swift = SwiftAudioEngineBridge;
   public readonly Holophonic4D = Holophonic4DEngine;
+  public readonly Acoustics = AcousticsEngine;
+  public readonly Stabilizer = SoundEngineStabilizer;
+  public readonly Envelope = EnvelopeDynamicsKernel;
+  public readonly Biquad = BiquadFilterKernel;
+  public readonly Harmonics = HarmonicSynthesisKernel;
+  public readonly SpectralMeter = SpectralMeteringKernel;
+  public readonly VoiceScheduler = VoiceBudgetScheduler;
 
   /**
    * Calculates stereo panning gains [leftGain, rightGain] based on 2D space angle or relative X coordinate.
    * X coordinate maps from -1 (fully left) to +1 (fully right).
    */
   public calculateStereoPanning(relativeX: number): [number, number] {
-    const xClamped = Math.max(-1, Math.min(1, relativeX));
-    // Constant power panning algorithm: left^2 + right^2 = 1
-    const angleRad = ((xClamped + 1) * Math.PI) / 4;
-    const leftGain = Math.cos(angleRad);
-    const rightGain = Math.sin(angleRad);
-    
+    const [leftGain, rightGain] = SpatialBinauralSolver.computeEqualPowerPan(relativeX);
     return [
       parseFloat(leftGain.toFixed(4)),
       parseFloat(rightGain.toFixed(4))
@@ -85,12 +106,17 @@ export class HighPrecisionSoundEngine {
     listenerVel: number, // velocity of player relative to emitter (positive is towards)
     sourceVel: number // velocity of emitter relative to player (positive is away)
   ): number {
-    const numerator = speedOfSound + listenerVel;
-    const denominator = speedOfSound + sourceVel;
+    if (Math.abs(speedOfSound - 343.0) < 0.6) {
+      return WavePropagationPhysics.calculateDopplerRatio(sourceVel, listenerVel);
+    }
+    const safeC = AcousticStabilizer.clampFinite(speedOfSound, 100.0, 2000.0, 343.0);
+    const safeListener = AcousticStabilizer.clampFinite(listenerVel, -250.0, 250.0, 0);
+    const safeSource = AcousticStabilizer.clampFinite(sourceVel, -250.0, 250.0, 0);
+    const denominator = safeC + safeSource;
     if (denominator <= 0.0001) {
       return 1.0;
     }
-    return Math.max(0.25, Math.min(4.0, numerator / denominator));
+    return AcousticStabilizer.clampFinite((safeC + safeListener) / denominator, 0.25, 4.0, 1.0);
   }
 
   /**
@@ -103,15 +129,15 @@ export class HighPrecisionSoundEngine {
     time: number,
     formantOffset: number = 0.0
   ): number {
-    // FM synthesis core: sin(2 * PI * f * t + I * sin(2 * PI * f_m * t))
-    const modulatorFreq = 35.0; // Hz
-    const modulationIndex = 2.5;
-    const instantaneousFreq = baseFreq + sweepRate * time + formantOffset;
-    
-    const carrier = Math.sin(2.0 * Math.PI * instantaneousFreq * time);
-    const modulator = Math.sin(2.0 * Math.PI * modulatorFreq * time) * modulationIndex;
-    
-    return Math.sin(2.0 * Math.PI * instantaneousFreq * time + modulator);
+    // FM synthesis core via HarmonicSynthesisKernel + AcousticStabilizer
+    const safeBase = SoundEngineStabilizer.clampFrequencyHz(baseFreq, 48000);
+    const safeRate = AcousticStabilizer.sanitizeFinite(sweepRate, 0);
+    const safeTime = AcousticStabilizer.clampFinite(time, 0, 600, 0);
+    const safeFormant = AcousticStabilizer.sanitizeFinite(formantOffset, 0);
+    const instantaneousFreq = SoundEngineStabilizer.clampFrequencyHz(safeBase + safeRate * safeTime + safeFormant, 48000);
+    return AcousticStabilizer.flushDenormal(
+      HarmonicSynthesisKernel.evaluateFmSample(safeTime, instantaneousFreq, 35.0, 2.5)
+    );
   }
 
   /**
@@ -122,21 +148,7 @@ export class HighPrecisionSoundEngine {
     inputs: [number, number, number, number],
     decayFactors: [number, number, number, number]
   ): [number, number, number, number] {
-    // 4x4 Householder matrix (unitary: propagates sound energy perfectly without exploding)
-    // H = I - 2 * v * v^T (where v is a normalized vector [0.5, 0.5, 0.5, 0.5])
-    // Resulting matrix:
-    // [ -0.5,  0.5,  0.5,  0.5 ]
-    // [  0.5, -0.5,  0.5,  0.5 ]
-    // [  0.5,  0.5, -0.5,  0.5 ]
-    // [  0.5,  0.5,  0.5, -0.5 ]
-
-    const s = 0.5 * (inputs[0] + inputs[1] + inputs[2] + inputs[3]);
-    
-    const out0 = (inputs[0] - s) * decayFactors[0];
-    const out1 = (inputs[1] - s) * decayFactors[1];
-    const out2 = (inputs[2] - s) * decayFactors[2];
-    const out3 = (inputs[3] - s) * decayFactors[3];
-
+    const [out0, out1, out2, out3] = RoomReverbAcoustics.stepHouseholderFDN(inputs, decayFactors);
     return [
       parseFloat(out0.toFixed(6)),
       parseFloat(out1.toFixed(6)),

@@ -17,6 +17,10 @@ import { BasicVisualSequencer } from "./Basic";
 import { XMLVisualLayoutParser } from "./XML";
 import { SwiftVisualGeometryBridge } from "./Swift";
 import { NonEuclideanRenderer } from "./Non_Euclidean_Renderer";
+import { SpatialStabilizer3D } from "../Animations/3-D/SpatialStabilizer3D";
+import { QuaternionKinematics3D } from "../Animations/3-D/QuaternionKinematics3D";
+import { SurfaceNormalLighting3D } from "../Animations/3-D/SurfaceNormalLighting3D";
+import { VisualFrameBudgetGovernorAI } from "../../AI/In-Game/Category/Visuals/Animations/FrameBudgetGovernorAI";
 
 export { VisualEngineGeneral } from "./General";
 export * from "./3-DJS";
@@ -52,6 +56,10 @@ class VisualEngineSubsystem {
   public readonly XML = XMLVisualLayoutParser;
   public readonly Swift = SwiftVisualGeometryBridge;
   public readonly NonEuclideanRenderer = NonEuclideanRenderer;
+  public readonly Stabilizer3D = SpatialStabilizer3D;
+  public readonly Quaternion3D = QuaternionKinematics3D;
+  public readonly Lighting3D = SurfaceNormalLighting3D;
+  public readonly FrameBudgetAI = VisualFrameBudgetGovernorAI;
 
   /**
    * Evaluates if a given graphic model needs rendering based on camera spatial dimensions.
@@ -85,23 +93,32 @@ export class HighPrecisionVisualEngine {
     camera: { x: number; y: number; z: number; fov: number; aspect: number; near: number; far: number }
   ): { x: number; y: number; depth: number; visible: boolean } | null {
     // Relative position vectors
-    const dx = point.x - camera.x;
-    const dy = point.y - camera.y;
-    const dz = point.z - camera.z;
+    const p = SpatialStabilizer3D.sanitizeVec3(point);
+    const camX = SpatialStabilizer3D.sanitizeFinite(camera?.x ?? 0, 0);
+    const camY = SpatialStabilizer3D.sanitizeFinite(camera?.y ?? 0, 0);
+    const camZ = SpatialStabilizer3D.sanitizeFinite(camera?.z ?? 0, 0);
+    const fov = SpatialStabilizer3D.clampFinite(camera?.fov ?? 70, 5, 175, 70);
+    const aspect = Math.max(0.05, SpatialStabilizer3D.sanitizeFinite(camera?.aspect ?? 1.777, 1.777));
+    const near = Math.max(0.01, SpatialStabilizer3D.sanitizeFinite(camera?.near ?? 0.1, 0.1));
+    const far = Math.max(near + 1, SpatialStabilizer3D.sanitizeFinite(camera?.far ?? 5000, 5000));
+
+    const dx = p.x - camX;
+    const dy = p.y - camY;
+    const dz = p.z - camZ;
 
     // Reject coordinates behind the clipping plane
-    if (dz <= camera.near || dz >= camera.far) {
+    if (dz <= near || dz >= far) {
       return null;
     }
 
     // Double-precision homogeneous transformation calculation
-    const f = 1.0 / Math.tan((camera.fov * Math.PI) / 360.0);
-    const projX = (dx * f) / (camera.aspect * dz);
+    const f = 1.0 / Math.tan((fov * Math.PI) / 360.0);
+    const projX = (dx * f) / (aspect * dz);
     const projY = (dy * f) / dz;
 
     return {
-      x: projX,
-      y: projY,
+      x: SpatialStabilizer3D.flushDenormal(projX),
+      y: SpatialStabilizer3D.flushDenormal(projY),
       depth: dz,
       visible: Math.abs(projX) <= 1.0 && Math.abs(projY) <= 1.0,
     };

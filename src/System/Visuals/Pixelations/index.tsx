@@ -1,4 +1,11 @@
 import React from "react";
+import { PixelGridQuantizer } from "./PixelGridQuantizer";
+import { BayerDitherMatrix } from "./BayerDitherMatrix";
+import { DownsampleBlockSolver } from "./DownsampleBlockSolver";
+
+export * from "./PixelGridQuantizer";
+export * from "./BayerDitherMatrix";
+export * from "./DownsampleBlockSolver";
 
 /**
  * Pixelations Module
@@ -6,8 +13,12 @@ import React from "react";
  * for retro and low-fidelity artistic styles.
  */
 export const PixelationSystem = {
+  Quantizer: PixelGridQuantizer,
+  Dither: BayerDitherMatrix,
+  Downsample: DownsampleBlockSolver,
+
   snapToGrid: (value: number, gridSize: number) => {
-    return Math.floor(value / gridSize) * gridSize;
+    return PixelGridQuantizer.snapToGrid(value, gridSize);
   }
 };
 
@@ -29,6 +40,7 @@ export const PixelatedContainer: React.FC<{
   return (
     <div 
       className="system-pixelated-container"
+      data-pixel-size={Math.max(1, Math.floor(Number.isFinite(pixelSize) ? pixelSize : 4))}
       style={{ 
         imageRendering: "pixelated",
         overflow: "hidden"

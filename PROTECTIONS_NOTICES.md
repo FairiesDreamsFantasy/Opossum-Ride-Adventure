@@ -251,3 +251,38 @@ To protect the standardization of the accessibility system, the following mandat
     *   Eliminates static `z` freeze, immediate `xOffset -> 0` collapse, magic `+200` distance offsets, and `deltaSec * 60` framerate pseudoscience. Feral pigs move actively in both longitudinal course $Z$ and continuous lateral $X$ (`[-5.6 m, +5.6 m]` across lanes on course arenas; `[-11.8 m, +11.8 m]` extending outside the path system in World 4 Wilderness arenas), with gait-phase leg animation in 2D/3D renderers.
 *   **Audible Cloven-Hoof Gaits & Bio-Acoustic Vocals (`FeralPigMovementSound` & `FeralPigVocalSound`)**:
     *   Synthesizes distance-attenuated, stereo-panned, surface-tuned (`soil`, `grass`, `dirt`, `stone`, `wood`) **`walk`**, **`trot`**, **`gallop`**, and **`charge`** cloven-hoof strikes locked to real stride displacement alongside **`forage_snuffle`** and **`alert_chuff`** vocals (plus previews in `Learn_Game_Sounds/Feral_Pigs/`).
+
+---
+
+### 19. Modular Physical Acoustics Architecture (`System/Engine/Science/Acoustics/`) & Polyglot Stabilization (v0.1.0.8)
+*   **6 Protected Flat Scientific Acoustics Modules (`src/System/Engine/Science/Acoustics/`, shielded by `AGENTS.md`)**:
+    1. **`AcousticStabilizer.ts`**: Pre-allocated lock-free `AcousticRingBuffer` (`Float64Array`, RMS energy), IEEE 754 denormal flushing (`flushDenormal`), Nyquist cutoff clamping (`clampNyquistFrequency`), finite sanitization (`sanitizeFinite`/`clampFinite`), soft-knee peak limiter (`applySoftKneeLimiter`), polyphonic energy normalizer (`normalizePolyphonicGain`), exponential parameter slew smoothing (`smoothParameter`), and biquad pole unit-circle stability verification (`areBiquadPolesStable`).
+    2. **`WavePropagationPhysics.ts`**: Temperature-and-humidity speed of sound (`speedOfSoundAir`), Mach-clamped Doppler shift & pitch ratios (`calculateDopplerShift`, `calculateDopplerRatio`), ISO 9613-1 atmospheric absorption (`calculateAbsorptionCoeffDbPerM`), inverse-square attenuation (`soundAttenuation`), and multi-band attenuation solving (`solveMultiBandAttenuation`).
+    3. **`RoomReverbAcoustics.ts`**: Eyring-Norris RT60 reverberation (`calculateEyringRT60`), Helmholtz cavity resonance (`helmholtzResonance`), axial chamber eigenmodes (`computeChamberEigenmode`), 4x4 unitary Householder FDN diffusion matrix (`stepHouseholderFDN`), and architectural presets (`ARENA_ACOUSTIC_SPECS`, `resolveArenaSpec`).
+    4. **`SpatialBinauralSolver.ts`**: Constant-power stereophonic panning (`computeEqualPowerPan`), Woodworth-Schlosser spherical-head ITD (`computeWoodworthITD`), and slew-smoothed 3D spatial acoustic vector calculation (`calculate3DSpatialAcoustics`).
+    5. **`SurfaceImpactResonance.ts`**: 26-surface acoustic resonance lookup (`getProfile` covering `ceramic`, `tile`, `deck`, `wood`, `hardwood`, `carpet`, `asphalt`, `slate`, `basalt`, `limestone`, `stone`, `granite`, `marble`, `slab`, `moss`, `peat`, `silt`, `soil`, `dirt`, `grass`, `mulch`, `gravel`, `salt`, `snow`, `sand`, `ice`) and kinetic mass-velocity impact scaling (`computeKineticImpactAcoustics`).
+    6. **`BioAcousticFormants.ts`**: Closed-open vocal tract tube formant predictor (`predictVocalFormants`), allometric mass-to-pitch scaling (`computeAllometricFundamentalHz`), and pole-verified RBJ bandpass biquad filter synthesis (`designBandpassBiquad`).
+*   **Polyglot Computer-Science Stabilization Kernels**:
+    *   **C (`System/Engine/Assembly/C/index.tsx`)**: `NativeCEngine.sanitizeFloat64Bounds` and deterministic Fletcher-16 `computeTelemetryChecksum16`.
+    *   **C++ (`System/Engine/C_Plus_Plus/index.ts`)**: `EngineKinematicsKernelCPP.stabilizeDampedVerlet` energy-bounded damped Verlet integration.
+    *   **C# (`System/Registry/C_Sharp/index.ts`)**: `SystemRegistryContractCSharp.validateFrameAndAcousticInvariants` immutable delta/position/gain invariant guard and `v0.1.0.8` stamp.
+    *   **WebAssembly (`System/Engine/Web_Assembly/index.tsx`)**: `WebAssemblyCoreEngine.stabilizeFloat64` and `computeDspSafetyGain`.
+    *   **Python (`System/Engine/Python/index.tsx`)**: `ScientificPythonEngine.stabilizeDeltaSeries` trimmed-mean frame jitter outlier filter.
+*   **End-to-End Runtime Wiring & Version Bump (`0.1.0.8`)**:
+    *   Wired across `Sound/Engine/index.tsx`, `Sound/index.tsx`, `Sound/SFX/index.ts`, `Feral_Pig/Spatial/General/index.tsx`, `Engine/Optimization/index.ts`, `UI/Play_Area/index.tsx`, and `Security/Sentinel/Integrity_Web.ts`.
+    *   Version updated to **`0.1.0.8`** across `System/Registry/Version/index.tsx`, `System/Registry/C_Sharp/index.ts`, `VERSION.txt`, `public/VERSION.txt`, and `package.json`.
+
+---
+
+### 20. Modular Computer-Science Expansion Across Mathematics, Sound Engine, Visuals, Color Palettes, & In-Game Visuals AI (`v0.1.0.8`)
+*   **`System/Engine/Mathematics/` (6 Flat Computational Kernels + `AGENTS.md` Rule 7)**: `NumericalStabilizer.ts`, `QuaternionKinematics.ts`, `MatrixTransformSolver.ts` (`Float64Array`), `NumericalIntegrators.ts` (RK4, Symplectic Euler, Simpson 1/3), `InterpolationSplines.ts`, and `StatisticalRobustness.ts`, wired into `MathematicsEngine`.
+*   **`System/Sound/Engine/` (6 Flat DSP & Voice Kernels + `AGENTS.md` Rule 7)**: `AudioGraphStabilizer.ts`, `EnvelopeDynamicsProcessor.ts`, `BiquadFilterDesigner.ts`, `HarmonicOscillatorBank.ts`, `SpectralMeteringAnalyzer.ts`, and `PolyphonicVoiceScheduler.ts`, wired into `SoundEngine`, `HighPrecisionSoundEngine`, and `DedicatedSFXSynthesizer`.
+*   **`System/Visuals/Animations/` & `System/Visuals/Pixelations/`**:
+    *   `2-D/`: `TwoDTransformKernel.ts`, `TwoDSpriteSequencer.ts`, `TwoDEasingCurves.ts` wired into `TwoDAnimationSystem`.
+    *   `3-D/`: `SpatialStabilizer3D.ts` (`VertexFloat64Pool`), `QuaternionKinematics3D.ts`, `PerspectiveFrustumProjection.ts`, `SkeletalGaitKinematics3D.ts`, `SurfaceNormalLighting3D.ts`, `BoundingVolumeCulling3D.ts` wired into `ThreeDAnimationSystem`, `VisualEngine`, and `VisualRenderingFilterEngine`.
+    *   `Polygons/`: `PolygonTessellationKernel.ts`, `PolygonTransformPipeline.ts`, `PolygonDeformationSolver.ts` wired into `PolygonSystem` and `PolygonRenderer`.
+    *   `Pixelations/`: `PixelGridQuantizer.ts`, `BayerDitherMatrix.ts`, `DownsampleBlockSolver.ts` wired into `PixelationSystem` and `VisualRenderingFilterEngine`.
+    *   `Geometry/`: `GeometryVectorMath2D.ts`, `GeometryCurveEvaluator.ts`, `GeometryCollisionShapes.ts` wired into `GeometrySystem`.
+    *   `Color_Palette/`: `ColorSpaceMath.ts`, `Monochrome/` (`LuminanceWeightsKernel.ts`, `OrderedHalftoneSolver.ts`), `Monochrome/Grayscale/` (`GrayscaleHistogramSolver.ts`, `GrayscaleToneMapper.ts`, wired into `MonochromeSystem` & `GrayscaleSystem`), `Pattern_Palette/` (`ProceduralPatternSampler.ts`, `TilingFrequencyStabilizer.ts`), `Texture_Palette/` (`ProceduralNoiseFields.ts`, `SurfaceBRDFCalculator.ts`).
+*   **`System/AI/In-Game/Category/Visuals/Animations/`**: `KeyframePredictorAI.ts`, `FrameBudgetGovernorAI.ts`, `ProceduralGaitBlenderAI.ts`, `PaletteMoodClassifierAI.ts` wired into `VisualAnimationsAI`, `VisualAnimationsEngine`, `VisualEngine`, `AI/In-Game/index.tsx`, and `Integrity_Web.ts` (including callable function checks).
+

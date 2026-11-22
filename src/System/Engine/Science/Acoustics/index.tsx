@@ -3,28 +3,44 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { AcousticStabilizer, AcousticRingBuffer } from "./AcousticStabilizer";
+import { WavePropagationPhysics } from "./WavePropagationPhysics";
+import { RoomReverbAcoustics, ARENA_ACOUSTIC_SPECS } from "./RoomReverbAcoustics";
+import { SpatialBinauralSolver } from "./SpatialBinauralSolver";
+import { SurfaceImpactResonance } from "./SurfaceImpactResonance";
+import { BioAcousticFormants } from "./BioAcousticFormants";
+
+export * from "./AcousticStabilizer";
+export * from "./WavePropagationPhysics";
+export * from "./RoomReverbAcoustics";
+export * from "./SpatialBinauralSolver";
+export * from "./SurfaceImpactResonance";
+export * from "./BioAcousticFormants";
+
 /**
  * Physical Acoustics and Wave Propagation Engine (Ultra-Precise 5000% Mathematical Standard).
- * Models real-time Doppler frequency shifts, speed of sound temperature variations,
- * Helmholtz cavern cavity resonance, atmospheric sound absorption, 3D Interaural Time Differences (ITD),
- * and Interaural Level Differences (ILD) with microsecond precision and zero-allocation memory pooling.
+ * Coordinates wave propagation, room/cave reverberation, 3D binaural localization,
+ * surface material impact resonance, bio-acoustic formants, and IEEE 754 stabilization.
  */
 export class AcousticsEngine {
-  // Pre-allocated scratch vector cache to eliminate Garbage Collection and CPU/RAM spikes completely
-  private static readonly _scratchVector = { dx: 0, dy: 0, dz: 0, distance: 0, azimuth: 0, elevation: 0 };
+  public static readonly Stabilizer = AcousticStabilizer;
+  public static readonly WavePropagation = WavePropagationPhysics;
+  public static readonly RoomReverb = RoomReverbAcoustics;
+  public static readonly Spatial = SpatialBinauralSolver;
+  public static readonly SurfaceImpact = SurfaceImpactResonance;
+  public static readonly Formants = BioAcousticFormants;
+  public static readonly RingBuffer = AcousticRingBuffer;
+  public static readonly ArenaSpecs = ARENA_ACOUSTIC_SPECS;
 
   /**
-   * Speed of sound in dry air as a function of Celsius temperature:
-   * c(T) = 331.3 * sqrt(1 + T / 273.15) (m/s)
+   * Speed of sound in air as a function of Celsius temperature and relative humidity.
    */
-  public static speedOfSoundAir(tempCelsius: number = 20): number {
-    return 331.3 * Math.sqrt(Math.max(0.1, 1 + tempCelsius / 273.15));
+  public static speedOfSoundAir(tempCelsius: number = 20, relativeHumidityPercent: number = 50): number {
+    return WavePropagationPhysics.speedOfSoundAir(tempCelsius, relativeHumidityPercent);
   }
 
   /**
-   * Classical Doppler Frequency Shift:
-   * f = f0 * (c + v_receiver) / (c - v_source)
-   * Where positive velocities indicate movement towards each other.
+   * Classical Doppler Frequency Shift with Mach singularity & Nyquist clamps.
    */
   public static calculateDopplerShift(
     emittedFreqHz: number,
@@ -32,17 +48,16 @@ export class AcousticsEngine {
     receiverVelocityMs: number,
     tempCelsius: number = 20
   ): number {
-    const c = this.speedOfSoundAir(tempCelsius);
-    const denominator = c - sourceVelocityMs;
-    if (Math.abs(denominator) < 1e-3) return emittedFreqHz * 10; // Mach 1 singularity clamp
-    const shifted = emittedFreqHz * ((c + receiverVelocityMs) / denominator);
-    return Math.max(10, Math.min(24000, shifted));
+    return WavePropagationPhysics.calculateDopplerShift(
+      emittedFreqHz,
+      sourceVelocityMs,
+      receiverVelocityMs,
+      tempCelsius
+    );
   }
 
   /**
-   * Helmholtz Cavity Resonance Formula:
-   * f_H = (c / 2*pi) * sqrt(A / (V * L_eff))
-   * Calculates natural resonance frequencies of hollow chambers, caves, and mine shafts.
+   * Helmholtz Cavity Resonance Formula for caves, chambers, and mine shafts.
    */
   public static helmholtzResonance(
     openingAreaM2: number,
@@ -50,16 +65,11 @@ export class AcousticsEngine {
     neckLengthM: number,
     tempCelsius: number = 20
   ): number {
-    const c = this.speedOfSoundAir(tempCelsius);
-    // End correction for effective length: L_eff ~ L + 0.8 * sqrt(A)
-    const effectiveLength = neckLengthM + 0.8 * Math.sqrt(openingAreaM2);
-    if (cavityVolumeM3 <= 0 || effectiveLength <= 0) return 0;
-    return (c / (2 * Math.PI)) * Math.sqrt(openingAreaM2 / (cavityVolumeM3 * effectiveLength));
+    return RoomReverbAcoustics.helmholtzResonance(openingAreaM2, cavityVolumeM3, neckLengthM, tempCelsius);
   }
 
   /**
-   * Sound pressure level attenuation over distance (Inverse-Square Law):
-   * SPL(r) = SPL_0 - 20 * log10(r / r0) - alpha * (r - r0)
+   * Sound pressure level attenuation over distance (Inverse-Square Law + Atmospheric Absorption).
    */
   public static soundAttenuation(
     initialSplDb: number,
@@ -67,16 +77,16 @@ export class AcousticsEngine {
     referenceDistanceMeters: number = 1.0,
     atmosphericAlphaDbPerM: number = 0.005
   ): number {
-    if (distanceMeters <= referenceDistanceMeters) return initialSplDb;
-    const geometricLoss = 20 * Math.log10(distanceMeters / referenceDistanceMeters);
-    const absorptionLoss = atmosphericAlphaDbPerM * (distanceMeters - referenceDistanceMeters);
-    return Math.max(0, initialSplDb - geometricLoss - absorptionLoss);
+    return WavePropagationPhysics.soundAttenuation(
+      initialSplDb,
+      distanceMeters,
+      referenceDistanceMeters,
+      atmosphericAlphaDbPerM
+    );
   }
 
   /**
-   * 3D Stereophonic Spatial Vector & Head-Related Modeling (5000% Mathematical Precision):
-   * Computes exact Left/Right ear pan gains, Interaural Time Difference (ITD),
-   * and high-frequency atmospheric biquad cutoff without allocating temporary heap objects.
+   * 3D Stereophonic Spatial Vector & Head-Related Modeling.
    */
   public static calculate3DSpatialAcoustics(
     sourceX: number,
@@ -94,67 +104,43 @@ export class AcousticsEngine {
     itdSeconds: number;
     azimuthRad: number;
   } {
-    const dx = sourceX - listenerX;
-    const dy = sourceY - listenerY;
-    const dz = sourceZ - listenerZ;
-    const distSq = dx * dx + dy * dy + dz * dz;
-    const distanceMeters = Math.max(0.1, Math.sqrt(distSq));
-
-    // Azimuth angle in horizontal plane (radians)
-    const azimuth = Math.atan2(dx, dz);
-
-    // Speed of sound in ambient air
-    const c = this.speedOfSoundAir(tempCelsius);
-
-    // Interaural Time Difference (ITD) using Woodworth-Schlosser spherical head model (r_head ~ 0.0875m)
-    const rHead = 0.0875;
-    const itdSeconds = (rHead / c) * (Math.sin(azimuth) + azimuth);
-
-    // Interaural Level Difference (ILD) panning math with smooth sine/cosine equal power panning law
-    const normalizedPan = Math.max(-1.0, Math.min(1.0, Math.sin(azimuth)));
-    const angle = (normalizedPan + 1.0) * (Math.PI / 4.0); // 0 to PI/2
-    const baseDistanceGain = 1.0 / (1.0 + 0.08 * distanceMeters);
-
-    const leftGain = Math.cos(angle) * baseDistanceGain;
-    const rightGain = Math.sin(angle) * baseDistanceGain;
-
-    // Atmospheric high-frequency damping: air absorbs high frequencies faster (Stokes-Kirchhoff absorption)
-    // Cutoff drops smoothly from 20,000 Hz down to 1,200 Hz over 100 meters
-    const lowPassCutoffHz = Math.max(1200, 20000 / (1.0 + 0.025 * distanceMeters * distanceMeters));
-
+    const result = SpatialBinauralSolver.calculate3DSpatialAcoustics(
+      sourceX,
+      sourceY,
+      sourceZ,
+      listenerX,
+      listenerY,
+      listenerZ,
+      tempCelsius
+    );
     return {
-      distanceMeters,
-      leftGain: Math.max(0, Math.min(1.0, leftGain)),
-      rightGain: Math.max(0, Math.min(1.0, rightGain)),
-      lowPassCutoffHz,
-      itdSeconds,
-      azimuthRad: azimuth
+      distanceMeters: result.distanceMeters,
+      leftGain: result.leftGain,
+      rightGain: result.rightGain,
+      lowPassCutoffHz: result.lowPassCutoffHz,
+      itdSeconds: result.itdSeconds,
+      azimuthRad: result.azimuthRad
     };
   }
 
   /**
    * Surface Material Acoustic Resonance Profiler.
-   * Generates exact fundamental resonance and damping factors for ground impact footsteps.
    */
-  public static getSurfaceResonanceProfile(surface: "granite" | "marble" | "wood" | "dirt" | "grass" | "salt" | "stone"): {
+  public static getSurfaceResonanceProfile(
+    surface: "granite" | "marble" | "wood" | "dirt" | "grass" | "salt" | "stone" | string
+  ): {
     fundamentalFreqHz: number;
     qFactor: number;
     decayTimeSeconds: number;
     highTransientGain: number;
   } {
-    switch (surface) {
-      case "granite":
-      case "marble":
-      case "stone":
-        return { fundamentalFreqHz: 280, qFactor: 8.5, decayTimeSeconds: 0.035, highTransientGain: 0.95 };
-      case "wood":
-        return { fundamentalFreqHz: 160, qFactor: 4.2, decayTimeSeconds: 0.065, highTransientGain: 0.75 };
-      case "salt":
-        return { fundamentalFreqHz: 220, qFactor: 5.0, decayTimeSeconds: 0.040, highTransientGain: 0.85 };
-      case "dirt":
-      case "grass":
-      default:
-        return { fundamentalFreqHz: 95, qFactor: 1.8, decayTimeSeconds: 0.025, highTransientGain: 0.35 };
-    }
+    const p = SurfaceImpactResonance.getProfile(surface);
+    return {
+      fundamentalFreqHz: p.fundamentalFreqHz,
+      qFactor: p.qFactor,
+      decayTimeSeconds: p.decayTimeSeconds,
+      highTransientGain: p.highTransientGain
+    };
   }
 }
+

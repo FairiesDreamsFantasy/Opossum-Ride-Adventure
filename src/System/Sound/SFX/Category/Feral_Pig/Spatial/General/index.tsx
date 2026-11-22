@@ -15,6 +15,12 @@
  * 4. Inverse-Distance Rolloff Model with calibrated near-field acoustic threshold.
  */
 
+import {
+  AcousticStabilizer,
+  SpatialBinauralSolver,
+  WavePropagationPhysics
+} from "../../../../../../Engine/Science/Acoustics";
+
 export interface FeralPigSpatialParameters {
   pigX: number;
   pigY: number;
@@ -44,17 +50,18 @@ export class FeralPigStereoCalibrator {
    * Computes exact mathematical acoustic spatial profile from 3D coordinates.
    */
   public static calculateAcoustics(params: FeralPigSpatialParameters): CalibratedAcousticProfile {
-    const dx = params.pigX - params.listenerX;
-    const dy = params.pigY - params.listenerY;
-    const dz = (params.pigZ ?? 0) - (params.listenerZ ?? 0);
+    const dx = AcousticStabilizer.sanitizeFinite(params.pigX, 0) - AcousticStabilizer.sanitizeFinite(params.listenerX, 0);
+    const dy = AcousticStabilizer.sanitizeFinite(params.pigY, 0) - AcousticStabilizer.sanitizeFinite(params.listenerY, 0);
+    const dz = AcousticStabilizer.sanitizeFinite(params.pigZ ?? 0, 0) - AcousticStabilizer.sanitizeFinite(params.listenerZ ?? 0, 0);
 
     // 1. Precise Euclidean Distance (3D)
     const distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
     // 2. Stereophonic Panning (Normalized [-1, 1])
-    const halfWidth = (params.fieldWidth ?? this.DEFAULT_FIELD_WIDTH) / 2;
+    const fieldWidth = Math.max(10.0, AcousticStabilizer.sanitizeFinite(params.fieldWidth ?? this.DEFAULT_FIELD_WIDTH, this.DEFAULT_FIELD_WIDTH));
+    const halfWidth = fieldWidth / 2;
     const rawPan = dx / halfWidth;
-    const pan = Math.max(-1.0, Math.min(1.0, rawPan));
+    const pan = AcousticStabilizer.clampFinite(rawPan, -1.0, 1.0, 0);
 
     // 3. Inverse-Distance Law with Near-Field Protection
     let distanceGain = 1.0;
@@ -66,18 +73,23 @@ export class FeralPigStereoCalibrator {
     if (distance >= this.MAX_AUDIBLE_DISTANCE) {
       distanceGain = 0;
     } else {
-      distanceGain = Math.max(0, Math.min(1.0, distanceGain));
+      distanceGain = AcousticStabilizer.applySoftKneeLimiter(
+        AcousticStabilizer.clampFinite(distanceGain, 0, 1.0, 0),
+        1.0,
+        0.95
+      );
     }
 
     // 4. ISO 9613-1 High-Frequency Atmospheric Damping
     // Near field: full fidelity 20,000 Hz. Far field: muffled down to ~650 Hz
     const maxFreq = 20000;
     const minFreq = 650;
-    const dampingRatio = Math.min(1.0, distance / this.MAX_AUDIBLE_DISTANCE);
-    // Exponential air absorption curve
-    const cutoffFrequencyHz = Math.max(
-      minFreq,
-      maxFreq * Math.exp(-this.AIR_ABSORPTION_COEFF * distance)
+    const airCoeffScale = WavePropagationPhysics.calculateAbsorptionCoeffDbPerM(4000) / 0.0117;
+    const cutoffFrequencyHz = AcousticStabilizer.clampNyquistFrequency(
+      Math.max(
+        minFreq,
+        maxFreq * Math.exp(-this.AIR_ABSORPTION_COEFF * distance * Math.max(0.85, Math.min(1.25, airCoeffScale)))
+      )
     );
 
     return {
@@ -101,28 +113,31 @@ export class FeralPigStereoCalibrator {
 
     // 1. Distance Attenuation Gain Node
     const distanceGainNode = ctx.createGain();
-    distanceGainNode.gain.setValueAtTime(profile.distanceGain, ctx.currentTime);
+    distanceGainNode.gain.setValueAtTime(
+      AcousticStabilizer.clampFinite(profile.distanceGain, 0, 1.0, 0),
+      ctx.currentTime
+    );
     distanceGainNode.connect(destination);
 
     // 2. Atmospheric Lowpass Absorption Filter
     const airAbsorptionFilter = ctx.createBiquadFilter();
     airAbsorptionFilter.type = "lowpass";
-    airAbsorptionFilter.frequency.setValueAtTime(profile.cutoffFrequencyHz, ctx.currentTime);
+    airAbsorptionFilter.frequency.setValueAtTime(
+      AcousticStabilizer.clampNyquistFrequency(profile.cutoffFrequencyHz, ctx.sampleRate),
+      ctx.currentTime
+    );
     airAbsorptionFilter.Q.setValueAtTime(0.707, ctx.currentTime); // Butterworth alignment (Q = 1/sqrt(2))
 
     // 3. Stereophonic Panner Node (StereoPannerNode or Constant-Power ChannelMerger fallback)
     if (typeof ctx.createStereoPanner === "function") {
       const panner = ctx.createStereoPanner();
-      panner.pan.setValueAtTime(profile.pan, ctx.currentTime);
+      panner.pan.setValueAtTime(AcousticStabilizer.clampFinite(profile.pan, -1.0, 1.0, 0), ctx.currentTime);
 
       airAbsorptionFilter.connect(panner);
       panner.connect(distanceGainNode);
     } else {
-      // High-precision constant-power trigonometric fallback
-      // pan in [-1, 1] mapped to angle theta in [0, pi/2]
-      const theta = ((profile.pan + 1) / 2) * (Math.PI / 2);
-      const leftGainVal = Math.cos(theta);
-      const rightGainVal = Math.sin(theta);
+      // High-precision constant-power trigonometric fallback via SpatialBinauralSolver
+      const [leftGainVal, rightGainVal] = SpatialBinauralSolver.computeEqualPowerPan(profile.pan);
 
       const splitter = ctx.createChannelSplitter(2);
       const merger = ctx.createChannelMerger(2);

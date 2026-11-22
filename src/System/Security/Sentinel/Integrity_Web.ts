@@ -13,14 +13,79 @@ import * as Science from "../../Engine/Science";
 import * as Graphical_Renderer from "../../Engine/Science/Graphical_Renderer";
 import * as Physics from "../../Engine/Science/Physics";
 import * as Acoustics from "../../Engine/Science/Acoustics";
+import { AcousticStabilizer, AcousticRingBuffer } from "../../Engine/Science/Acoustics/AcousticStabilizer";
+import { WavePropagationPhysics } from "../../Engine/Science/Acoustics/WavePropagationPhysics";
+import { RoomReverbAcoustics } from "../../Engine/Science/Acoustics/RoomReverbAcoustics";
+import { SpatialBinauralSolver } from "../../Engine/Science/Acoustics/SpatialBinauralSolver";
+import { SurfaceImpactResonance } from "../../Engine/Science/Acoustics/SurfaceImpactResonance";
+import { BioAcousticFormants } from "../../Engine/Science/Acoustics/BioAcousticFormants";
 import * as Optics from "../../Engine/Science/Optics";
 import * as Items from "../../Engine/Science/Graphical_Renderer/Items";
 import * as Physics_Wasm from "../../Engine/Science/Physics/Web_Assembly";
 
-// 🧮 Mathematics Engine
+// Polyglot Stabilization Kernels (C / C++ / C# / WebAssembly / Python)
+import { NativeCEngine } from "../../Engine/Assembly/C";
+import { EngineKinematicsKernelCPP } from "../../Engine/C_Plus_Plus";
+import { SystemRegistryContractCSharp } from "../../Registry/C_Sharp";
+import { WebAssemblyCoreEngine } from "../../Engine/Web_Assembly";
+import { ScientificPythonEngine } from "../../Engine/Python";
+
+// 🧮 Mathematics Engine + Flat Stabilization Kernels
 import * as Mathematics from "../../Engine/Mathematics";
+import { MathStabilizer } from "../../Engine/Mathematics/NumericalStabilizer";
+import { QuaternionKinematicsSolver } from "../../Engine/Mathematics/QuaternionKinematics";
+import { Matrix4x4Float64 } from "../../Engine/Mathematics/MatrixTransformSolver";
+import { NumericalIntegratorKernel } from "../../Engine/Mathematics/NumericalIntegrators";
+import { SplineInterpolationSolver } from "../../Engine/Mathematics/InterpolationSplines";
+import { RobustStatisticsSolver } from "../../Engine/Mathematics/StatisticalRobustness";
 import * as Calculus from "../../Engine/Mathematics/Calculus";
 import * as Trigonometry from "../../Engine/Mathematics/Trigonometry";
+
+// 🔊 Sound Engine Flat Kernels
+import * as Sound_Engine from "../../Sound/Engine";
+import { SoundEngineStabilizer } from "../../Sound/Engine/AudioGraphStabilizer";
+import { EnvelopeDynamicsKernel } from "../../Sound/Engine/EnvelopeDynamicsProcessor";
+import { BiquadFilterKernel } from "../../Sound/Engine/BiquadFilterDesigner";
+import { HarmonicSynthesisKernel } from "../../Sound/Engine/HarmonicOscillatorBank";
+import { SpectralMeteringKernel } from "../../Sound/Engine/SpectralMeteringAnalyzer";
+import { VoiceBudgetScheduler } from "../../Sound/Engine/PolyphonicVoiceScheduler";
+
+// 🎨 Visuals Animations, Color Palette & Pixelations Flat Kernels
+import * as Visuals_Master from "../../Visuals";
+import { TwoDTransformKernel } from "../../Visuals/Animations/2-D/TwoDTransformKernel";
+import { TwoDSpriteSequencer } from "../../Visuals/Animations/2-D/TwoDSpriteSequencer";
+import { TwoDEasingCurves } from "../../Visuals/Animations/2-D/TwoDEasingCurves";
+import { SpatialStabilizer3D, VertexFloat64Pool } from "../../Visuals/Animations/3-D/SpatialStabilizer3D";
+import { QuaternionKinematics3D } from "../../Visuals/Animations/3-D/QuaternionKinematics3D";
+import { PerspectiveFrustumProjection } from "../../Visuals/Animations/3-D/PerspectiveFrustumProjection";
+import { SkeletalGaitKinematics3D } from "../../Visuals/Animations/3-D/SkeletalGaitKinematics3D";
+import { SurfaceNormalLighting3D } from "../../Visuals/Animations/3-D/SurfaceNormalLighting3D";
+import { BoundingVolumeCulling3D } from "../../Visuals/Animations/3-D/BoundingVolumeCulling3D";
+import { PolygonTessellationKernel } from "../../Visuals/Animations/Polygons/PolygonTessellationKernel";
+import { PolygonTransformPipeline } from "../../Visuals/Animations/Polygons/PolygonTransformPipeline";
+import { PolygonDeformationSolver } from "../../Visuals/Animations/Polygons/PolygonDeformationSolver";
+import { GeometryVectorMath2D } from "../../Visuals/Animations/Geometry/GeometryVectorMath2D";
+import { GeometryCurveEvaluator } from "../../Visuals/Animations/Geometry/GeometryCurveEvaluator";
+import { GeometryCollisionShapes } from "../../Visuals/Animations/Geometry/GeometryCollisionShapes";
+import { PixelGridQuantizer } from "../../Visuals/Pixelations/PixelGridQuantizer";
+import { BayerDitherMatrix } from "../../Visuals/Pixelations/BayerDitherMatrix";
+import { DownsampleBlockSolver } from "../../Visuals/Pixelations/DownsampleBlockSolver";
+import { ColorSpaceMath } from "../../Visuals/Animations/Color_Palette/ColorSpaceMath";
+import { LuminanceWeightsKernel } from "../../Visuals/Animations/Color_Palette/Monochrome/LuminanceWeightsKernel";
+import { OrderedHalftoneSolver } from "../../Visuals/Animations/Color_Palette/Monochrome/OrderedHalftoneSolver";
+import { GrayscaleHistogramSolver } from "../../Visuals/Animations/Color_Palette/Monochrome/Grayscale/GrayscaleHistogramSolver";
+import { GrayscaleToneMapper } from "../../Visuals/Animations/Color_Palette/Monochrome/Grayscale/GrayscaleToneMapper";
+import { ProceduralPatternSampler } from "../../Visuals/Animations/Color_Palette/Pattern_Palette/ProceduralPatternSampler";
+import { TilingFrequencyStabilizer } from "../../Visuals/Animations/Color_Palette/Pattern_Palette/TilingFrequencyStabilizer";
+import { ProceduralNoiseFields } from "../../Visuals/Animations/Color_Palette/Texture_Palette/ProceduralNoiseFields";
+import { SurfaceBRDFCalculator } from "../../Visuals/Animations/Color_Palette/Texture_Palette/SurfaceBRDFCalculator";
+
+// 🧠 In-Game Visuals Animations AI
+import * as AI_Visuals_Animations from "../../AI/In-Game/Category/Visuals/Animations";
+import { VisualKeyframePredictorAI } from "../../AI/In-Game/Category/Visuals/Animations/KeyframePredictorAI";
+import { VisualFrameBudgetGovernorAI } from "../../AI/In-Game/Category/Visuals/Animations/FrameBudgetGovernorAI";
+import { ProceduralGaitBlenderAI } from "../../AI/In-Game/Category/Visuals/Animations/ProceduralGaitBlenderAI";
+import { VisualPaletteMoodClassifierAI } from "../../AI/In-Game/Category/Visuals/Animations/PaletteMoodClassifierAI";
 
 // 🤖 Gemini AI Scientific Engine & In-Game Wildlife AI
 import * as Gemini_Engine from "../../AI/External/Gemini/Engine";
@@ -63,8 +128,67 @@ export class IntegritySentinel {
       { name: "Graphical Renderer", ref: Graphical_Renderer },
       { name: "Physics Core", ref: Physics },
       { name: "Acoustics Engine", ref: Acoustics },
+      { name: "Acoustics Stabilizer Kernel", ref: AcousticStabilizer },
+      { name: "Acoustics Ring Buffer Kernel", ref: AcousticRingBuffer },
+      { name: "Acoustics Wave Propagation Physics", ref: WavePropagationPhysics },
+      { name: "Acoustics Room Reverb Physics", ref: RoomReverbAcoustics },
+      { name: "Acoustics Spatial Binaural Solver", ref: SpatialBinauralSolver },
+      { name: "Acoustics Surface Impact Resonance", ref: SurfaceImpactResonance },
+      { name: "Acoustics Bio-Acoustic Formants", ref: BioAcousticFormants },
+      { name: "Native C Stabilization Kernel", ref: NativeCEngine },
+      { name: "C++ Verlet Kinematics Stabilizer", ref: EngineKinematicsKernelCPP },
+      { name: "C# Immutable Invariant Guard", ref: SystemRegistryContractCSharp },
+      { name: "WebAssembly Float64 & DSP Stabilizer", ref: WebAssemblyCoreEngine },
+      { name: "Scientific Python Trimmed-Mean Stabilizer", ref: ScientificPythonEngine },
       { name: "Optics Engine", ref: Optics },
       { name: "Mathematics Registry", ref: Mathematics },
+      { name: "Mathematics Numerical Stabilizer", ref: MathStabilizer },
+      { name: "Mathematics Quaternion Kinematics", ref: QuaternionKinematicsSolver },
+      { name: "Mathematics Matrix Float64", ref: Matrix4x4Float64 },
+      { name: "Mathematics Numerical Integrators", ref: NumericalIntegratorKernel },
+      { name: "Mathematics Interpolation Splines", ref: SplineInterpolationSolver },
+      { name: "Mathematics Robust Statistics", ref: RobustStatisticsSolver },
+      { name: "Sound Engine Master", ref: Sound_Engine },
+      { name: "Sound AudioGraph Stabilizer", ref: SoundEngineStabilizer },
+      { name: "Sound Envelope Dynamics", ref: EnvelopeDynamicsKernel },
+      { name: "Sound Biquad Filter Designer", ref: BiquadFilterKernel },
+      { name: "Sound Harmonic Oscillator Bank", ref: HarmonicSynthesisKernel },
+      { name: "Sound Spectral Metering Analyzer", ref: SpectralMeteringKernel },
+      { name: "Sound Polyphonic Voice Scheduler", ref: VoiceBudgetScheduler },
+      { name: "Visuals Master Subsystem", ref: Visuals_Master },
+      { name: "Visuals 2-D Transform Kernel", ref: TwoDTransformKernel },
+      { name: "Visuals 2-D Sprite Sequencer", ref: TwoDSpriteSequencer },
+      { name: "Visuals 2-D Easing Curves", ref: TwoDEasingCurves },
+      { name: "Visuals 3-D Spatial Stabilizer", ref: SpatialStabilizer3D },
+      { name: "Visuals 3-D Vertex Float64 Pool", ref: VertexFloat64Pool },
+      { name: "Visuals 3-D Quaternion Kinematics", ref: QuaternionKinematics3D },
+      { name: "Visuals 3-D Perspective Projection", ref: PerspectiveFrustumProjection },
+      { name: "Visuals 3-D Skeletal Gait Kinematics", ref: SkeletalGaitKinematics3D },
+      { name: "Visuals 3-D Surface Normal Lighting", ref: SurfaceNormalLighting3D },
+      { name: "Visuals 3-D Bounding Volume Culling", ref: BoundingVolumeCulling3D },
+      { name: "Visuals Polygons Tessellation Kernel", ref: PolygonTessellationKernel },
+      { name: "Visuals Polygons Transform Pipeline", ref: PolygonTransformPipeline },
+      { name: "Visuals Polygons Deformation Solver", ref: PolygonDeformationSolver },
+      { name: "Visuals Geometry Vector Math 2D", ref: GeometryVectorMath2D },
+      { name: "Visuals Geometry Curve Evaluator", ref: GeometryCurveEvaluator },
+      { name: "Visuals Geometry Collision Shapes", ref: GeometryCollisionShapes },
+      { name: "Visuals Pixel Grid Quantizer", ref: PixelGridQuantizer },
+      { name: "Visuals Bayer Dither Matrix", ref: BayerDitherMatrix },
+      { name: "Visuals Downsample Block Solver", ref: DownsampleBlockSolver },
+      { name: "Visuals Color Space Math", ref: ColorSpaceMath },
+      { name: "Visuals Monochrome Luminance Kernel", ref: LuminanceWeightsKernel },
+      { name: "Visuals Ordered Halftone Solver", ref: OrderedHalftoneSolver },
+      { name: "Visuals Grayscale Histogram Solver", ref: GrayscaleHistogramSolver },
+      { name: "Visuals Grayscale Tone Mapper", ref: GrayscaleToneMapper },
+      { name: "Visuals Procedural Pattern Sampler", ref: ProceduralPatternSampler },
+      { name: "Visuals Tiling Frequency Stabilizer", ref: TilingFrequencyStabilizer },
+      { name: "Visuals Procedural Noise Fields", ref: ProceduralNoiseFields },
+      { name: "Visuals Surface BRDF Calculator", ref: SurfaceBRDFCalculator },
+      { name: "AI Visuals Animations Subsystem", ref: AI_Visuals_Animations },
+      { name: "AI Visuals Keyframe Predictor", ref: VisualKeyframePredictorAI },
+      { name: "AI Visuals Frame Budget Governor", ref: VisualFrameBudgetGovernorAI },
+      { name: "AI Visuals Procedural Gait Blender", ref: ProceduralGaitBlenderAI },
+      { name: "AI Visuals Palette Mood Classifier", ref: VisualPaletteMoodClassifierAI },
       { name: "Gemini AI Engine", ref: Gemini_Engine },
       { name: "Gemini Safety Subsystem", ref: Gemini_Safety },
       { name: "Anti-Spanking Violence Prevention Engine", ref: Gemini_Anti_Spanking },
@@ -86,6 +210,43 @@ export class IntegritySentinel {
     for (const system of criticalSystems) {
       if (!system.ref) {
         throw new Error(`[SIS] CRITICAL INTEGRITY FAILURE: ${system.name} has been compromised or pruned.`);
+      }
+    }
+
+    const callableChecks: Array<{ label: string; fn: unknown }> = [
+      { label: "MathStabilizer.sanitizeFinite", fn: MathStabilizer.sanitizeFinite },
+      { label: "QuaternionKinematicsSolver.slerp", fn: QuaternionKinematicsSolver.slerp },
+      { label: "Matrix4x4Float64.multiply", fn: Matrix4x4Float64.multiply },
+      { label: "NumericalIntegratorKernel.stepRK4", fn: NumericalIntegratorKernel.stepRK4 },
+      { label: "SplineInterpolationSolver.catmullRom", fn: SplineInterpolationSolver.catmullRom },
+      { label: "RobustStatisticsSolver.trimmedMean", fn: RobustStatisticsSolver.trimmedMean },
+      { label: "SoundEngineStabilizer.clampFrequencyHz", fn: SoundEngineStabilizer.clampFrequencyHz },
+      { label: "EnvelopeDynamicsKernel.evaluateADSR", fn: EnvelopeDynamicsKernel.evaluateADSR },
+      { label: "BiquadFilterKernel.designLowpass", fn: BiquadFilterKernel.designLowpass },
+      { label: "HarmonicSynthesisKernel.evaluateFmSample", fn: HarmonicSynthesisKernel.evaluateFmSample },
+      { label: "SpectralMeteringKernel.analyzeSamples", fn: SpectralMeteringKernel.analyzeSamples },
+      { label: "VoiceBudgetScheduler.selectStealCandidateIndex", fn: VoiceBudgetScheduler.selectStealCandidateIndex },
+      { label: "TwoDTransformKernel.transformAffine2D", fn: TwoDTransformKernel.transformAffine2D },
+      { label: "SpatialStabilizer3D.guardPerspectiveDenominator", fn: SpatialStabilizer3D.guardPerspectiveDenominator },
+      { label: "PerspectiveFrustumProjection.projectPoint", fn: PerspectiveFrustumProjection.projectPoint },
+      { label: "PolygonTransformPipeline.toSvgPath", fn: PolygonTransformPipeline.toSvgPath },
+      { label: "GeometryVectorMath2D.distance", fn: GeometryVectorMath2D.distance },
+      { label: "PixelGridQuantizer.snapToGrid", fn: PixelGridQuantizer.snapToGrid },
+      { label: "DownsampleBlockSolver.applyBlockMosaicRGBA", fn: DownsampleBlockSolver.applyBlockMosaicRGBA },
+      { label: "ColorSpaceMath.computeWcagContrastRatio", fn: ColorSpaceMath.computeWcagContrastRatio },
+      { label: "LuminanceWeightsKernel.computeRec601Luminance", fn: LuminanceWeightsKernel.computeRec601Luminance },
+      { label: "GrayscaleHistogramSolver.computeOtsuThreshold", fn: GrayscaleHistogramSolver.computeOtsuThreshold },
+      { label: "ProceduralPatternSampler.sampleCheckerboard", fn: ProceduralPatternSampler.sampleCheckerboard },
+      { label: "SurfaceBRDFCalculator.computeMicrofacetResponse", fn: SurfaceBRDFCalculator.computeMicrofacetResponse },
+      { label: "VisualKeyframePredictorAI.predictTiming", fn: VisualKeyframePredictorAI.predictTiming },
+      { label: "VisualFrameBudgetGovernorAI.evaluateBudget", fn: VisualFrameBudgetGovernorAI.evaluateBudget },
+      { label: "ProceduralGaitBlenderAI.blendGait", fn: ProceduralGaitBlenderAI.blendGait },
+      { label: "VisualPaletteMoodClassifierAI.recommendPalette", fn: VisualPaletteMoodClassifierAI.recommendPalette }
+    ];
+
+    for (const check of callableChecks) {
+      if (typeof check.fn !== "function") {
+        throw new Error(`[SIS] CALLABLE INTEGRITY FAILURE: ${check.label} is not a callable function.`);
       }
     }
 

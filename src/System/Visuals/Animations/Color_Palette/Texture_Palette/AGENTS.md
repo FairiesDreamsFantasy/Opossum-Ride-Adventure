@@ -13,3 +13,4 @@
 4. **Anti-Shadow File Invariant**: Never introduce duplicate extension stems (e.g., creating a rogue `index.tsx` alongside an authentic `index.ts`, or duplicate module stems) that shadow genuine source implementations through compiler resolution precedence.
 5. **Preserve Audio & Mathematical Logic**: All Web Audio API synthesizers, physics constants, coordinate geometry, and screen reader accessibility controls must remain intact with 100% fidelity.
 6. **Sacred Build Infrastructure & Plugin Protection**: All build plugins (@tailwindcss/vite, @vitejs/plugin-react, tailwindcss, vite) and configuration modules must remain strictly mounted and defended against automated removal or omission.
+7. **Flat Texture Computational Files Protected**: `ProceduralNoiseFields.ts` and `SurfaceBRDFCalculator.ts` are permanent surface physics kernels wired into `TexturePalettePhysics`. Never prune, stub, or bypass them.
