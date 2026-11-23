@@ -29,6 +29,10 @@ export interface MobilePortrait4PhoneProps {
   score: number;
   ticksEaten: number;
   Measured_Distance_Value: (meters: number) => string;
+  Measured_Speed_Value: (ms: number) => string;
+  speed: number;
+  isPlaying: boolean;
+  onTogglePlayPause: () => void;
   getEdibleItemName: (levelId: number) => string;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onMoveLeft: () => void;
@@ -52,6 +56,10 @@ export const MobilePortrait4Phone: React.FC<MobilePortrait4PhoneProps> = ({
   score,
   ticksEaten,
   Measured_Distance_Value,
+  Measured_Speed_Value,
+  speed,
+  isPlaying,
+  onTogglePlayPause,
   getEdibleItemName,
   canvasRef,
   onMoveLeft,
@@ -121,13 +129,15 @@ export const MobilePortrait4Phone: React.FC<MobilePortrait4PhoneProps> = ({
       id="Mobile_Portrait_Container"
       className="fixed inset-0 w-full h-full max-h-screen bg-black text-green-400 font-sans flex flex-col justify-between overflow-hidden  z-50"
     >
-      {/* 1. Mobile Menu Bar with Return to Landing Page button on left, layout toggle & deck visibility */}
+      {/* 1. Mobile Menu Bar with Return to Landing Page button on left, Pause/Resume, layout toggle & deck visibility */}
       <MobileMenuBar
         onExitGame={onExitGame}
         activeLayout={activeLayout}
         onToggleLayout={handleToggleLayout}
         ttsEnabled={ttsEnabled}
         onToggleTTS={handleToggleTTS}
+        isPlaying={isPlaying}
+        onTogglePlayPause={onTogglePlayPause}
         showTouchDecks={showTouchDecks}
         onToggleControlsDeck={handleToggleControlsDeck}
       />
@@ -264,11 +274,11 @@ export const MobilePortrait4Phone: React.FC<MobilePortrait4PhoneProps> = ({
 
             {/* Bottom Touch Deck with Telemetry & Controls */}
             <div className="w-full h-[46%] rounded-lg border-2 border-stone-700 bg-stone-900/95 flex flex-col justify-between p-2 shadow-inner overflow-hidden">
-              {/* Telemetry Strip */}
+              {/* Real-Time Telemetry Strip */}
               <div className="flex items-center justify-between text-[10px] font-mono text-green-400 bg-black/80 px-2.5 py-1 rounded border border-green-900/60 flex-shrink-0">
                 <span>RIDER: {defaultRider.name}</span>
-                <span>SPEED: {(20 + (score % 15)).toFixed(1)} m/s</span>
-                <span className="text-yellow-400">LIVITY: 100%</span>
+                <span>SPEED: {Measured_Speed_Value(Math.abs(speed))}</span>
+                <span className="text-yellow-400">SCORE: {score}</span>
               </div>
 
               {/* Lower Touch Controls */}
@@ -287,6 +297,31 @@ export const MobilePortrait4Phone: React.FC<MobilePortrait4PhoneProps> = ({
                 />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Pause Overlay blocking stray touches and exposing direct Resume control */}
+        {!isPlaying && (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Game Paused"
+            className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center border border-emerald-900 z-40 px-4 text-center pointer-events-auto"
+          >
+            <p className="text-2xl font-extrabold text-emerald-400 uppercase tracking-widest animate-pulse filter drop-shadow-[0_0_8px_rgba(0,250,0,0.4)]">
+              Game Paused
+            </p>
+            <p className="text-xs text-emerald-500 mt-2 font-mono">
+              Ambience continues while paused. Tap Resume to continue riding.
+            </p>
+            <button
+              type="button"
+              id="Mobile_Portrait_Overlay_Resume_Button"
+              onClick={onTogglePlayPause}
+              className="mt-4 px-6 py-3 min-h-[44px] bg-emerald-600 active:bg-emerald-500 text-black font-mono font-extrabold text-xs uppercase tracking-widest rounded-lg border-2 border-emerald-300 shadow-lg touch-manipulation"
+            >
+              Resume Riding
+            </button>
           </div>
         )}
       </MobilePlayAreaMain>

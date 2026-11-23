@@ -402,11 +402,33 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     (stateRef.current as any).showOpponentIndicators = showOpponentIndicators;
   }, [chatterNotifications, announceReverb, extendedInfo, viewMode, announceMooseSmash, musicEnabled, showOpponentIndicators]);
 
+  const handleTogglePlayPause = () => {
+    setIsPlaying((prev) => {
+      const next = !prev;
+      stateRef.current.isPlaying = next;
+      if (!next) {
+        stateRef.current.keyboardForward = false;
+        stateRef.current.keyboardBackward = false;
+        stateRef.current.isPressingForward = false;
+        stateRef.current.isPressingBackward = false;
+      } else {
+        stateRef.current.lastTime = performance.now();
+      }
+      speakWords(next ? "Game Resumed" : "Game Paused");
+      return next;
+    });
+  };
+
+  // Ambience remains active when paused; only musical BGM tracks stop/resume and stay off by default ("Ambience Only")
   useEffect(() => {
-    if (soundSystemRef.current) {
-      soundSystemRef.current.setMusicEnabled(musicEnabled);
+    if (!soundSystemRef.current) return;
+    soundSystemRef.current.musicEnabled = musicEnabled;
+    if (musicEnabled && isPlaying) {
+      soundSystemRef.current.playOnlyBGMTracks();
+    } else {
+      soundSystemRef.current.stopOnlyBGMTracks();
     }
-  }, [musicEnabled]);
+  }, [musicEnabled, isPlaying]);
 
   // Subscribe HUD and dashboard state to GeminiSystem quota updates to keep HUD meter 100% accurate
   const [, setQuotaHUDTrigger] = useState(0);
@@ -1090,16 +1112,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           break;
         }
         case "pause_resume": {
-          setIsPlaying((prev) => {
-            const next = !prev;
-            stateRef.current.isPlaying = next;
-            if (!next) {
-              stateRef.current.isPressingForward = false;
-              stateRef.current.isPressingBackward = false;
-            }
-            speakWords(next ? "Game Resumed" : "Game Paused");
-            return next;
-          });
+          handleTogglePlayPause();
           break;
         }
         case "toggle_feed": {
@@ -1238,20 +1251,22 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
       if (controllerLeft) {
         if (!stateRef.current.controllerLeftPressed) {
           stateRef.current.controllerLeftPressed = true;
-          if (stateRef.current.currentLevelId === 0) {
-            const dirs = ["North", "East", "South", "West"];
-            const idx = dirs.indexOf(stateRef.current.foyerDirection);
-            const nextIdx = (idx + 3) % 4; // Turn counter-clockwise
-            const nextDir = dirs[nextIdx];
-            stateRef.current.foyerDirection = nextDir;
-            setFoyerDirection(nextDir);
-            speakWords(nextDir);
-            setStatusMessage(`Facing: ${nextDir}`);
-          } else {
-            const nextLane = Math.max(-1, stateRef.current.playerLane - 1);
-            if (nextLane !== stateRef.current.playerLane) {
-              stateRef.current.playerLane = nextLane;
-              setPlayerLane(nextLane);
+          if (stateRef.current.isPlaying && !stateRef.current.isGameOver) {
+            if (stateRef.current.currentLevelId === 0) {
+              const dirs = ["North", "East", "South", "West"];
+              const idx = dirs.indexOf(stateRef.current.foyerDirection);
+              const nextIdx = (idx + 3) % 4; // Turn counter-clockwise
+              const nextDir = dirs[nextIdx];
+              stateRef.current.foyerDirection = nextDir;
+              setFoyerDirection(nextDir);
+              speakWords(nextDir);
+              setStatusMessage(`Facing: ${nextDir}`);
+            } else {
+              const nextLane = Math.max(-1, stateRef.current.playerLane - 1);
+              if (nextLane !== stateRef.current.playerLane) {
+                stateRef.current.playerLane = nextLane;
+                setPlayerLane(nextLane);
+              }
             }
           }
         }
@@ -1263,20 +1278,22 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
       if (controllerRight) {
         if (!stateRef.current.controllerRightPressed) {
           stateRef.current.controllerRightPressed = true;
-          if (stateRef.current.currentLevelId === 0) {
-            const dirs = ["North", "East", "South", "West"];
-            const idx = dirs.indexOf(stateRef.current.foyerDirection);
-            const nextIdx = (idx + 1) % 4; // Turn clockwise
-            const nextDir = dirs[nextIdx];
-            stateRef.current.foyerDirection = nextDir;
-            setFoyerDirection(nextDir);
-            speakWords(nextDir);
-            setStatusMessage(`Facing: ${nextDir}`);
-          } else {
-            const nextLane = Math.min(1, stateRef.current.playerLane + 1);
-            if (nextLane !== stateRef.current.playerLane) {
-              stateRef.current.playerLane = nextLane;
-              setPlayerLane(nextLane);
+          if (stateRef.current.isPlaying && !stateRef.current.isGameOver) {
+            if (stateRef.current.currentLevelId === 0) {
+              const dirs = ["North", "East", "South", "West"];
+              const idx = dirs.indexOf(stateRef.current.foyerDirection);
+              const nextIdx = (idx + 1) % 4; // Turn clockwise
+              const nextDir = dirs[nextIdx];
+              stateRef.current.foyerDirection = nextDir;
+              setFoyerDirection(nextDir);
+              speakWords(nextDir);
+              setStatusMessage(`Facing: ${nextDir}`);
+            } else {
+              const nextLane = Math.min(1, stateRef.current.playerLane + 1);
+              if (nextLane !== stateRef.current.playerLane) {
+                stateRef.current.playerLane = nextLane;
+                setPlayerLane(nextLane);
+              }
             }
           }
         }
@@ -1310,18 +1327,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
       if (controllerPause) {
         if (!stateRef.current.controllerPausePressed) {
           stateRef.current.controllerPausePressed = true;
-          setIsPlaying((prev) => {
-            const next = !prev;
-            stateRef.current.isPlaying = next;
-            if (!next) {
-              stateRef.current.isPressingForward = false;
-              stateRef.current.isPressingBackward = false;
-            } else {
-              stateRef.current.lastTime = performance.now();
-            }
-            speakWords(next ? "Game Resumed" : "Game Paused");
-            return next;
-          });
+          handleTogglePlayPause();
         }
       } else {
         stateRef.current.controllerPausePressed = false;
@@ -1614,13 +1620,13 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     setChalkboardConfig,
     onOpenThemeModal: () => setShowThemeModal(true),
     customTrackId,
-    onSetCustomTrack: (trackId: string | null) => {
+    onSetCustomTrack: (trackId: string | null, enableMusic?: boolean) => {
+      const shouldEnableMusic = enableMusic !== undefined ? enableMusic : trackId !== null;
       setCustomTrackId(trackId);
-      if (trackId !== null) {
-        setMusicEnabled(true);
-      }
+      setMusicEnabled(shouldEnableMusic);
       if (soundSystemRef.current) {
-        soundSystemRef.current.setCustomTrack(trackId);
+        soundSystemRef.current.setCustomTrack(trackId, shouldEnableMusic && stateRef.current.isPlaying);
+        soundSystemRef.current.musicEnabled = shouldEnableMusic;
       }
     }
   };
@@ -1763,9 +1769,14 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           score={score}
           ticksEaten={ticksEaten}
           Measured_Distance_Value={Measured_Distance_Value}
+          Measured_Speed_Value={Measured_Speed_Value}
+          speed={speed}
+          isPlaying={isPlaying}
+          onTogglePlayPause={handleTogglePlayPause}
           getEdibleItemName={getEdibleItemName}
           canvasRef={canvasRef}
           onMoveLeft={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -1784,6 +1795,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onMoveRight={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -1802,6 +1814,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onJump={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (!stateRef.current.isJumping) {
               stateRef.current.isJumping = true;
               stateRef.current.jumpProgress = 0;
@@ -1880,15 +1893,10 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           getEdibleItemName={getEdibleItemName}
           canvasRef={canvasRef}
           isPlaying={isPlaying}
-          onTogglePlayPause={() => {
-            setIsPlaying((prev) => {
-              const next = !prev;
-              stateRef.current.isPlaying = next;
-              return next;
-            });
-          }}
+          onTogglePlayPause={handleTogglePlayPause}
           onOpenMenu={() => setShowThemeModal(true)}
           onMoveLeft={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -1907,6 +1915,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onMoveRight={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -1925,6 +1934,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onJump={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (!stateRef.current.isJumping) {
               stateRef.current.isJumping = true;
               stateRef.current.jumpProgress = 0;
@@ -2003,15 +2013,10 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
           getEdibleItemName={getEdibleItemName}
           canvasRef={canvasRef}
           isPlaying={isPlaying}
-          onTogglePlayPause={() => {
-            setIsPlaying((prev) => {
-              const next = !prev;
-              stateRef.current.isPlaying = next;
-              return next;
-            });
-          }}
+          onTogglePlayPause={handleTogglePlayPause}
           onOpenMenu={() => setShowThemeModal(true)}
           onMoveLeft={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -2030,6 +2035,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onMoveRight={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (stateRef.current.currentLevelId === 0) {
               const dirs = ["North", "East", "South", "West"];
               const idx = dirs.indexOf(stateRef.current.foyerDirection);
@@ -2048,6 +2054,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             }
           }}
           onJump={() => {
+            if (!stateRef.current.isPlaying || stateRef.current.isGameOver) return;
             if (!stateRef.current.isJumping) {
               stateRef.current.isJumping = true;
               stateRef.current.jumpProgress = 0;

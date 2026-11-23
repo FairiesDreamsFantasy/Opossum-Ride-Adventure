@@ -352,10 +352,7 @@ export const PortraitOrientation4Tablets: React.FC<PortraitOrientation4TabletsPr
               {/* Pause / Resume Button */}
               <button
                 id="tablet-btn-pause-resume"
-                onClick={() => {
-                  onTogglePlayPause();
-                  speakWords(isPlaying ? "Game paused" : "Game resumed");
-                }}
+                onClick={onTogglePlayPause}
                 className={`px-4 py-2 min-h-[44px] font-mono font-bold text-xs uppercase rounded-lg border-2 shadow-lg transition flex items-center gap-2 ${
                   isPlaying
                     ? "bg-amber-950/90 border-amber-500 text-amber-300 active:bg-amber-800"

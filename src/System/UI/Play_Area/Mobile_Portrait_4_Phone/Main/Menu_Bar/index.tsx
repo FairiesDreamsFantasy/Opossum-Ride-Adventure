@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { ArrowLeft, RefreshCw, Volume2, VolumeX, Smartphone, Layers, Columns, Gamepad2 } from "lucide-react";
+import { ArrowLeft, RefreshCw, Volume2, VolumeX, Smartphone, Layers, Columns, Gamepad2, Pause, Play } from "lucide-react";
 import { MobileLayoutStyleType, MOBILE_LAYOUT_STYLES } from "../../General";
 
 export interface MobileMenuBarProps {
@@ -13,6 +13,8 @@ export interface MobileMenuBarProps {
   onToggleLayout: () => void;
   ttsEnabled: boolean;
   onToggleTTS: () => void;
+  isPlaying: boolean;
+  onTogglePlayPause: () => void;
   showTouchDecks?: boolean;
   onToggleControlsDeck?: () => void;
   className?: string;
@@ -24,6 +26,8 @@ export const MobileMenuBar: React.FC<MobileMenuBarProps> = ({
   onToggleLayout,
   ttsEnabled,
   onToggleTTS,
+  isPlaying,
+  onTogglePlayPause,
   showTouchDecks = true,
   onToggleControlsDeck,
   className = ""
@@ -45,7 +49,7 @@ export const MobileMenuBar: React.FC<MobileMenuBarProps> = ({
   return (
     <header
       id="Mobile_Menu_Bar_Header"
-      className={`w-full z-30 px-3 py-2 flex items-center justify-between bg-zinc-950/90 backdrop-blur-md border-b border-green-900/60 font-mono text-xs ${className}`}
+      className={`w-full z-30 px-2 py-2 flex items-center justify-between gap-1 bg-zinc-950/90 backdrop-blur-md border-b border-green-900/60 font-mono text-xs ${className}`}
       role="banner"
     >
       {/* Return to Landing Page on the left */}
@@ -53,26 +57,41 @@ export const MobileMenuBar: React.FC<MobileMenuBarProps> = ({
         type="button"
         id="Mobile_Return_Landing_Page_Button"
         onClick={onExitGame}
-        className="flex items-center gap-1.5 px-3 py-2 rounded-md bg-zinc-900 border border-green-700/80 text-green-300 active:bg-green-800 active:text-white transition-all font-semibold touch-manipulation min-h-[44px] min-w-[76px] justify-center"
+        className="flex items-center gap-1 px-2.5 py-2 rounded-md bg-zinc-900 border border-green-700/80 text-green-300 active:bg-green-800 active:text-white transition-all font-semibold touch-manipulation min-h-[44px] justify-center"
         aria-label="Return to Landing Page"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span className="uppercase tracking-wider text-[11px]">Exit</span>
+        <span className="uppercase tracking-wider text-[10px]">Exit</span>
       </button>
 
-      {/* Center Button Deck: Layout Switcher & Optional Controls Deck Toggle */}
-      <div className="flex items-center gap-2">
+      {/* Center Button Deck: Layout Switcher, Pause/Resume & Optional Controls Deck Toggle */}
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          id="Mobile_Pause_Resume_Button"
+          onClick={onTogglePlayPause}
+          className={`flex items-center gap-1 px-2.5 py-2 rounded-full border-2 font-bold touch-manipulation min-h-[44px] transition-all text-[10px] uppercase tracking-wide ${
+            isPlaying
+              ? "bg-amber-950/90 border-amber-500 text-amber-300 active:bg-amber-800"
+              : "bg-emerald-950/90 border-emerald-400 text-emerald-200 active:bg-emerald-800 animate-pulse"
+          }`}
+          aria-label={isPlaying ? "Pause game" : "Resume game"}
+        >
+          {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+          <span>{isPlaying ? "Pause" : "Resume"}</span>
+        </button>
+
         <button
           type="button"
           id="Mobile_Layout_Switch_Toggle_Button"
           onClick={onToggleLayout}
-          className="flex items-center gap-2 px-3 py-2 rounded-full bg-zinc-900 active:bg-zinc-800 border-2 border-green-500/80 text-green-200 active:scale-95 transition-all font-bold touch-manipulation min-h-[44px] shadow-sm"
+          className="flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-zinc-900 active:bg-zinc-800 border-2 border-green-500/80 text-green-200 active:scale-95 transition-all font-bold touch-manipulation min-h-[44px] shadow-sm"
           aria-label={`Current layout: ${currentMeta.name}. Tap to switch layout.`}
           title="Tap to toggle layout style"
         >
           <RefreshCw className="w-3.5 h-3.5 text-green-400" />
           {renderIcon()}
-          <span className="uppercase text-[11px] font-mono tracking-wide">{currentMeta.shortName}</span>
+          <span className="uppercase text-[10px] font-mono tracking-wide">{currentMeta.shortName}</span>
         </button>
 
         {onToggleControlsDeck && (
@@ -80,7 +99,7 @@ export const MobileMenuBar: React.FC<MobileMenuBarProps> = ({
             type="button"
             id="Mobile_Controls_Deck_Toggle_Button"
             onClick={onToggleControlsDeck}
-            className={`flex items-center gap-1 px-2.5 py-2 rounded-full border text-[11px] font-mono font-bold touch-manipulation min-h-[44px] transition-all ${
+            className={`flex items-center gap-1 px-2 py-2 rounded-full border text-[10px] font-mono font-bold touch-manipulation min-h-[44px] transition-all ${
               showTouchDecks
                 ? "bg-emerald-950/80 border-emerald-500 text-emerald-300"
                 : "bg-zinc-900 border-zinc-700 text-zinc-400"
@@ -89,7 +108,7 @@ export const MobileMenuBar: React.FC<MobileMenuBarProps> = ({
             title="Toggle on-screen button controls"
           >
             <Gamepad2 className="w-3.5 h-3.5" />
-            <span>{showTouchDecks ? "Deck ON" : "Deck OFF"}</span>
+            <span>{showTouchDecks ? "Deck" : "Hide"}</span>
           </button>
         )}
       </div>

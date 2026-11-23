@@ -62,7 +62,7 @@ export class WiiControllerManagerController {
       const devices = await (navigator as any).hid.requestDevice({
         filters: [
           { vendorId: WiiGeneralConfig.bluetooth.VENDOR_ID, productId: WiiGeneralConfig.bluetooth.PRODUCT_ID_STANDARD },
-          { vendorId: WiiGeneralConfig.bluetooth.PRODUCT_ID_STANDARD, productId: WiiGeneralConfig.bluetooth.PRODUCT_ID_PLUS }
+          { vendorId: WiiGeneralConfig.bluetooth.VENDOR_ID, productId: WiiGeneralConfig.bluetooth.PRODUCT_ID_PLUS }
         ]
       });
 

@@ -488,10 +488,44 @@ export class ProceduralSoundSystem {
       }
     }
 
-    // Select BGM track based on PlaceResolver profile
+    // Select BGM track based on PlaceResolver profile (skipped when Ambience Only / musicEnabled is false)
     if (!this.musicEnabled) {
       return;
     }
+
+    this.playOnlyBGMTracks();
+  }
+
+  /**
+   * Starts only the musical BGM composition without restarting active environmental ambience.
+   * Safe for resuming from pause or enabling music mid-level while preserving continuous ambience.
+   */
+  public playOnlyBGMTracks() {
+    const ctx = this.getContext();
+    if (!ctx || ctx.state === "suspended") return;
+
+    this.initAudioGraph(ctx);
+    const dest = this.bgmPanner || this.bgmGain || this.masterGain;
+    if (!dest) return;
+
+    this.stopOnlyBGMTracks();
+
+    if (!this.musicEnabled) {
+      return;
+    }
+
+    const id = this.placeId.toLowerCase();
+    if (id === "floor_foyer" || id.includes("foyer")) {
+      // Background music must strictly NEVER play inside the Level 0 Manor Foyer
+      return;
+    }
+
+    const isAIGen = this.isAIGenerated || id.startsWith("ai_gen_");
+    if (isAIGen) {
+      return;
+    }
+
+    const profile = PlaceResolver.getBGMProfile(id);
 
     if (this.customTrackId) {
       const track = this.customTrackId.toLowerCase();
@@ -583,19 +617,19 @@ export class ProceduralSoundSystem {
   public setMusicEnabled(enabled: boolean) {
     this.musicEnabled = enabled;
     if (enabled) {
-      this.playBGM();
+      this.playOnlyBGMTracks();
     } else {
       this.stopOnlyBGMTracks();
     }
   }
 
-  public setCustomTrack(trackId: string | null) {
+  public setCustomTrack(trackId: string | null, enableMusic: boolean = true) {
     this.customTrackId = trackId;
+    this.musicEnabled = enableMusic;
     this.stopOnlyBGMTracks();
-    if (trackId !== null) {
-      this.musicEnabled = true;
+    if (enableMusic) {
+      this.playOnlyBGMTracks();
     }
-    this.playBGM();
   }
 
   /**

@@ -554,14 +554,18 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                     <button
                       onClick={() => {
                         if (setMusicEnabled) setMusicEnabled(false);
-                        if (onSetCustomTrack) onSetCustomTrack(null);
+                        if (onSetCustomTrack) onSetCustomTrack(null, false);
                         speakWords("Ambience only activated. Background music stopped.");
                         setStatusMessage("Ambience Only Activated");
                         setActiveMenu(null);
                         setActiveSubMenu(null);
                         setMusicMenuMode("none");
                       }}
-                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold min-h-[44px] ${itemTextClass} bg-green-900 text-white border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]`}
+                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold min-h-[44px] ${itemTextClass} ${
+                        !musicEnabled
+                          ? "bg-green-900 text-white border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                          : "bg-zinc-900/60 text-green-400 border-green-900/50 hover:border-green-700"
+                      }`}
                     >
                       <Volume2 size={12} className="text-green-300" />
                       <span>Ambience Only (Default)</span>
@@ -571,7 +575,11 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                         setMusicMenuMode("list");
                         speakWords("Choose Music From List. Select a track.");
                       }}
-                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold min-h-[44px] ${itemTextClass} bg-zinc-900/60 text-green-400 border-green-900/50 hover:border-green-700`}
+                      className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center gap-2 font-bold min-h-[44px] ${itemTextClass} ${
+                        musicEnabled
+                          ? "bg-green-900 text-white border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
+                          : "bg-zinc-900/60 text-green-400 border-green-900/50 hover:border-green-700"
+                      }`}
                     >
                       <Music size={12} className="text-green-300" />
                       <span>Choose Music From List</span>
@@ -605,22 +613,22 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                       <button
                         key={track.label || "dynamic"}
                         onClick={() => {
-                          if (setMusicEnabled) setMusicEnabled(track.id !== null);
-                          if (onSetCustomTrack) onSetCustomTrack(track.id);
-                          speakWords(`${track.label} music selected.`);
+                          if (setMusicEnabled) setMusicEnabled(true);
+                          if (onSetCustomTrack) onSetCustomTrack(track.id, true);
+                          speakWords(`${track.label} music activated.`);
                           setStatusMessage(`Music: ${track.label}`);
                           setActiveMenu(null);
                           setActiveSubMenu(null);
                           setMusicMenuMode("none");
                         }}
                         className={`font-mono uppercase px-3 py-1.5 rounded border transition flex items-center justify-between gap-2 font-bold min-h-[44px] text-left ${itemTextClass} ${
-                          customTrackId === track.id
+                          musicEnabled && customTrackId === track.id
                             ? "bg-green-900 text-white border-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]"
                             : "bg-zinc-900/60 text-green-400 border-green-900/50 hover:border-green-700"
                         }`}
                       >
                         <span>{track.label}</span>
-                        {customTrackId === track.id && <span className="text-[9px] bg-green-500 text-black px-1.5 py-0.5 rounded font-extrabold">Active</span>}
+                        {musicEnabled && customTrackId === track.id && <span className="text-[9px] bg-green-500 text-black px-1.5 py-0.5 rounded font-extrabold">Active</span>}
                       </button>
                     ))}
                     <button
