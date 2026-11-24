@@ -348,6 +348,21 @@ class GeminiManager {
   }
 
   /**
+   * Ahead-of-Time (AOT) Capability Pre-Warming & System Stabilization.
+   * Ensures all model bindings, system manifests, and memoization caches are primed ahead of gameplay execution.
+   */
+  public preWarmAheadOfTimeCapabilities(): { status: string; modelsCount: number; timestamp: string } {
+    this.refreshSystemManifest();
+    const ready = this.isReady();
+    console.log(`[Gemini AOT Pre-Warm] Subsystem status: ${ready ? "READY" : "STANDBY"}, Models catalogued: ${AVAILABLE_GEMINI_MODELS.length}`);
+    return {
+      status: ready ? "AOT_PRE_WARMED_ACTIVE" : "AOT_PRE_WARMED_STANDBY",
+      modelsCount: AVAILABLE_GEMINI_MODELS.length,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  /**
    * Generates speech audio for the given text using Gemini TTS models.
    * Returns a base64 encoded WAV string or null if failed.
    */
