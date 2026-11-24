@@ -334,4 +334,20 @@ To protect the standardization of the accessibility system, the following mandat
     *   Mounted on the **Floor Foyer West Wall (`X = 0`)** at **`984 ft` to `988 ft`** from the south wall (leaving `24 inches` to the left of the `990–1,010 ft` Grand Red Frame Doorway) and elevated **`12 ft` from the floor** (`12–16 ft`).
 *   **Diegetic Screenshot Support (`CanvasTextPurityPolicy` `"physical_world_sign"`)**: Physical wall/post sign objects render cleanly in **3-D normal visuals**, **Chalkboard Only**, **2-D Blueprint**, and **Pirated Cartridge** modes so in-world architectural signs appear naturally inside screenshots while screen-space debug clutter stays disabled.
 
+---
+
+### 25. Zero-Fallback 32-Opossum Render Wiring, Attribute Design Normalization & Foyer Compass Tick Alignment (`v0.1.0.8`)
+*   **`CraftedOpossumRenderKernel` (`System/Engine/Science/Graphical_Renderer/CraftedOpossumRenderKernel.ts`)**:
+    *   Maps **all 32 crafted `OpossumId` members** in `CRAFTED_OPOSSUM_VISUAL_PROFILES` to their exact handcrafted `Color_Palette`, `Description`, `profile.ts`, and `3-D` geometry specs (fur/skin/furry-face %, nose/eye/paw colors, ear orientations `upright`/`forward_leaning`/`side_down`/`downward_dog`, ear patterns, tail geometry/spirals, coat patterns, tiaras, necklaces, earrings, and Callie Rose's circular white-gold/brass reading glasses).
+    *   Replaces all former `MelissaOpossum` and `#9ca3af` gray render fallbacks across `render2DView` (Level 0 Foyer + Standard Course + dynamic 2D tail stroke), `renderOpossumRider` (3D wireframe, 3D model, and fused rider leg/boot colors), `renderOpossumPOV` (POV rider legs, ears, shoulders, head, face, nose, glasses, and tiara), and `World_2/Temple_Courtyard` (`resolveOpossumPrimaryColorHex` in `drawPlayerOpossum2D`).
+    *   Exported from `Graphical_Renderer/index.tsx` and verified in `System/Security/Sentinel/Integrity_Web.ts` (`criticalSystems` + `callableChecks`).
+*   **Full 32-Opossum Attribute Registry (`System/Registry/Characters/Opossums/Attributes/Design/index.tsx`)**:
+    *   Added `resolveDesignKey(id)` (`"arden_rosie"` <-> `"arden_rosie_kone_reynolds"`) across attribute maps 1–38 and `resolveVisualMappingKey(id)` in Map 39 (`Visual_Mapping`) so lookups never silently miss `arden_rosie`.
+    *   Populated all 32 crafted opossums across Maps `5`, `27`, `29`, `31–38`, synced `Skin_Color.Peach_Apricot.apricot.opossums` (`daisy_rose`, `arnold_rose`), and added all 6 compact Jacks (`drake_kone_reynolds`, `rudy_kone_reynolds`, `eugene_rose`, `arnold_rose`, `melvin_qin`, `safford_chin`) to Map `39. Visual_Mapping`.
+*   **Foyer 3D Compass Tick Alignment (`Graphical_Renderer/index.tsx` `renderFoyer3D`)**:
+    *   Rotates `localTicks` world deltas `(tick.x - foyerX, tick.y - foyerY)` into camera-right/camera-forward space for `"North"`, `"East"`, `"South"`, and `"West"` (`camForward > -900`) so collectible floor items stay aligned with walls, doors, and the Grand Tea Room sign in all four compass directions.
+*   **3rd-Person Rider Clearance & POV Bottom Framing (`CraftedOpossumRenderKernel.ts` & `Graphical_Renderer/index.tsx`)**:
+    *   Added `resolveRiderMountLayout` and `drawCraftedOpossumForeground3D` so procedural crafted opossums seat the rider higher on the back (`riderYOffset = -14`) with flank-hugging legs while rendering head, ears, eyes, circular glasses, tiara (with contrast halo), and diamond/charm necklace unobstructed in the foreground respecting `headOrientation` (`perched on top of her neck` vs `forward_leaning`).
+    *   Updated `renderOpossumPOV` callers (`renderStandardLevel`, `renderWorld2Courtyard3D`, `renderFoyer3D`) from `height + 10` to `height - 46` and refactored `renderCraftedOpossumPOV` to true behind-the-head forward-facing anatomy (no backward-staring eyeballs or back-shoulder medallion, outer-ear primary + front inner-ear crescent, temple-arm & outer-rim glasses peek, tapered forward muzzle + nose tip, cranial crest tiara, and collar band).
+    *   Added opaque floor base and solid orange/violet perspective bands in `renderFoyer3D` to eliminate previous-frame canvas ghosting.
 

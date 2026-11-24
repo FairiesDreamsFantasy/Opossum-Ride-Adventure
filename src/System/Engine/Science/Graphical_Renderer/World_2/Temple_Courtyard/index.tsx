@@ -25,6 +25,7 @@ import { CourtyardPerspectiveKernel } from "./CourtyardPerspectiveKernel";
 import { CanvasTextPurityPolicy } from "../../CanvasTextPurityPolicy";
 import { isPiratedSwitchCartridge } from "../../../../../Security/Copyleft_Enforcement";
 import { CourtyardCopyleftScene } from "./CourtyardCopyleftScene";
+import { resolveOpossumPrimaryColorHex } from "../../CraftedOpossumRenderKernel";
 
 export * from "./CourtyardPerspectiveKernel";
 export * from "./CourtyardCopyleftScene";
@@ -286,7 +287,7 @@ export function renderWorld2Courtyard2D(
     mapX(state.foyerX),
     mapY(state.foyerY),
     state.foyerDirection,
-    selectedOpossum.color,
+    resolveOpossumPrimaryColorHex(selectedOpossum),
     defaultRider.skinColor
   );
 }

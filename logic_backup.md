@@ -529,4 +529,19 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
   - Placement: Floor Foyer West Wall (`X = 0`), spanning `984 ft` to `988 ft` from the south wall (leaving `24 in` to the left of the `990–1,010 ft` Grand Red Frame Doorway), placed `12 ft` from the floor (`12–16 ft` vertical span).
 - **3-D & 2-D Rendering (`Graphical_Renderer/index.tsx` & `CanvasTextPurityPolicy.ts`)**: Added `physical_world_sign` policy category (always `true` for screenshots in normal 3-D, 2-D, Chalkboard, and Pirated Cartridge modes) and direction-aware West/South/East wall projection in `renderFoyer3D` (`foyerDirection`) displaying the Grand Red Frame Doorway + `"Grand Tea Room"` plaque alongside 2-D blueprint placement.
 
+---
+
+## 27. Zero-Fallback 32-Opossum Render & Attribute Pipeline (`v0.1.0.8`)
+- **`CraftedOpossumRenderKernel` (`System/Engine/Science/Graphical_Renderer/CraftedOpossumRenderKernel.ts`)**:
+  - Encodes `CRAFTED_OPOSSUM_VISUAL_PROFILES` for **all 32 `OpossumId` crafted opossums** with exact handcrafted colors, patterns, ear orientations/lengths/patterns, furry-face percentages, tails, paws, and accessories (tiaras, necklaces, earrings, Callie Rose's circular glasses).
+  - Wires `drawCraftedOpossum2D`, `drawCraftedOpossum3D`, `drawCraftedOpossumPolygons`, `renderCraftedOpossumPOV`, `resolveOpossumVisualProfile`, `resolveOpossumPrimaryColorHex`, and `resolveRiderLegColors` across `Graphical_Renderer/index.tsx`, `World_2/Temple_Courtyard/index.tsx`, and `Integrity_Web.ts`, eliminating every `MelissaOpossum` and `#9ca3af` gray fallback across `2-D`, `3-D`, `Polygons`, and `POV` modes.
+- **`OpossumsAttributesDesign` (`System/Registry/Characters/Opossums/Attributes/Design/index.tsx`)**:
+  - Added bidirectional `resolveDesignKey` / `resolveVisualMappingKey` normalization between `"arden_rosie"` and `"arden_rosie_kone_reynolds"`.
+  - Populated all 32 crafted opossums across attribute maps `5`, `27`, `29`, `31–38` and added all 6 missing compact Jacks (`drake_kone_reynolds`, `rudy_kone_reynolds`, `eugene_rose`, `arnold_rose`, `melvin_qin`, `safford_chin`) to `Visual_Mapping` (Map 39).
+- **`renderFoyer3D` Compass Alignment (`Graphical_Renderer/index.tsx`)**:
+  - Rotates Level 0 `localTicks` coordinates into camera space across `North`, `East`, `South`, and `West` so floor ticks match doorway and wall orientation in every compass direction.
+- **3rd-Person Foreground Clearance, Head Orientation & POV Optical Geometry (`CraftedOpossumRenderKernel.ts` & `Graphical_Renderer/index.tsx`)**:
+  - `resolveRiderMountLayout` & `drawCraftedOpossumForeground3D` seat riders above/behind the neck with flank-hugging legs for procedural crafted opossums, attaching ears cleanly to `headY` (`headOrientation` aware) so eyes, ears, circular reading glasses, contrasted tiara, and necklace remain unobstructed in 3rd-person view.
+  - Updated all 3 `renderOpossumPOV` call sites to `py = height - 46` and refactored `renderCraftedOpossumPOV` to anatomically true behind-the-head POV optics (outer-ear back + thin front inner-ear crescent, furred cranium crest tiara, glasses temple arms + outer curved lens rims without backward-staring eyeballs, tapered forward snout/nose tip, and neck collar band).
+  - Filled `renderFoyer3D` floor opaquely each frame (`INDIGO_SKY` + solid `#f97316` / `#7c3aed` bands) to prevent previous-frame sprite/tick afterimages.
 

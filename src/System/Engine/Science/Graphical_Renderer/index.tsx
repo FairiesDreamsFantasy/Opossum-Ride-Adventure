@@ -5,26 +5,17 @@
 
 import { OpossumCharacter, RiderCharacter, GameViewMode, GameLevel, TickItem, Opponent, ObstacleItem, AnimalItem } from "../../../../types";
 import { VISUAL_CONSTANTS } from "../../../Visuals";
-import { 
-  MelissaOpossum, 
-  AshleyOpossum, 
-  AmaraQinOpossum, 
-  SaffronRoseOpossum, 
-  JalissaChinOpossum, 
-  ArdenRosieOpossum, 
-  JahmellaRoseOpossum, 
-  DagmarKoneReynoldsOpossum,
-  AgapeRoseOpossum,
-  RoxanneKoneReynoldsOpossum,
-  TianaQinOpossum,
-  drawIvan2D,
-  drawIvan3D,
-  drawIvanPolygons,
-  drawIsaac2D,
-  drawIsaac3D,
-  drawIsaacPolygons
-} from "../../../../Characters/Opossums";
-import { AIGeneratedOpossum } from "../../../../Characters/Opossums/AI-Generated/Drawing";
+import {
+  CraftedOpossumRenderKernel,
+  drawCraftedOpossum2D,
+  drawCraftedOpossum3D,
+  drawCraftedOpossumForeground3D,
+  drawCraftedOpossumPolygons,
+  renderCraftedOpossumPOV,
+  resolveOpossumVisualProfile,
+  resolveRiderLegColors,
+  resolveRiderMountLayout
+} from "./CraftedOpossumRenderKernel";
 import { MonkeyCharacterModel } from "../../../../Characters/Monkeys";
 import { MooseCharacterModel } from "../../../../Characters/Moose";
 import { drawGoatCameo2D, drawGoatCameo3D } from "../../../../Characters/Goats";
@@ -41,7 +32,7 @@ import { GrandTeaRoomSign, GRAND_TEA_ROOM_SIGN_SPEC, drawGrandTeaRoomSign } from
 import { renderWorld2Courtyard2D, renderWorld2Courtyard3D as renderWorld2Courtyard3DCore, CourtyardCopyleftScene } from "./World_2/Temple_Courtyard";
 import { CanvasTextPurityPolicy } from "./CanvasTextPurityPolicy";
 import { DepthSortViewportKernel } from "./DepthSortViewportKernel";
-export { drawEdibleItem, getEdibleItemName, CanvasTextPurityPolicy, DepthSortViewportKernel, CourtyardCopyleftScene, GrandTeaRoomSign };
+export { drawEdibleItem, getEdibleItemName, CanvasTextPurityPolicy, DepthSortViewportKernel, CourtyardCopyleftScene, GrandTeaRoomSign, CraftedOpossumRenderKernel };
 
 /**
  * Renders the 2D Top-Down Blueprint or World view.
@@ -237,45 +228,7 @@ export function render2DView(
     else if (state.foyerDirection === "West") ctx.lineTo(pScaleX - 20, pScaleY);
     ctx.stroke();
 
-    const isAshley = selectedOpossum.id === "ashley";
-    const isAmara = selectedOpossum.id === "amara_qin";
-    const isSaffron = selectedOpossum.id === "saffron_rose";
-    const isJalissa = selectedOpossum.id === "jalissa_chin";
-    const isJahmella = selectedOpossum.id === "jahmella_rose";
-    const isDagmar = selectedOpossum.id === "dagmar_kone_reynolds";
-    const isAgape = selectedOpossum.id === "agape_rose";
-    const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
-    const isTiana = selectedOpossum.id === "tiana_qin";
-    const isIvan = selectedOpossum.id === "ivan_opossum";
-    const isIsaac = selectedOpossum.id === "isaac_opossum";
-
-    if (selectedOpossum.isAI) {
-      AIGeneratedOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isAshley) {
-      AshleyOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isAmara) {
-      AmaraQinOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isSaffron) {
-      SaffronRoseOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isJalissa) {
-      JalissaChinOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isJahmella) {
-      JahmellaRoseOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isDagmar) {
-      DagmarKoneReynoldsOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isAgape) {
-      AgapeRoseOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isRoxanne) {
-      RoxanneKoneReynoldsOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isTiana) {
-      TianaQinOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isIvan) {
-      drawIvan2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else if (isIsaac) {
-      drawIsaac2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    } else {
-      MelissaOpossum.draw2D(ctx, pScaleX, pScaleY, selectedOpossum);
-    }
+    drawCraftedOpossum2D(ctx, pScaleX, pScaleY, selectedOpossum);
 
     ctx.fillStyle = defaultRider.skinColor;
     ctx.beginPath();
@@ -567,56 +520,19 @@ export function render2DView(
     const plX = roadCenter + state.visualLaneX * (roadWidth / 12);
     const plY = height - 100 - state.playerY * 4;
 
-    const isAshley = selectedOpossum.id === "ashley";
-    const isAmara = selectedOpossum.id === "amara_qin";
-    const isSaffron = selectedOpossum.id === "saffron_rose";
-    const isJalissa = selectedOpossum.id === "jalissa_chin";
-    const isJahmella = selectedOpossum.id === "jahmella_rose";
-    const isDagmar = selectedOpossum.id === "dagmar_kone_reynolds";
-    const isAgape = selectedOpossum.id === "agape_rose";
-    const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
-    const isTiana = selectedOpossum.id === "tiana_qin";
-    const isIvan = selectedOpossum.id === "ivan_opossum";
-    const isIsaac = selectedOpossum.id === "isaac_opossum";
-
-    if (selectedOpossum.isAI) {
-      AIGeneratedOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isAshley) {
-      AshleyOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isAmara) {
-      AmaraQinOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isSaffron) {
-      SaffronRoseOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isJalissa) {
-      JalissaChinOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isJahmella) {
-      JahmellaRoseOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isDagmar) {
-      DagmarKoneReynoldsOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isAgape) {
-      AgapeRoseOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isRoxanne) {
-      RoxanneKoneReynoldsOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isTiana) {
-      TianaQinOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    } else if (isIvan) {
-      drawIvan2D(ctx, plX, plY, selectedOpossum);
-    } else if (isIsaac) {
-      drawIsaac2D(ctx, plX, plY, selectedOpossum);
-    } else {
-      MelissaOpossum.draw2D(ctx, plX, plY, selectedOpossum);
-    }
+    drawCraftedOpossum2D(ctx, plX, plY, selectedOpossum);
 
     ctx.fillStyle = defaultRider.skinColor;
     ctx.beginPath();
     ctx.arc(plX, plY, 7, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = "#ffb6c1";
-    ctx.lineWidth = 2;
+    const opossumProfile2D = resolveOpossumVisualProfile(selectedOpossum);
+    ctx.strokeStyle = opossumProfile2D.tailColor;
+    ctx.lineWidth = Math.max(2, opossumProfile2D.tailWidth * 0.55);
     ctx.beginPath();
     ctx.moveTo(plX, plY + 25);
-    ctx.quadraticCurveTo(plX - 15, plY + 40, plX - 5, plY + 45);
+    ctx.quadraticCurveTo(plX - 15 * opossumProfile2D.tailLengthScale, plY + 40, plX - 5, plY + 45 * opossumProfile2D.tailLengthScale);
     ctx.stroke();
   }
 }
@@ -1828,7 +1744,7 @@ export function renderStandardLevel(
     renderOpossumRider(ctx, px, py, width, height, selectedOpossum, defaultRider, wireframe);
   } else if (viewMode === GameViewMode.POV) {
     const px = width / 2;
-    const py = height + 10;
+    const py = height - 46;
     renderOpossumPOV(ctx, px, py, selectedOpossum);
   }
 }
@@ -1869,7 +1785,7 @@ export function renderWorld2Courtyard3D(
       if (vm === GameViewMode.RIDER) {
         renderOpossumRider(c, w / 2, h - 100, w, h, op, rid, wf);
       } else {
-        renderOpossumPOV(c, w / 2, h + 10, op);
+        renderOpossumPOV(c, w / 2, h - 46, op);
       }
     }
   );
@@ -1941,6 +1857,10 @@ export function renderFoyer3D(
   ctx.lineTo(width, horizonY);
   ctx.stroke();
 
+  // Clear Foyer floor opaquely each frame to eliminate any previous-frame ghosting
+  ctx.fillStyle = isPiratedCart ? "#808080" : VISUAL_CONSTANTS.PALETTE.INDIGO_SKY;
+  ctx.fillRect(0, horizonY, width, floorHeight);
+
   // Perspective grid view of the Foyer floor
   ctx.strokeStyle = isPiratedCart ? "rgba(100, 116, 139, 0.45)" : "rgba(139, 92, 246, 0.45)";
   ctx.lineWidth = 1;
@@ -1949,7 +1869,7 @@ export function renderFoyer3D(
     const ratio = Math.pow(i / lineCount, 2.5);
     const py = horizonY + ratio * floorHeight;
     
-    // Draw floor bands
+    // Draw opaque floor bands
     if (i < lineCount) {
       const nextRatio = Math.pow((i + 1) / lineCount, 2.5);
       const nextPy = horizonY + nextRatio * floorHeight;
@@ -1957,9 +1877,9 @@ export function renderFoyer3D(
         // Checked purple flooring replaced with khaki and gray striped flooring
         ctx.fillStyle = (i % 2 === 0) ? "#C3B091" : "#808080";
       } else {
-        ctx.fillStyle = (i % 2 === 0) ? "rgba(249, 115, 22, 0.2)" : "rgba(124, 58, 237, 0.2)"; 
+        ctx.fillStyle = (i % 2 === 0) ? "#f97316" : "#7c3aed";
       }
-      ctx.fillRect(0, py, width, nextPy - py);
+      ctx.fillRect(0, py, width, nextPy - py + 0.5);
     }
 
     ctx.beginPath();
@@ -2277,14 +2197,28 @@ export function renderFoyer3D(
     ctx.restore();
   }
 
-  // Foyer ticks
+  // Foyer ticks (compass-aligned to foyerDirection: North, East, South, West)
   localTicks.forEach((tick: TickItem) => {
     if (tick.collected) return;
-    const dx = (tick.x || 0) - foyerX;
-    const dy = (tick.y || 0) - foyerY;
-    const relativeYRatio = (dy + 1000) / 2000;
+    const gx = tick.x || 0;
+    const gy = tick.y || 0;
+    let camRight = gx - foyerX;
+    let camForward = gy - foyerY;
+    if (foyerDirection === "East") {
+      camRight = foyerY - gy;
+      camForward = gx - foyerX;
+    } else if (foyerDirection === "West") {
+      camRight = gy - foyerY;
+      camForward = foyerX - gx;
+    } else if (foyerDirection === "South") {
+      camRight = foyerX - gx;
+      camForward = foyerY - gy;
+    }
+    if (camForward <= -900) return;
+
+    const relativeYRatio = Math.max(-0.2, Math.min(1.2, (camForward + 1000) / 2000));
     const depthScale = 0.5 + relativeYRatio * 0.5;
-    const fx = centerX + dx * (0.35 * depthScale);
+    const fx = centerX + camRight * (0.35 * depthScale);
     const fy = horizonY + (1 - relativeYRatio) * floorHeight;
 
     if (fy > horizonY && fy < height && fx > 0 && fx < width) {
@@ -2300,7 +2234,7 @@ export function renderFoyer3D(
     renderOpossumRider(ctx, px, py, width, height, selectedOpossum, defaultRider, wireframe);
   } else if (viewMode === GameViewMode.POV) {
     const px = width / 2;
-    const py = height + 10;
+    const py = height - 46;
     renderOpossumPOV(ctx, px, py, selectedOpossum);
   }
 }
@@ -2318,80 +2252,15 @@ export function renderOpossumRider(
   defaultRider: RiderCharacter,
   wireframe: boolean
 ) {
-  const isAshley = selectedOpossum.id === "ashley";
-  const isArden = selectedOpossum.id === "arden_rosie";
-  const isJahmella = selectedOpossum.id === "jahmella_rose";
-  const isDagmar = selectedOpossum.id === "dagmar_kone_reynolds";
-  const isAmara = selectedOpossum.id === "amara_qin";
-  const isSaffron = selectedOpossum.id === "saffron_rose";
-  const isJalissa = selectedOpossum.id === "jalissa_chin";
-  const isAgape = selectedOpossum.id === "agape_rose";
-  const isRoxanne = selectedOpossum.id === "roxanne_kone_reynolds";
-  const isTiana = selectedOpossum.id === "tiana_qin";
-  const isIvan = selectedOpossum.id === "ivan_opossum";
-  const isIsaac = selectedOpossum.id === "isaac_opossum";
-  
-  const pWidth = isIvan ? 28 : (isIsaac ? 27.5 : (isSaffron ? 48 : (isJalissa || isArden ? 38 : (isRoxanne ? 45 : (isAgape ? 42 : (isTiana ? 38 : (isJahmella || isDagmar ? 40 : (isAshley ? 45 : 40))))))));
-
   if (wireframe) {
-    if (isAshley) {
-      AshleyOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isAmara) {
-      AmaraQinOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isSaffron) {
-      SaffronRoseOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isJalissa) {
-      JalissaChinOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isArden) {
-      ArdenRosieOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isJahmella) {
-      JahmellaRoseOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isDagmar) {
-      DagmarKoneReynoldsOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isAgape) {
-      AgapeRoseOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isRoxanne) {
-      RoxanneKoneReynoldsOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isTiana) {
-      TianaQinOpossum.drawPolygons(ctx, px, py, pWidth);
-    } else if (isIvan) {
-      drawIvanPolygons(ctx, px, py, pWidth);
-    } else if (isIsaac) {
-      drawIsaacPolygons(ctx, px, py, pWidth);
-    } else {
-      MelissaOpossum.drawPolygons(ctx, px, py, pWidth);
-    }
+    drawCraftedOpossumPolygons(ctx, px, py, selectedOpossum);
   } else {
-    if (selectedOpossum.isAI) {
-      AIGeneratedOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isAshley) {
-      AshleyOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isAmara) {
-      AmaraQinOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isSaffron) {
-      SaffronRoseOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isJalissa) {
-      JalissaChinOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isArden) {
-      ArdenRosieOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isJahmella) {
-      JahmellaRoseOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isDagmar) {
-      DagmarKoneReynoldsOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isAgape) {
-      AgapeRoseOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isRoxanne) {
-      RoxanneKoneReynoldsOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isTiana) {
-      TianaQinOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isIvan) {
-      drawIvan3D(ctx, px, py, width, height, selectedOpossum);
-    } else if (isIsaac) {
-      drawIsaac3D(ctx, px, py, width, height, selectedOpossum);
-    } else {
-      MelissaOpossum.draw3D(ctx, px, py, width, height, selectedOpossum);
-    }
+    drawCraftedOpossum3D(ctx, px, py, width, height, selectedOpossum);
   }
+
+  const mountLayout = resolveRiderMountLayout(selectedOpossum);
+  const riderY = py + mountLayout.riderYOffset;
+  const legSpreadX = mountLayout.legSpreadX;
 
   // Rider Rendering (Fairy-Rider, Mary, Edward, George, Angela)
   const isGeorge = defaultRider.id === "george";
@@ -2404,19 +2273,19 @@ export function renderOpossumRider(
     // Gold onesie with yellow hexagonal beehive pattern
     ctx.fillStyle = "#E5A93C"; // Rich Gold base
     ctx.beginPath();
-    ctx.ellipse(px, py - 10, 9, 14, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 10, 9, 14, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Upper torso
     ctx.fillStyle = "#D4982B";
-    ctx.fillRect(px - 7, py - 30, 14, 14);
+    ctx.fillRect(px - 7, riderY - 30, 14, 14);
 
     // Fine hexagon pattern simulation
     ctx.strokeStyle = "#000000";
     ctx.lineWidth = 0.6;
     ctx.beginPath();
     for (let hx = px - 6; hx <= px + 6; hx += 3.5) {
-      for (let hy = py - 29; hy <= py - 18; hy += 3.5) {
+      for (let hy = riderY - 29; hy <= riderY - 18; hy += 3.5) {
         ctx.strokeRect(hx - 1, hy - 1, 2.5, 2.5);
       }
     }
@@ -2424,25 +2293,25 @@ export function renderOpossumRider(
     // Honey-skin head
     ctx.fillStyle = defaultRider.skinColor || "#C68A4C";
     ctx.beginPath();
-    ctx.arc(px, py - 38, 7, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 38, 7, 0, Math.PI * 2);
     ctx.fill();
 
     // Black dreadlocks
     ctx.fillStyle = "#111111";
     ctx.beginPath();
-    ctx.arc(px, py - 41, 7.5, Math.PI, Math.PI * 2);
+    ctx.arc(px, riderY - 41, 7.5, Math.PI, Math.PI * 2);
     ctx.fill();
 
     // Red Rastafari Crown atop head
     ctx.fillStyle = "#DC2626"; // Vibrant Rastafari Red
     ctx.beginPath();
-    ctx.moveTo(px - 5, py - 44);
-    ctx.lineTo(px - 6, py - 49);
-    ctx.lineTo(px - 2, py - 46);
-    ctx.lineTo(px, py - 50);
-    ctx.lineTo(px + 2, py - 46);
-    ctx.lineTo(px + 6, py - 49);
-    ctx.lineTo(px + 5, py - 44);
+    ctx.moveTo(px - 5, riderY - 44);
+    ctx.lineTo(px - 6, riderY - 49);
+    ctx.lineTo(px - 2, riderY - 46);
+    ctx.lineTo(px, riderY - 50);
+    ctx.lineTo(px + 2, riderY - 46);
+    ctx.lineTo(px + 6, riderY - 49);
+    ctx.lineTo(px + 5, riderY - 44);
     ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = "#B91C1C";
@@ -2452,7 +2321,7 @@ export function renderOpossumRider(
     // Large white dress resembling Cinderella's gown with pink apron
     ctx.fillStyle = "#F8FAFC"; // Clean pristine white gown
     ctx.beginPath();
-    ctx.ellipse(px, py - 14, 15, 20, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 14, 15, 20, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = "#E2E8F0";
     ctx.lineWidth = 1;
@@ -2461,131 +2330,135 @@ export function renderOpossumRider(
     // Pink apron overlay
     ctx.fillStyle = "#F472B6"; // Modest pink apron
     ctx.beginPath();
-    ctx.ellipse(px, py - 13, 8, 11, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 13, 8, 11, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Upper torso (modest, dignified neckline)
     ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(px - 9, py - 44, 18, 17);
+    ctx.fillRect(px - 9, riderY - 44, 18, 17);
 
     // Peach skin head (6'8" tall stature)
     ctx.fillStyle = defaultRider.skinColor || "#F5C7A9";
     ctx.beginPath();
-    ctx.arc(px, py - 52, 8, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 52, 8, 0, Math.PI * 2);
     ctx.fill();
 
     // Long Red hair
     ctx.fillStyle = "#B91C1C";
     ctx.beginPath();
-    ctx.arc(px, py - 55, 8.5, Math.PI * 0.85, Math.PI * 2.15);
+    ctx.arc(px, riderY - 55, 8.5, Math.PI * 0.85, Math.PI * 2.15);
     ctx.fill();
     // Hair flowing down shoulders
-    ctx.fillRect(px - 10, py - 54, 3, 14);
-    ctx.fillRect(px + 7, py - 54, 3, 14);
+    ctx.fillRect(px - 10, riderY - 54, 3, 14);
+    ctx.fillRect(px + 7, riderY - 54, 3, 14);
 
     // Gold tiara with diamond-shaped red shiny gem
     ctx.fillStyle = "#FBBF24"; // Gold tiara
     ctx.beginPath();
-    ctx.moveTo(px - 6, py - 58);
-    ctx.lineTo(px, py - 63);
-    ctx.lineTo(px + 6, py - 58);
-    ctx.lineTo(px + 5, py - 56);
-    ctx.lineTo(px - 5, py - 56);
+    ctx.moveTo(px - 6, riderY - 58);
+    ctx.lineTo(px, riderY - 63);
+    ctx.lineTo(px + 6, riderY - 58);
+    ctx.lineTo(px + 5, riderY - 56);
+    ctx.lineTo(px - 5, riderY - 56);
     ctx.closePath();
     ctx.fill();
     // Diamond-shaped red shiny gem
     ctx.fillStyle = "#EF4444";
     ctx.beginPath();
-    ctx.moveTo(px, py - 62);
-    ctx.lineTo(px + 2, py - 60);
-    ctx.lineTo(px, py - 58);
-    ctx.lineTo(px - 2, py - 60);
+    ctx.moveTo(px, riderY - 62);
+    ctx.lineTo(px + 2, riderY - 60);
+    ctx.lineTo(px, riderY - 58);
+    ctx.lineTo(px - 2, riderY - 60);
     ctx.closePath();
     ctx.fill();
   } else if (isMary) {
     // Mary: Pink onesie with flower patterns
     ctx.fillStyle = "#F472B6";
     ctx.beginPath();
-    ctx.ellipse(px, py - 12, 10, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 12, 10, 16, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#EC4899";
-    ctx.fillRect(px - 8, py - 35, 16, 15);
+    ctx.fillRect(px - 8, riderY - 35, 16, 15);
 
     ctx.fillStyle = defaultRider.skinColor || "#F5F5F5";
     ctx.beginPath();
-    ctx.arc(px, py - 43, 7.5, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 43, 7.5, 0, Math.PI * 2);
     ctx.fill();
 
     // Long white hair
     ctx.fillStyle = "#FFFFFF";
     ctx.beginPath();
-    ctx.arc(px, py - 47, 8, Math.PI, Math.PI * 2);
+    ctx.arc(px, riderY - 47, 8, Math.PI, Math.PI * 2);
     ctx.fill();
   } else if (isEdward) {
     // Edward: Green onesie with yellow stripes & football helmet
     ctx.fillStyle = "#16A34A";
     ctx.beginPath();
-    ctx.ellipse(px, py - 12, 10, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 12, 10, 16, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#EAB308";
-    ctx.fillRect(px - 8, py - 28, 16, 4);
+    ctx.fillRect(px - 8, riderY - 28, 16, 4);
 
     ctx.fillStyle = defaultRider.skinColor || "#E6C199";
     ctx.beginPath();
-    ctx.arc(px, py - 43, 7.5, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 43, 7.5, 0, Math.PI * 2);
     ctx.fill();
 
     // Helmet
     ctx.fillStyle = "#15803D";
     ctx.beginPath();
-    ctx.arc(px, py - 46, 8.5, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 46, 8.5, 0, Math.PI * 2);
     ctx.fill();
   } else {
     // Default / Fairy-Rider: Blue onesie
     ctx.fillStyle = "#2563eb";
     ctx.beginPath();
-    ctx.ellipse(px, py - 12, 10, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(px, riderY - 12, 10, 16, 0, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#1d4ed8";
-    ctx.fillRect(px - 8, py - 35, 16, 15);
+    ctx.fillRect(px - 8, riderY - 35, 16, 15);
 
     ctx.fillStyle = defaultRider.skinColor || "#8B5A2B";
     ctx.beginPath();
-    ctx.arc(px, py - 43, 7.5, 0, Math.PI * 2);
+    ctx.arc(px, riderY - 43, 7.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#000000";
     ctx.beginPath();
-    ctx.arc(px, py - 47, 8, Math.PI, Math.PI * 2);
+    ctx.arc(px, riderY - 47, 8, Math.PI, Math.PI * 2);
     ctx.fill();
   }
 
   // Molded/fused legs of the 5'4" rider merging into the opossum's fur base
-  const furColor = isAshley ? "#facc15" : (isArden ? "#fff7ed" : (isJahmella ? "#f97316" : (isDagmar ? "#ffffff" : "#9ca3af")));
+  const { furColor, bootColor } = resolveRiderLegColors(selectedOpossum);
   ctx.fillStyle = furColor;
   // Left leg
   ctx.beginPath();
-  ctx.ellipse(px - 11, py - 6, 7, 11, Math.PI / 10, 0, Math.PI * 2);
+  ctx.ellipse(px - legSpreadX, riderY + 4, 6.8, 11, Math.PI / 10, 0, Math.PI * 2);
   ctx.fill();
   // Left foot boot blended smoothly into the fur base
-  ctx.fillStyle = isAshley ? "#eab308" : (isArden ? "#fff1e2" : (isJahmella ? "#ea580c" : (isDagmar ? "#f3f4f6" : "#6a7280")));
+  ctx.fillStyle = bootColor;
   ctx.beginPath();
-  ctx.ellipse(px - 14, py + 4, 6, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(px - (legSpreadX + 2.5), riderY + 14, 5.8, 4, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // Right leg
   ctx.fillStyle = furColor;
   ctx.beginPath();
-  ctx.ellipse(px + 11, py - 6, 7, 11, -Math.PI / 10, 0, Math.PI * 2);
+  ctx.ellipse(px + legSpreadX, riderY + 4, 6.8, 11, -Math.PI / 10, 0, Math.PI * 2);
   ctx.fill();
   // Right foot boot blended smoothly into the fur base
-  ctx.fillStyle = isAshley ? "#eab308" : (isArden ? "#fff1e2" : (isJahmella ? "#ea580c" : (isDagmar ? "#f3f4f6" : "#6a7280")));
+  ctx.fillStyle = bootColor;
   ctx.beginPath();
-  ctx.ellipse(px + 14, py + 4, 6, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(px + (legSpreadX + 2.5), riderY + 14, 5.8, 4, 0, 0, Math.PI * 2);
   ctx.fill();
+
+  if (!wireframe) {
+    drawCraftedOpossumForeground3D(ctx, px, py, selectedOpossum);
+  }
 }
 
 /**
@@ -2597,184 +2470,7 @@ export function renderOpossumPOV(
   py: number,
   selectedOpossum: OpossumCharacter
 ) {
-  const isAshley = selectedOpossum.id === "ashley";
-  const isArden = selectedOpossum.id === "arden_rosie";
-  const isJahmella = selectedOpossum.id === "jahmella_rose";
-  const isDagmar = selectedOpossum.id === "dagmar_kone_reynolds";
-  const isIvan = selectedOpossum.id === "ivan_opossum";
-  const isIsaac = selectedOpossum.id === "isaac_opossum";
-  const furColor = isIvan
-    ? "#ffc0cb"
-    : isIsaac
-      ? "#d1d5db"
-      : (isAshley ? "#facc15" : (isArden ? "#fff7ed" : (isJahmella ? "#f97316" : (isDagmar ? "#ffffff" : "#9ca3af"))));
-  const strokeColor = isIvan
-    ? "#5c3d2e"
-    : isIsaac
-      ? "#3e2723"
-      : (isAshley ? "#eab308" : (isArden ? "#fff1e2" : (isJahmella ? "#ea580c" : (isDagmar ? "#f3f4f6" : "#6b7280"))));
-
-  ctx.save();
-
-  // Draw the rider's legs molded into the opossum's fur, clinging on the sides
-  ctx.fillStyle = furColor;
-  ctx.strokeStyle = strokeColor;
-  ctx.lineWidth = 4;
-
-  // Left leg hugging side of opossum body
-  ctx.beginPath();
-  ctx.ellipse(px - 44, py + 22, 18, 38, -Math.PI / 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  // Right leg hugging side of opossum body
-  ctx.beginPath();
-  ctx.ellipse(px + 44, py + 22, 18, 38, Math.PI / 9, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-
-  if (isIvan) {
-    // Black outer ears with Dark-brown inner ears (Standard for real opossums)
-    ctx.fillStyle = "#121212";
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#3E2723";
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Striped back shoulders visible behind head
-    ctx.fillStyle = "#FFC0CB";
-    ctx.beginPath();
-    ctx.ellipse(px, py + 4, 29, 20, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#5C3D2E";
-    ctx.lineWidth = 0.8;
-    for (let i = -20; i <= 20; i += 2.5) {
-      ctx.beginPath();
-      ctx.moveTo(px + i, py - 8);
-      ctx.lineTo(px + i, py + 18);
-      ctx.stroke();
-    }
-
-    // 100% Furry Face Head (Peach-pink tone)
-    ctx.fillStyle = "#FFD1DC";
-    ctx.beginPath();
-    ctx.ellipse(px, py - 2, 24, 20, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Red Nose tip
-    ctx.fillStyle = "#EF4444";
-    ctx.beginPath();
-    ctx.arc(px, py - 16, 4.8, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (isIsaac) {
-    // Natural real-opossum dark outer ears with Natural Pink inner ears
-    ctx.fillStyle = "#1A1A1A";
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#FFB6C1";
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Light-gray body with 8 evenly spaced dark-brown stripes visible behind head
-    ctx.fillStyle = "#D1D5DB";
-    ctx.beginPath();
-    ctx.ellipse(px, py + 4, 28.5, 19.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = "#3E2723";
-    ctx.lineWidth = 2.0;
-    for (let i = 0; i < 8; i++) {
-      const sx = px - 21 + i * 6;
-      ctx.beginPath();
-      ctx.moveTo(sx, py - 8);
-      ctx.lineTo(sx, py + 18);
-      ctx.stroke();
-    }
-
-    // 100% Furry Face Head
-    ctx.fillStyle = "#E5E7EB";
-    ctx.beginPath();
-    ctx.ellipse(px, py - 2, 23.5, 19.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Pinkish-red Nose tip
-    ctx.fillStyle = "#EF4444";
-    ctx.beginPath();
-    ctx.arc(px, py - 16, 4.8, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (isAshley) {
-    // Draw ears
-    ctx.fillStyle = "#111827";
-    ctx.beginPath();
-    ctx.arc(px - 14, py - 18, 9, 0, Math.PI * 2);
-    ctx.arc(px + 14, py - 18, 9, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#e11d48";
-    ctx.beginPath();
-    ctx.arc(px - 14, py - 18, 6, 0, Math.PI * 2);
-    ctx.arc(px + 14, py - 18, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Head
-    ctx.fillStyle = "#facc15"; // Ashley body yellow
-    ctx.beginPath();
-    ctx.ellipse(px, py, 30, 25, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#f9fafb"; // Head white snout
-    ctx.beginPath();
-    ctx.ellipse(px, py - 10, 22, 16, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Nose pink tip
-    ctx.fillStyle = "#ffb6c1";
-    ctx.beginPath();
-    ctx.arc(px, py - 20, 5, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    // Melissa/Standard style drawing
-    // Draw ears
-    ctx.fillStyle = "#4b5563";
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 8, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#fda4af"; // Pink inner ears
-    ctx.beginPath();
-    ctx.arc(px - 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.arc(px + 12, py - 16, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Head
-    ctx.fillStyle = furColor;
-    ctx.beginPath();
-    ctx.ellipse(px, py, 28, 22, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#ffffff"; // Head white snout
-    ctx.beginPath();
-    ctx.ellipse(px, py - 8, 20, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Nose pink tip
-    ctx.fillStyle = "#fda4af";
-    ctx.beginPath();
-    ctx.arc(px, py - 18, 5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.restore();
+  renderCraftedOpossumPOV(ctx, px, py, selectedOpossum);
 }
 
 /**

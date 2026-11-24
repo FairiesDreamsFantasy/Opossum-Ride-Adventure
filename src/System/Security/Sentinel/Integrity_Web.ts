@@ -22,6 +22,7 @@ import { EdibleItemTelemetryKernel } from "../../Engine/Science/Graphical_Render
 import { CourtyardPerspectiveKernel } from "../../Engine/Science/Graphical_Renderer/World_2/Temple_Courtyard/CourtyardPerspectiveKernel";
 import { CourtyardCopyleftScene } from "../../Engine/Science/Graphical_Renderer/World_2/Temple_Courtyard/CourtyardCopyleftScene";
 import { GrandTeaRoomSign, drawGrandTeaRoomSign } from "../../Building_Blocks/Signs";
+import { CraftedOpossumRenderKernel } from "../../Engine/Science/Graphical_Renderer/CraftedOpossumRenderKernel";
 import * as Physics from "../../Engine/Science/Physics";
 import * as Acoustics from "../../Engine/Science/Acoustics";
 import { AcousticStabilizer, AcousticRingBuffer } from "../../Engine/Science/Acoustics/AcousticStabilizer";
@@ -148,6 +149,7 @@ export class IntegritySentinel {
       { name: "Graphical Renderer CourtyardPerspectiveKernel", ref: CourtyardPerspectiveKernel },
       { name: "Graphical Renderer CourtyardCopyleftScene", ref: CourtyardCopyleftScene },
       { name: "Building Blocks GrandTeaRoomSign", ref: GrandTeaRoomSign },
+      { name: "Graphical Renderer CraftedOpossumRenderKernel", ref: CraftedOpossumRenderKernel },
       { name: "Physics Core", ref: Physics },
       { name: "Acoustics Engine", ref: Acoustics },
       { name: "Acoustics Stabilizer Kernel", ref: AcousticStabilizer },
@@ -276,7 +278,12 @@ export class IntegritySentinel {
       { label: "CourtyardCopyleftScene.renderCourtyardGoatParade3D", fn: CourtyardCopyleftScene.renderCourtyardGoatParade3D },
       { label: "CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D", fn: CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D },
       { label: "CourtyardCopyleftScene.renderChalkboardBlueprintOverlay", fn: CourtyardCopyleftScene.renderChalkboardBlueprintOverlay },
-      { label: "GrandTeaRoomSign.draw", fn: drawGrandTeaRoomSign }
+      { label: "GrandTeaRoomSign.draw", fn: drawGrandTeaRoomSign },
+      { label: "CraftedOpossumRenderKernel.drawCraftedOpossum3D", fn: CraftedOpossumRenderKernel.drawCraftedOpossum3D },
+      { label: "CraftedOpossumRenderKernel.drawCraftedOpossumForeground3D", fn: CraftedOpossumRenderKernel.drawCraftedOpossumForeground3D },
+      { label: "CraftedOpossumRenderKernel.resolveRiderMountLayout", fn: CraftedOpossumRenderKernel.resolveRiderMountLayout },
+      { label: "CraftedOpossumRenderKernel.renderCraftedOpossumPOV", fn: CraftedOpossumRenderKernel.renderCraftedOpossumPOV },
+      { label: "CraftedOpossumRenderKernel.resolveOpossumVisualProfile", fn: CraftedOpossumRenderKernel.resolveOpossumVisualProfile }
     ];
 
     for (const check of callableChecks) {
