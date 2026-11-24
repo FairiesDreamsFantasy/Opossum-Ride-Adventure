@@ -276,6 +276,10 @@ export const PIRATED_SWITCH_CARTRIDGE_CONFIG = {
 
   // 5. UI Restrictions
   allowScreenshots: false,
+  allowScreenshotsAfterAnyKey: true,
+  priorityUnlockKey: "A",
+  templeCourtyardGoatParade: true,
+  teaAreaDynamicPictureFrame: true,
   showAccessibilityMenu: false,
   showViewMenu: false,
   showDedicatedHUD: false, // Dedicated HUD is not included, only visual HUD via canvas

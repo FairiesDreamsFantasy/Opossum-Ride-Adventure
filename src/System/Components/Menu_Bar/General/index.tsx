@@ -102,4 +102,5 @@ export interface MenuBarComponentProps {
   setMusicEnabled?: (v: boolean) => void;
   customTrackId?: string | null;
   onSetCustomTrack?: (trackId: string | null, enableMusic?: boolean) => void;
+  piratedScreenshotUnlocked?: boolean;
 }

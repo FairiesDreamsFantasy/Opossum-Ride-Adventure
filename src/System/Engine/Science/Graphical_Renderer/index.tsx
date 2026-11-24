@@ -37,8 +37,11 @@ import { isCropFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/N
 import { isVegetableFieldPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Vegetable_Field";
 import { isWildernessPlaceId } from "../../../AI/In-Game/Category/Accessibility/Narration/Arena/Wilderness";
 import { CROP_FIELD_BORDER_TRIANGLE_COLORS, CROP_FIELD_PATH_36_BLOCK_COLORS } from "../../../Building_Blocks/Triangular_Stone_Path";
-import { renderWorld2Courtyard2D, renderWorld2Courtyard3D as renderWorld2Courtyard3DCore } from "./World_2/Temple_Courtyard";
-export { drawEdibleItem, getEdibleItemName };
+import { GrandTeaRoomSign, GRAND_TEA_ROOM_SIGN_SPEC, drawGrandTeaRoomSign } from "../../../Building_Blocks/Signs";
+import { renderWorld2Courtyard2D, renderWorld2Courtyard3D as renderWorld2Courtyard3DCore, CourtyardCopyleftScene } from "./World_2/Temple_Courtyard";
+import { CanvasTextPurityPolicy } from "./CanvasTextPurityPolicy";
+import { DepthSortViewportKernel } from "./DepthSortViewportKernel";
+export { drawEdibleItem, getEdibleItemName, CanvasTextPurityPolicy, DepthSortViewportKernel, CourtyardCopyleftScene, GrandTeaRoomSign };
 
 /**
  * Renders the 2D Top-Down Blueprint or World view.
@@ -187,6 +190,24 @@ export function render2DView(
     ctx.fillText("BRASS SLIDING DOORS", wallX990 - 35, foyY2000 - 15);
     ctx.fillStyle = "#fb923c";
     ctx.fillText("EXPANDED PORCH (ALWAYS OPEN NORTH)", startX + 15, porY2200 + 15);
+
+    // West Wall (X = 0): Grand Red Frame Doorway (990..1010 ft) & Grand Tea Room Sign (984..988 ft)
+    const westDoorTopY = mapY(1010);
+    const westDoorBottomY = mapY(990);
+    ctx.strokeStyle = "#dc2626";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(startX, westDoorTopY);
+    ctx.lineTo(startX, westDoorBottomY);
+    ctx.stroke();
+
+    const signTop2D = mapY(GRAND_TEA_ROOM_SIGN_SPEC.endFromSouthFeet);
+    const signBottom2D = mapY(GRAND_TEA_ROOM_SIGN_SPEC.startFromSouthFeet);
+    const signH2D = Math.max(6, signBottom2D - signTop2D);
+    drawGrandTeaRoomSign(ctx, startX + 3, signTop2D, signH2D, signH2D, wireframe, false);
+    ctx.fillStyle = "#fde047";
+    ctx.font = "bold 8px monospace";
+    ctx.fillText("GRAND TEA ROOM SIGN (984-988ft)", startX + 14, signBottom2D + 8);
 
     ctx.fillStyle = "#9ca3af";
     ctx.font = "8px monospace";
@@ -1553,7 +1574,7 @@ export function renderStandardLevel(
       ctx.restore();
     }
 
-    if (opp.isCharging) {
+    if (opp.isCharging && shouldDrawOpponentIndicator) {
       ctx.fillStyle = "#ef4444";
       ctx.font = `bold ${Math.max(10, 14 * proj.scale * 0.15)}px sans-serif`;
       ctx.fillText("CHARGED!", proj.x - ow / 2, proj.y - oh - 5);
@@ -1702,7 +1723,14 @@ export function renderStandardLevel(
         armSway
       );
     } else if (animal.species === "goat") {
-      drawGoatCameo3D(ctx, proj.x, proj.y, proj.scale, animal);
+      const showGoatTag = CanvasTextPurityPolicy.shouldRenderTextCategory("opponent_indicator_tag", {
+        is3D: true,
+        isChalkboard: false,
+        isPiratedCart: false,
+        showOpponentIndicators: Boolean(gameState?.showOpponentIndicators),
+        viewMode: String(viewMode)
+      });
+      drawGoatCameo3D(ctx, proj.x, proj.y, proj.scale, animal, showGoatTag);
     } else {
       ctx.fillStyle = "#16a34a";
       ctx.beginPath();
@@ -1755,9 +1783,15 @@ export function renderStandardLevel(
     });
   }
 
-  // Draw Floating Score texts
+  // Draw Floating Score texts (Dynamic Arcade Scoring Popups)
   const floatingTextPool = (gameState as any).floatingTextPool;
-  if (floatingTextPool) {
+  if (floatingTextPool && CanvasTextPurityPolicy.shouldRenderTextCategory("arcade_score_popup", {
+    is3D: true,
+    isChalkboard: false,
+    isPiratedCart: false,
+    showOpponentIndicators: Boolean(gameState?.showOpponentIndicators),
+    viewMode: String(viewMode)
+  })) {
     const now = Date.now();
     floatingTextPool.getItems().forEach((t: any) => {
       if (t.spawnTime === 0 || now - t.spawnTime > 2000) return;
@@ -1854,7 +1888,8 @@ export function renderFoyer3D(
   wireframe: boolean,
   viewMode: GameViewMode,
   selectedOpossum: OpossumCharacter,
-  defaultRider: RiderCharacter
+  defaultRider: RiderCharacter,
+  foyerDirection: string = "North"
 ) {
   const centerX = width / 2;
   const isPiratedCart = isPiratedSwitchCartridge();
@@ -1954,135 +1989,257 @@ export function renderFoyer3D(
     return { x: fx, y: fy - verticalOffset * depthScale, scale: depthScale };
   };
 
-  // 1. Porch Floordeck (Y = 2000 to Y = 2200)
-  const pLT = project3D(0, 2200);
-  const pRT = project3D(2000, 2200);
-  const pRB = project3D(2000, 2000);
-  const pLB = project3D(0, 2000);
+  const foyerTextCtx = {
+    is3D: true,
+    isChalkboard: false,
+    isPiratedCart,
+    showOpponentIndicators: false,
+    viewMode: String(viewMode)
+  };
 
-  if (pLB.y > horizonY && pLT.y < height) {
-    ctx.fillStyle = VISUAL_CONSTANTS.PALETTE.WOOD_DECK; 
+  if (foyerDirection === "North") {
+    // 1. Porch Floordeck (Y = 2000 to Y = 2200)
+    const pLT = project3D(0, 2200);
+    const pRT = project3D(2000, 2200);
+    const pRB = project3D(2000, 2000);
+    const pLB = project3D(0, 2000);
+
+    if (pLB.y > horizonY && pLT.y < height) {
+      ctx.fillStyle = VISUAL_CONSTANTS.PALETTE.WOOD_DECK;
+      ctx.beginPath();
+      ctx.moveTo(pLB.x, pLB.y);
+      ctx.lineTo(pRB.x, pRB.y);
+      ctx.lineTo(pRT.x, pRT.y);
+      ctx.lineTo(pLT.x, pLT.y);
+      ctx.closePath();
+      ctx.fill();
+
+      // wood planks on porch
+      ctx.strokeStyle = "rgba(251, 146, 60, 0.25)";
+      ctx.lineWidth = 2;
+      for (let pxVal = 0; pxVal <= 2000; pxVal += 100) {
+        const ptB = project3D(pxVal, 2000);
+        const ptT = project3D(pxVal, 2200);
+        ctx.beginPath();
+        ctx.moveTo(ptB.x, ptB.y);
+        ctx.lineTo(ptT.x, ptT.y);
+        ctx.stroke();
+      }
+    }
+
+    // 2. North Wall segments at Y = 2000 (White walls for pirated cart)
+    const wallH = 180;
+    const wL_B_L = project3D(0, 2000);
+    const wL_B_R = project3D(990, 2000);
+    const wR_B_L = project3D(1010, 2000);
+    const wR_B_R = project3D(2000, 2000);
+
+    const wL_T_L = project3D(0, 2000, wallH);
+    const wL_T_R = project3D(990, 2000, wallH);
+    const wR_T_L = project3D(1010, 2000, wallH);
+    const wR_T_R = project3D(2000, 2000, wallH);
+
+    ctx.fillStyle = isPiratedCart ? "#FFFFFF" : VISUAL_CONSTANTS.PALETTE.FLOOR_SLATE;
     ctx.beginPath();
-    ctx.moveTo(pLB.x, pLB.y);
-    ctx.lineTo(pRB.x, pRB.y);
-    ctx.lineTo(pRT.x, pRT.y);
-    ctx.lineTo(pLT.x, pLT.y);
+    ctx.moveTo(wL_B_L.x, wL_B_L.y);
+    ctx.lineTo(wL_B_R.x, wL_B_R.y);
+    ctx.lineTo(wL_T_R.x, wL_T_R.y);
+    ctx.lineTo(wL_T_L.x, wL_T_L.y);
     ctx.closePath();
     ctx.fill();
 
-    // wood planks on porch
-    ctx.strokeStyle = "rgba(251, 146, 60, 0.25)";
-    ctx.lineWidth = 2;
-    for (let pxVal = 0; pxVal <= 2000; pxVal += 100) {
-      const ptB = project3D(pxVal, 2000);
-      const ptT = project3D(pxVal, 2200);
+    ctx.beginPath();
+    ctx.moveTo(wR_B_L.x, wR_B_L.y);
+    ctx.lineTo(wR_B_R.x, wR_B_R.y);
+    ctx.lineTo(wR_T_R.x, wR_T_R.y);
+    ctx.lineTo(wR_T_L.x, wR_T_L.y);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = isPiratedCart ? "#cbd5e1" : VISUAL_CONSTANTS.PALETTE.WALL_STONE;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // 3. Doors: Sliding brass doors replaced with swinging doors that are wooden via typical household for pirated cart
+    const dHeight = 150;
+    const dL_base = wL_B_R;
+    const dR_base = wR_B_L;
+    const doorwayW = dR_base.x - dL_base.x;
+    const singleDoorW = doorwayW / 2;
+    const doorOffset = singleDoorW * doorOpenProgress;
+
+    // Left door
+    const dL_L_X = dL_base.x - doorOffset;
+    const dL_R_X = (dL_base.x + singleDoorW) - doorOffset;
+    const dL_Y_B = dL_base.y;
+    const dL_Y_T = dL_base.y - dHeight * dL_base.scale;
+
+    ctx.fillStyle = isPiratedCart ? "#78350f" : VISUAL_CONSTANTS.PALETTE.BRASS_POLISHED;
+    ctx.fillRect(dL_L_X, dL_Y_T, dL_R_X - dL_L_X, dL_Y_B - dL_Y_T);
+    ctx.strokeStyle = isPiratedCart ? "#451a03" : VISUAL_CONSTANTS.PALETTE.BRASS_SHINY;
+    ctx.lineWidth = Math.max(1, 2.5 * dL_base.scale);
+    ctx.strokeRect(dL_L_X, dL_Y_T, dL_R_X - dL_L_X, dL_Y_B - dL_Y_T);
+
+    // Left door wooden panel or glass window
+    const glassMargin_L = (dL_R_X - dL_L_X) * 0.15;
+    const glassW_L = (dL_R_X - dL_L_X) * 0.7;
+    const glassH_L = (dL_Y_B - dL_Y_T) * 0.53;
+    ctx.fillStyle = isPiratedCart ? "#92400e" : "rgba(186, 230, 253, 0.55)";
+    ctx.fillRect(dL_L_X + glassMargin_L, dL_Y_T + glassMargin_L, glassW_L, glassH_L);
+    ctx.strokeStyle = isPiratedCart ? "#78350f" : VISUAL_CONSTANTS.PALETTE.SKY_CYAN;
+    ctx.strokeRect(dL_L_X + glassMargin_L, dL_Y_T + glassMargin_L, glassW_L, glassH_L);
+
+    if (isPiratedCart) {
+      ctx.fillStyle = "#facc15";
       ctx.beginPath();
-      ctx.moveTo(ptB.x, ptB.y);
-      ctx.lineTo(ptT.x, ptT.y);
-      ctx.stroke();
+      ctx.arc(dL_R_X - 6, (dL_Y_B + dL_Y_T) / 2, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Right door
+    const dR_L_X = (dL_base.x + singleDoorW) + doorOffset;
+    const dR_R_X = dR_base.x + doorOffset;
+    const dR_Y_B = dR_base.y;
+    const dR_Y_T = dR_base.y - dHeight * dR_base.scale;
+
+    ctx.fillStyle = isPiratedCart ? "#78350f" : "#d97706";
+    ctx.fillRect(dR_L_X, dR_Y_T, dR_R_X - dR_L_X, dR_Y_B - dR_Y_T);
+    ctx.strokeStyle = isPiratedCart ? "#451a03" : "#fbbf24";
+    ctx.strokeRect(dR_L_X, dR_Y_T, dR_R_X - dR_L_X, dR_Y_B - dR_Y_T);
+
+    // Right door panel
+    const glassMargin_R = (dR_R_X - dR_L_X) * 0.15;
+    const glassW_R = (dR_R_X - dR_L_X) * 0.7;
+    const glassH_R = (dR_Y_B - dR_Y_T) * 0.53;
+    ctx.fillStyle = isPiratedCart ? "#92400e" : "rgba(186, 230, 253, 0.55)";
+    ctx.fillRect(dR_L_X + glassMargin_R, dR_Y_T + glassMargin_R, glassW_R, glassH_R);
+    ctx.strokeStyle = isPiratedCart ? "#78350f" : "#38bdf8";
+    ctx.strokeRect(dR_L_X + glassMargin_R, dR_Y_T + glassMargin_R, glassW_R, glassH_R);
+
+    if (isPiratedCart) {
+      ctx.fillStyle = "#facc15";
+      ctx.beginPath();
+      ctx.arc(dR_L_X + 6, (dR_Y_B + dR_Y_T) / 2, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else {
+    // Direction-aware West / South / East Foyer Walls in Feet Perspective
+    const wallDistFeet =
+      foyerDirection === "West"
+        ? Math.max(8, foyerX)
+        : foyerDirection === "East"
+        ? Math.max(8, 2000 - foyerX)
+        : Math.max(8, foyerY);
+    const pxPerFt = Math.max(1.8, 520 / (wallDistFeet + 28));
+    const eyeHeightFt = 5.5;
+    const projectWallFt = (lateralFt: number, zFt: number) => ({
+      x: centerX + lateralFt * pxPerFt,
+      y: horizonY + (eyeHeightFt - zFt) * pxPerFt
+    });
+
+    // Lateral spans relative to viewer along wall
+    const wallSpanLeftFt =
+      foyerDirection === "West"
+        ? 0 - foyerY
+        : foyerDirection === "East"
+        ? 2000 - foyerY
+        : 2000 - foyerX;
+    const wallSpanRightFt =
+      foyerDirection === "West"
+        ? 2000 - foyerY
+        : foyerDirection === "East"
+        ? 0 - foyerY
+        : 0 - foyerX;
+    const latMin = Math.min(wallSpanLeftFt, wallSpanRightFt);
+    const latMax = Math.max(wallSpanLeftFt, wallSpanRightFt);
+
+    const wBL = projectWallFt(latMin, 0);
+    const wBR = projectWallFt(latMax, 0);
+    const wTL = projectWallFt(latMin, 30);
+    const wTR = projectWallFt(latMax, 30);
+
+    const wallXStart = Math.max(0, Math.min(wBL.x, wBR.x));
+    const wallXEnd = Math.min(width, Math.max(wBL.x, wBR.x));
+    const wallTopY = Math.max(0, wTL.y);
+    const wallBottomY = Math.min(height, wBL.y);
+
+    if (wallXEnd > wallXStart && wallBottomY > wallTopY) {
+      if (isPiratedCart) {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(wallXStart, wallTopY, wallXEnd - wallXStart, wallBottomY - wallTopY);
+      } else if (wallBottomY > horizonY) {
+        ctx.fillStyle = VISUAL_CONSTANTS.PALETTE.FLOOR_SLATE;
+        ctx.fillRect(wallXStart, horizonY, wallXEnd - wallXStart, wallBottomY - horizonY);
+      }
+      ctx.strokeStyle = isPiratedCart ? "#cbd5e1" : VISUAL_CONSTANTS.PALETTE.WALL_STONE;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(wallXStart, wallTopY, wallXEnd - wallXStart, wallBottomY - wallTopY);
+    }
+
+    if (foyerDirection === "West") {
+      // Grand Red Frame Doorway at Y = 990..1010 ft (20 ft x 20 ft) opening into Grand Tea Room
+      const dLeft = projectWallFt(990 - foyerY, 20);
+      const dRight = projectWallFt(1010 - foyerY, 0);
+      const doorX = dLeft.x;
+      const doorY = dLeft.y;
+      const doorW = Math.max(10, dRight.x - dLeft.x);
+      const doorH = Math.max(12, dRight.y - dLeft.y);
+
+      if (doorX + doorW >= 0 && doorX <= width) {
+        // Red Frame Doorway
+        const framePad = Math.max(3, pxPerFt * 0.75);
+        ctx.fillStyle = wireframe ? "rgba(0,0,0,0)" : "#b91c1c";
+        ctx.fillRect(doorX - framePad, doorY - framePad, doorW + framePad * 2, doorH + framePad);
+        ctx.strokeStyle = wireframe ? "#4ade80" : "#ef4444";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(doorX - framePad, doorY - framePad, doorW + framePad * 2, doorH + framePad);
+
+        // Double Silver Sliding Doors
+        const halfW = doorW * 0.5;
+        ctx.fillStyle = wireframe ? "rgba(0,0,0,0)" : "#cbd5e1";
+        ctx.fillRect(doorX, doorY, halfW - 1, doorH);
+        ctx.fillRect(doorX + halfW + 1, doorY, halfW - 1, doorH);
+        ctx.strokeStyle = "#64748b";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(doorX, doorY, halfW - 1, doorH);
+        ctx.strokeRect(doorX + halfW + 1, doorY, halfW - 1, doorH);
+
+        // Decorative 3.5" Gold Circles, Silver Diamonds & Five-Pointed Emerald Stars on Red Frame
+        if (!wireframe && doorW >= 24) {
+          const rDot = Math.max(1.8, pxPerFt * 0.16);
+          ctx.fillStyle = "#facc15";
+          ctx.beginPath();
+          ctx.arc(doorX - framePad * 0.5, doorY + doorH * 0.25, rDot, 0, Math.PI * 2);
+          ctx.arc(doorX + doorW + framePad * 0.5, doorY + doorH * 0.25, rDot, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#10b981";
+          ctx.beginPath();
+          ctx.arc(doorX + doorW * 0.5, doorY - framePad * 0.45, rDot * 1.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Crafted 48" x 48" (4 ft x 4 ft) Grand Tea Room Wall Sign at Y = 984..988 ft, Elevation = 12..16 ft
+      const sTopLeft = projectWallFt(
+        GRAND_TEA_ROOM_SIGN_SPEC.startFromSouthFeet - foyerY,
+        GRAND_TEA_ROOM_SIGN_SPEC.elevationTopFeet
+      );
+      const sBottomRight = projectWallFt(
+        GRAND_TEA_ROOM_SIGN_SPEC.endFromSouthFeet - foyerY,
+        GRAND_TEA_ROOM_SIGN_SPEC.elevationBottomFeet
+      );
+      const signW = Math.max(4, sBottomRight.x - sTopLeft.x);
+      const signH = Math.max(4, sBottomRight.y - sTopLeft.y);
+      if (sTopLeft.x + signW >= 0 && sTopLeft.x <= width) {
+        const allowSignText = CanvasTextPurityPolicy.shouldRenderTextCategory("physical_world_sign", foyerTextCtx);
+        drawGrandTeaRoomSign(ctx, sTopLeft.x, sTopLeft.y, signW, signH, wireframe, allowSignText);
+      }
     }
   }
 
-  // 2. North Wall segments at Y = 2000 (White walls for pirated cart)
-  const wallH = 180; 
-  const wL_B_L = project3D(0, 2000);
-  const wL_B_R = project3D(990, 2000);
-  const wR_B_L = project3D(1010, 2000);
-  const wR_B_R = project3D(2000, 2000);
-
-  const wL_T_L = project3D(0, 2000, wallH);
-  const wL_T_R = project3D(990, 2000, wallH);
-  const wR_T_L = project3D(1010, 2000, wallH);
-  const wR_T_R = project3D(2000, 2000, wallH);
-
-  ctx.fillStyle = isPiratedCart ? "#FFFFFF" : VISUAL_CONSTANTS.PALETTE.FLOOR_SLATE; 
-  ctx.beginPath();
-  ctx.moveTo(wL_B_L.x, wL_B_L.y);
-  ctx.lineTo(wL_B_R.x, wL_B_R.y);
-  ctx.lineTo(wL_T_R.x, wL_T_R.y);
-  ctx.lineTo(wL_T_L.x, wL_T_L.y);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(wR_B_L.x, wR_B_L.y);
-  ctx.lineTo(wR_B_R.x, wR_B_R.y);
-  ctx.lineTo(wR_T_R.x, wR_T_R.y);
-  ctx.lineTo(wR_T_L.x, wR_T_L.y);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.strokeStyle = isPiratedCart ? "#cbd5e1" : VISUAL_CONSTANTS.PALETTE.WALL_STONE;
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
-
-  // 3. Doors: Sliding brass doors replaced with swinging doors that are wooden via typical household for pirated cart
-  const dHeight = 150; 
-  const dL_base = wL_B_R;
-  const dR_base = wR_B_L;
-  const doorwayW = dR_base.x - dL_base.x;
-  const singleDoorW = doorwayW / 2;
-  const doorOffset = singleDoorW * doorOpenProgress;
-
-  // Left door
-  const dL_L_X = dL_base.x - doorOffset;
-  const dL_R_X = (dL_base.x + singleDoorW) - doorOffset;
-  const dL_Y_B = dL_base.y;
-  const dL_Y_T = dL_base.y - dHeight * dL_base.scale;
-
-  ctx.fillStyle = isPiratedCart ? "#78350f" : VISUAL_CONSTANTS.PALETTE.BRASS_POLISHED; 
-  ctx.fillRect(dL_L_X, dL_Y_T, dL_R_X - dL_L_X, dL_Y_B - dL_Y_T);
-  ctx.strokeStyle = isPiratedCart ? "#451a03" : VISUAL_CONSTANTS.PALETTE.BRASS_SHINY; 
-  ctx.lineWidth = Math.max(1, 2.5 * dL_base.scale);
-  ctx.strokeRect(dL_L_X, dL_Y_T, dL_R_X - dL_L_X, dL_Y_B - dL_Y_T);
-
-  // Left door wooden panel or glass window
-  const glassMargin_L = (dL_R_X - dL_L_X) * 0.15;
-  const glassW_L = (dL_R_X - dL_L_X) * 0.7;
-  const glassH_L = (dL_Y_B - dL_Y_T) * 0.53;
-  ctx.fillStyle = isPiratedCart ? "#92400e" : "rgba(186, 230, 253, 0.55)"; 
-  ctx.fillRect(dL_L_X + glassMargin_L, dL_Y_T + glassMargin_L, glassW_L, glassH_L);
-  ctx.strokeStyle = isPiratedCart ? "#78350f" : VISUAL_CONSTANTS.PALETTE.SKY_CYAN;
-  ctx.strokeRect(dL_L_X + glassMargin_L, dL_Y_T + glassMargin_L, glassW_L, glassH_L);
-
-  // Wooden door knob for swinging household door
-  if (isPiratedCart) {
-    ctx.fillStyle = "#facc15";
-    ctx.beginPath();
-    ctx.arc(dL_R_X - 6, (dL_Y_B + dL_Y_T) / 2, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Right door
-  const dR_L_X = (dL_base.x + singleDoorW) + doorOffset;
-  const dR_R_X = dR_base.x + doorOffset;
-  const dR_Y_B = dR_base.y;
-  const dR_Y_T = dR_base.y - dHeight * dR_base.scale;
-
-  ctx.fillStyle = isPiratedCart ? "#78350f" : "#d97706"; 
-  ctx.fillRect(dR_L_X, dR_Y_T, dR_R_X - dR_L_X, dR_Y_B - dR_Y_T);
-  ctx.strokeStyle = isPiratedCart ? "#451a03" : "#fbbf24";
-  ctx.strokeRect(dR_L_X, dR_Y_T, dR_R_X - dR_L_X, dR_Y_B - dR_Y_T);
-
-  // Right door panel
-  const glassMargin_R = (dR_R_X - dR_L_X) * 0.15;
-  const glassW_R = (dR_R_X - dR_L_X) * 0.7;
-  const glassH_R = (dR_Y_B - dR_Y_T) * 0.53;
-  ctx.fillStyle = isPiratedCart ? "#92400e" : "rgba(186, 230, 253, 0.55)";
-  ctx.fillRect(dR_L_X + glassMargin_R, dR_Y_T + glassMargin_R, glassW_R, glassH_R);
-  ctx.strokeStyle = isPiratedCart ? "#78350f" : "#38bdf8";
-  ctx.strokeRect(dR_L_X + glassMargin_R, dR_Y_T + glassMargin_R, glassW_R, glassH_R);
-
-  // Right wooden door knob
-  if (isPiratedCart) {
-    ctx.fillStyle = "#facc15";
-    ctx.beginPath();
-    ctx.arc(dR_L_X + 6, (dR_Y_B + dR_Y_T) / 2, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
   // Small figures of opossums on the west of the door via a porch at 5 feet away from these doors
-  if (isPiratedCart) {
+  if (CanvasTextPurityPolicy.shouldRenderTextCategory("pirated_cart_notice", foyerTextCtx)) {
     const porchFigPoint = project3D(930, 2060); // 5 feet (60 units) west of door on porch
     if (porchFigPoint.y > horizonY && porchFigPoint.y < height) {
       // Draw 3 small opossum figurines
@@ -2106,7 +2263,7 @@ export function renderFoyer3D(
   }
 
   // Canvas visual HUD for pirated switch cartridge (Dedicated HUD is not included, only visual HUD via canvas)
-  if (isPiratedCart) {
+  if (CanvasTextPurityPolicy.shouldRenderTextCategory("pirated_cart_notice", foyerTextCtx)) {
     ctx.save();
     ctx.fillStyle = "rgba(0, 0, 0, 0.85)";
     ctx.fillRect(10, 10, width - 20, 28);
@@ -2119,14 +2276,6 @@ export function renderFoyer3D(
     ctx.fillText("CANVAS VISUAL HUD | POV WALK-ONLY | MOUNT: DONKEY (BABYLONIAN) | NINTENDO SWITCH CART", 18, 28);
     ctx.restore();
   }
-
-  // Foyer wall markers
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 11px monospace";
-  ctx.fillText("SOUTH WALL Marker: Y = 0 FT", 15, height - 15);
-  ctx.fillText("NORTH WALL Marker: Y = 2000 FT", 15, horizonY + 20);
-  ctx.fillText("WEST WALL Marker: X = 0 FT", 15, height / 2);
-  ctx.fillText("EAST WALL Marker: X = 2000 FT", width - 195, height / 2);
 
   // Foyer ticks
   localTicks.forEach((tick: TickItem) => {

@@ -110,7 +110,8 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
   musicEnabled = false,
   setMusicEnabled,
   customTrackId = null,
-  onSetCustomTrack
+  onSetCustomTrack,
+  piratedScreenshotUnlocked = true
 }) => {
   const [showAIModal, setShowAIModal] = useState(false);
   const [showShoppingModal, setShowShoppingModal] = useState(false);
@@ -498,8 +499,8 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                   <span>Get QR Code</span>
                 </button>
 
-                {/* Screenshot Submenu Trigger (Hidden if Visuals OFF or Pirated Switch Cartridge) */}
-                {!isVisualsOff && !isPiratedCart && (
+                {/* Screenshot Submenu Trigger (Hidden if Visuals OFF; on Pirated Switch Cart, unlocked once ANY key such as A is pressed) */}
+                {!isVisualsOff && (!isPiratedCart || piratedScreenshotUnlocked) && (
                   <button
                     onClick={() => setActiveSubMenu(activeSubMenu === 'screenshot' ? null : 'screenshot')}
                     aria-pressed={activeSubMenu === 'screenshot'}
@@ -515,6 +516,13 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                     </span>
                     {activeSubMenu === 'screenshot' ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
                   </button>
+                )}
+
+                {!isVisualsOff && isPiratedCart && !piratedScreenshotUnlocked && (
+                  <span className={`font-mono uppercase px-3 py-1.5 rounded border border-emerald-700 bg-emerald-950/70 text-emerald-200 flex items-center gap-2 font-bold min-h-[44px] ${itemTextClass}`}>
+                    <Camera size={12} />
+                    <span>Press ANY Key (e.g. A) to Unlock Screenshot</span>
+                  </span>
                 )}
 
                 <button
@@ -644,7 +652,7 @@ export const CraftedMenuBar: React.FC<MenuBarComponentProps> = ({
                 )}
               </div>
 
-              {activeSubMenu === 'screenshot' && !isVisualsOff && !isPiratedCart && (
+              {activeSubMenu === 'screenshot' && !isVisualsOff && (!isPiratedCart || piratedScreenshotUnlocked) && (
                 <div className="flex flex-wrap gap-2 pl-4 border-l-2 border-green-900 p-2 bg-zinc-950/40 rounded">
                   <button
                     onClick={() => {

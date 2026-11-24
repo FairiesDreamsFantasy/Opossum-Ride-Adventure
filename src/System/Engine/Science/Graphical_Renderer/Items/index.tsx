@@ -5,6 +5,9 @@
 
 import { drawGeneralItem, getGeneralItemName } from "./General";
 import { drawObjectItem, getObjectItemName } from "./Objects";
+import { EdibleItemTelemetryKernel } from "./EdibleItemTelemetryKernel";
+
+export * from "./EdibleItemTelemetryKernel";
 
 export function drawEdibleItem(
   ctx: CanvasRenderingContext2D,
@@ -16,10 +19,11 @@ export function drawEdibleItem(
   isTick: boolean
 ): void {
   const type = isTick ? "tick" : (levelId === 0 ? "apple" : "berry");
+  const safeRadius = EdibleItemTelemetryKernel.computeItemRadius(size, false);
   if (type === "apple" || type === "berry" || type === "tick") {
-    drawGeneralItem(ctx, x, y, type, size, wireframe);
+    drawGeneralItem(ctx, x, y, type, safeRadius, wireframe);
   } else {
-    drawObjectItem(ctx, x, y, type, size, wireframe);
+    drawObjectItem(ctx, x, y, type, safeRadius, wireframe);
   }
 }
 

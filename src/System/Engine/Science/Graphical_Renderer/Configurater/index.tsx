@@ -5,9 +5,11 @@
 
 import { KeyboardLayoutType } from "../../../../../types";
 import { VISUAL_PRESETS, getLayoutName, VisualConfig } from "./General";
+import { RenderPipelineValidator } from "./RenderPipelineValidator";
 import { speakWords } from "../../../../Sound/TTS";
 
 export * from "./General";
+export * from "./RenderPipelineValidator";
 
 export class Configurater {
   public static applyPreset(preset: string, setters: any): void {
@@ -17,6 +19,10 @@ export class Configurater {
       if (setters.setIs3D) setters.setIs3D(config.is3D);
     }
     speakWords(`Applying visual preset: ${preset}`);
+  }
+
+  public static validateConfig(config: VisualConfig): VisualConfig {
+    return RenderPipelineValidator.sanitizeVisualConfig(config);
   }
 
   public static applyLayout(layout: KeyboardLayoutType, setLayout: (l: KeyboardLayoutType) => void): void {

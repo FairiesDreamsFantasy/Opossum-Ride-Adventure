@@ -4,6 +4,7 @@
  */
 
 import { KeyboardLayoutType } from "../../../../../../types";
+export * from "./VisualPresetMatrix";
 
 export interface VisualConfig {
   is3D: boolean;

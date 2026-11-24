@@ -21,6 +21,13 @@ import {
   getTempleFoyerTileColor,
   resolveWorld2Level0Zone
 } from "../../../../../../World/2/Levels/Level_0";
+import { CourtyardPerspectiveKernel } from "./CourtyardPerspectiveKernel";
+import { CanvasTextPurityPolicy } from "../../CanvasTextPurityPolicy";
+import { isPiratedSwitchCartridge } from "../../../../../Security/Copyleft_Enforcement";
+import { CourtyardCopyleftScene } from "./CourtyardCopyleftScene";
+
+export * from "./CourtyardPerspectiveKernel";
+export * from "./CourtyardCopyleftScene";
 
 type OpossumDrawCallback = (
   ctx: CanvasRenderingContext2D,
@@ -247,6 +254,22 @@ export function renderWorld2Courtyard2D(
   ctx.lineTo(mapX(7000), mapY(1470));
   ctx.stroke();
 
+  // Tea Area Dynamic Picture Frame Marker (2D Blueprint)
+  ctx.strokeStyle = "#facc15";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(mapX(1760) - 8, mapY(-1050) - 5, 16, 10);
+
+  // Pirated Cartridge 4-Goat Parade Marker in 2D / Chalkboard Blueprint
+  if (isPiratedSwitchCartridge()) {
+    ctx.fillStyle = "#22c55e";
+    ctx.fillRect(mapX(1850) - 36, mapY(1500) - 10, 72, 16);
+    ctx.strokeStyle = "#000000";
+    ctx.strokeRect(mapX(1850) - 36, mapY(1500) - 10, 72, 16);
+    ctx.fillStyle = "#000000";
+    ctx.font = "bold 8px monospace";
+    ctx.fillText("4-GOAT BANNER", mapX(1850) - 32, mapY(1500) + 1);
+  }
+
   // Labels
   ctx.fillStyle = wireframe ? "#86efac" : "#f8fafc";
   ctx.font = "bold 9px monospace";
@@ -287,22 +310,16 @@ export function renderWorld2Courtyard3D(
   const zone = resolveWorld2Level0Zone(foyerX, foyerY);
   const centerX = width / 2;
 
-  // Compute compass camera basis vector
-  let fwdX = 1;
-  let fwdY = 0;
-  if (foyerDirection === "North") {
-    fwdX = 0;
-    fwdY = 1;
-  } else if (foyerDirection === "South") {
-    fwdX = 0;
-    fwdY = -1;
-  } else if (foyerDirection === "West") {
-    fwdX = -1;
-    fwdY = 0;
-  }
-  // Right vector perpendicular to forward: (fwdY, -fwdX)
-  const rightX = fwdY;
-  const rightY = -fwdX;
+  // Compute compass camera basis vector via CourtyardPerspectiveKernel
+  const { fwdX, fwdY, rightX, rightY } = CourtyardPerspectiveKernel.resolveDirectionBasis(foyerDirection);
+  const isPiratedCart = isPiratedSwitchCartridge();
+  const textCtx = {
+    is3D: true,
+    isChalkboard: false,
+    isPiratedCart,
+    showOpponentIndicators: false,
+    viewMode: String(viewMode)
+  };
 
   const projectWorld = (gx: number, gy: number, gzFeet = 0) => {
     const dx = gx - foyerX;
@@ -514,9 +531,11 @@ export function renderWorld2Courtyard3D(
           ctx.strokeStyle = "#fde047";
           ctx.lineWidth = 3;
           ctx.strokeRect(ax, ay, aw, ah);
-          ctx.fillStyle = "#fde047";
-          ctx.font = "bold 10px monospace";
-          ctx.fillText(facingEast ? "ARCHWAY -> WORLD 2 LEVEL 1" : "TEMPLE FOYER ENTRANCE", ax - 35, ay - 8);
+          if (CanvasTextPurityPolicy.shouldRenderTextCategory("doorway_signage", textCtx)) {
+            ctx.fillStyle = "#fde047";
+            ctx.font = "bold 10px monospace";
+            ctx.fillText(facingEast ? "ARCHWAY -> WORLD 2 LEVEL 1" : "TEMPLE FOYER ENTRANCE", ax - 35, ay - 8);
+          }
         }
       }
     } else {
@@ -655,9 +674,11 @@ export function renderWorld2Courtyard3D(
       ctx.strokeStyle = wireframe ? "#4ade80" : "#fbbf24";
       ctx.fillRect(lx, dL.y - dh, dw, dh);
       ctx.strokeRect(lx, dL.y - dh, dw, dh);
-      ctx.fillStyle = "#fde047";
-      ctx.font = "bold 9px monospace";
-      ctx.fillText("LOCKED WEST GATE -> WORLD 1 ROAD", lx - 40, dL.y - dh - 8);
+      if (CanvasTextPurityPolicy.shouldRenderTextCategory("doorway_signage", textCtx)) {
+        ctx.fillStyle = "#fde047";
+        ctx.font = "bold 9px monospace";
+        ctx.fillText("LOCKED WEST GATE -> WORLD 1 ROAD", lx - 40, dL.y - dh - 8);
+      }
     }
   }
 
@@ -698,21 +719,20 @@ export function renderWorld2Courtyard3D(
         ctx.fill();
       }
     });
+
+    // Dynamic Picture Frame at the Tea Area depicting riders on opossums, an employed person on a laptop playing a legitimate game, and having tea with pastries
+    const framePos = projectWorld(2000, -1050, 0);
+    const frameCx = framePos.visible ? Math.max(130, Math.min(width - 130, framePos.x)) : width * 0.5;
+    const frameBy = framePos.visible ? Math.min(height - 36, Math.max(horizonY + 80, framePos.y)) : horizonY + 135;
+    const frameScale = framePos.visible ? Math.max(0.7, Math.min(1.25, framePos.scale * 3.8)) : 0.9;
+    CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D(ctx, frameCx, frameBy, frameScale, Date.now(), wireframe);
   }
 
-  // HUD Overlay Label
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 11px monospace";
-  const zoneTitle =
-    zone === "temple_foyer"
-      ? "TEMPLE FOYER (3000x3000 FT | 40 FT CEILING | CHECKERBOARD TILE)"
-      : zone === "north_garden"
-        ? "NORTH FLOWER GARDEN (4000x2000 FT | GRASS)"
-        : zone === "south_tea_area"
-          ? "SOUTH OUTDOOR TEA GARDEN (4000x2000 FT | TILE + 20FT CANOPY)"
-          : "TEMPLE COURTYARD (4000x3000 FT | STONE | FACING " + foyerDirection.toUpperCase() + ")";
-  ctx.fillText(zoneTitle, 15, horizonY + 20);
+  // Meaningful Copyleft Enforcement Parade at Temple Courtyard (4 Goats carrying Green Banner with Black Text)
+  if (isPiratedCart) {
+    CourtyardCopyleftScene.renderCourtyardGoatParade3D(ctx, width, height, horizonY, Date.now(), wireframe);
+  }
 
-  // Render Mounted Opossum & Rider
+  // Render Mounted Opossum & Rider (3D canvas remains free of unconditional static zone HUD overlays)
   drawOpossumCallback(ctx, width, height, selectedOpossum, defaultRider, wireframe, viewMode);
 }

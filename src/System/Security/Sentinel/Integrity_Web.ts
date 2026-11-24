@@ -11,6 +11,17 @@
 // 🔬 Science, Optics, Acoustics & Physics
 import * as Science from "../../Engine/Science";
 import * as Graphical_Renderer from "../../Engine/Science/Graphical_Renderer";
+import { CanvasTextPurityPolicy } from "../../Engine/Science/Graphical_Renderer/CanvasTextPurityPolicy";
+import { DepthSortViewportKernel } from "../../Engine/Science/Graphical_Renderer/DepthSortViewportKernel";
+import { ViewportTransformStabilizer } from "../../Engine/Science/Graphical_Renderer/General/ViewportTransformStabilizer";
+import { VisualPresetMatrix } from "../../Engine/Science/Graphical_Renderer/Configurater/General/VisualPresetMatrix";
+import { RenderPipelineValidator } from "../../Engine/Science/Graphical_Renderer/Configurater/RenderPipelineValidator";
+import { ObjectGeometryTessellator } from "../../Engine/Science/Graphical_Renderer/Items/Objects/ObjectGeometryTessellator";
+import { ItemColorContrastSolver } from "../../Engine/Science/Graphical_Renderer/Items/General/ItemColorContrastSolver";
+import { EdibleItemTelemetryKernel } from "../../Engine/Science/Graphical_Renderer/Items/EdibleItemTelemetryKernel";
+import { CourtyardPerspectiveKernel } from "../../Engine/Science/Graphical_Renderer/World_2/Temple_Courtyard/CourtyardPerspectiveKernel";
+import { CourtyardCopyleftScene } from "../../Engine/Science/Graphical_Renderer/World_2/Temple_Courtyard/CourtyardCopyleftScene";
+import { GrandTeaRoomSign, drawGrandTeaRoomSign } from "../../Building_Blocks/Signs";
 import * as Physics from "../../Engine/Science/Physics";
 import * as Acoustics from "../../Engine/Science/Acoustics";
 import { AcousticStabilizer, AcousticRingBuffer } from "../../Engine/Science/Acoustics/AcousticStabilizer";
@@ -126,6 +137,17 @@ export class IntegritySentinel {
     const criticalSystems = [
       { name: "Science Engine", ref: Science },
       { name: "Graphical Renderer", ref: Graphical_Renderer },
+      { name: "Graphical Renderer CanvasTextPurityPolicy", ref: CanvasTextPurityPolicy },
+      { name: "Graphical Renderer DepthSortViewportKernel", ref: DepthSortViewportKernel },
+      { name: "Graphical Renderer ViewportTransformStabilizer", ref: ViewportTransformStabilizer },
+      { name: "Graphical Renderer VisualPresetMatrix", ref: VisualPresetMatrix },
+      { name: "Graphical Renderer RenderPipelineValidator", ref: RenderPipelineValidator },
+      { name: "Graphical Renderer ObjectGeometryTessellator", ref: ObjectGeometryTessellator },
+      { name: "Graphical Renderer ItemColorContrastSolver", ref: ItemColorContrastSolver },
+      { name: "Graphical Renderer EdibleItemTelemetryKernel", ref: EdibleItemTelemetryKernel },
+      { name: "Graphical Renderer CourtyardPerspectiveKernel", ref: CourtyardPerspectiveKernel },
+      { name: "Graphical Renderer CourtyardCopyleftScene", ref: CourtyardCopyleftScene },
+      { name: "Building Blocks GrandTeaRoomSign", ref: GrandTeaRoomSign },
       { name: "Physics Core", ref: Physics },
       { name: "Acoustics Engine", ref: Acoustics },
       { name: "Acoustics Stabilizer Kernel", ref: AcousticStabilizer },
@@ -241,7 +263,20 @@ export class IntegritySentinel {
       { label: "VisualKeyframePredictorAI.predictTiming", fn: VisualKeyframePredictorAI.predictTiming },
       { label: "VisualFrameBudgetGovernorAI.evaluateBudget", fn: VisualFrameBudgetGovernorAI.evaluateBudget },
       { label: "ProceduralGaitBlenderAI.blendGait", fn: ProceduralGaitBlenderAI.blendGait },
-      { label: "VisualPaletteMoodClassifierAI.recommendPalette", fn: VisualPaletteMoodClassifierAI.recommendPalette }
+      { label: "VisualPaletteMoodClassifierAI.recommendPalette", fn: VisualPaletteMoodClassifierAI.recommendPalette },
+      { label: "CanvasTextPurityPolicy.shouldRenderTextCategory", fn: CanvasTextPurityPolicy.shouldRenderTextCategory },
+      { label: "DepthSortViewportKernel.projectWorldPoint", fn: DepthSortViewportKernel.projectWorldPoint },
+      { label: "ViewportTransformStabilizer.computeViewportScale", fn: ViewportTransformStabilizer.computeViewportScale },
+      { label: "VisualPresetMatrix.resolvePreset", fn: VisualPresetMatrix.resolvePreset },
+      { label: "RenderPipelineValidator.sanitizeVisualConfig", fn: RenderPipelineValidator.sanitizeVisualConfig },
+      { label: "ObjectGeometryTessellator.computeRegularPolygonVertices", fn: ObjectGeometryTessellator.computeRegularPolygonVertices },
+      { label: "ItemColorContrastSolver.resolveItemPalette", fn: ItemColorContrastSolver.resolveItemPalette },
+      { label: "EdibleItemTelemetryKernel.computeItemRadius", fn: EdibleItemTelemetryKernel.computeItemRadius },
+      { label: "CourtyardPerspectiveKernel.resolveDirectionBasis", fn: CourtyardPerspectiveKernel.resolveDirectionBasis },
+      { label: "CourtyardCopyleftScene.renderCourtyardGoatParade3D", fn: CourtyardCopyleftScene.renderCourtyardGoatParade3D },
+      { label: "CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D", fn: CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D },
+      { label: "CourtyardCopyleftScene.renderChalkboardBlueprintOverlay", fn: CourtyardCopyleftScene.renderChalkboardBlueprintOverlay },
+      { label: "GrandTeaRoomSign.draw", fn: drawGrandTeaRoomSign }
     ];
 
     for (const check of callableChecks) {

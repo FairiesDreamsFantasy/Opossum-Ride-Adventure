@@ -293,3 +293,45 @@ To protect the standardization of the accessibility system, the following mandat
 *   **Unified Pause & Input Leakage Guards (`Play_Area/index.tsx` & `Portrait_Orientation_4_Tablets/`)**: Centralized `handleTogglePlayPause` (clearing held movement flags, resetting `lastTime`, and announcing pause/resume once) and gated `onMoveLeft`, `onMoveRight`, `onJump`, and controller steering with `stateRef.current.isPlaying && !stateRef.current.isGameOver`.
 *   **Ambience-Only Default & Pause Audio Split (`System/Sound/index.tsx`, `Crafted/index.tsx`, `Play_Area/index.tsx`)**: Preserved `"Ambience Only (Default)"` (`musicEnabled = false`) until a player explicitly chooses music (fixing `"Play Each Track Via Arena"` activation in `Menu_Bar/Crafted`), and decoupled BGM tracks (`playOnlyBGMTracks` / `stopOnlyBGMTracks`) so arena ambience continues seamlessly while musical BGM tracks stop during pause and resume on unpause.
 *   **Wii Remote Plus WebHID Fix (`Controller/Wii/index.tsx`)**: Corrected the second Bluetooth pairing filter from `PRODUCT_ID_STANDARD` to `WiiGeneralConfig.bluetooth.VENDOR_ID` (`0x057e`).
+
+---
+
+### 22. Canvas Text Purity, 3D Immersion Hygiene & `Graphical_Renderer` Flat Architecture (`v0.1.0.8`)
+*   **Removed Unnecessary Static Canvas Clutter (`Graphical_Renderer/index.tsx` & `World_2/Temple_Courtyard/index.tsx`)**:
+    *   Removed the four overlapping static wall coordinate markers (`SOUTH WALL Marker: Y = 0 FT`, `NORTH WALL Marker: Y = 2000 FT`, `WEST WALL Marker: X = 0 FT`, `EAST WALL Marker: X = 2000 FT`) from `renderFoyer3D` so Level 0 `POV` and `RIDER` views remain pure and free of visual noise.
+    *   Removed the unconditional static `// HUD Overlay Label` (`zoneTitle`) from `renderWorld2Courtyard3D`.
+    *   Gated `"CHARGED!"` opponent alerts (`Graphical_Renderer/index.tsx`) and 3D Goat cameo nameplates (`Characters/Goats/CameoRenderer.ts`) behind `showOpponentIndicators` (`Visual HUD Tags: ON`).
+*   **Preserved Valid Canvas Textual Effects**:
+    *   Kept dynamic arcade scoring popups (`floatingTextPool` when smashing feral pigs, unmounted moose, or collecting items).
+    *   Kept arena doorway/archway/gate signage (`"ARCHWAY -> WORLD 2 LEVEL 1"`, `"TEMPLE FOYER ENTRANCE"`, `"LOCKED WEST GATE -> WORLD 1 ROAD"`).
+    *   Kept copyleft pirated cartridge static overlays (`isPiratedSwitchCartridge()`).
+    *   Added meaningful dynamic Chalkboard blueprint telemetry (`CanvasTextPurityPolicy.formatChalkboardDynamicLine`) rendered strictly when `activeVisualPref === "Chalkboard Only"`.
+*   **Added 9 Flat Modules in `System/Engine/Science/Graphical_Renderer/` (Zero Extra Folders)**:
+    *   Root: `CanvasTextPurityPolicy.ts`, `DepthSortViewportKernel.ts`
+    *   `General/`: `ViewportTransformStabilizer.ts`
+    *   `Configurater/` & `Configurater/General/`: `RenderPipelineValidator.ts`, `VisualPresetMatrix.ts`
+    *   `Items/`, `Items/General/`, `Items/Objects/`: `EdibleItemTelemetryKernel.ts`, `ItemColorContrastSolver.ts`, `ObjectGeometryTessellator.ts`
+    *   `World_2/Temple_Courtyard/`: `CourtyardPerspectiveKernel.ts`
+    *   Wired all 9 into their respective modules and registered both existence and callable checks in `System/Security/Sentinel/Integrity_Web.ts`.
+
+---
+
+### 23. Temple Courtyard Copyleft Parade, Tea Area Dynamic Picture Frame, Blueprint Chalkboard & ANY-Key Screenshot Unlock (`v0.1.0.8`)
+*   **Doorway & Arena Signage Policy (`CanvasTextPurityPolicy.ts`)**: `doorway_signage` always renders in **Chalkboard Only**, **2D Blueprint**, and **Pirated Switch Cartridge** modes, while DRM-free 3D `POV` / `RIDER` views remain clean of unrequested static text overlays.
+*   **Architectural Blueprint Chalkboard Overlay (`CourtyardCopyleftScene.renderChalkboardBlueprintOverlay` & `Play_Area/index.tsx`)**: Enhances `Chalkboard Only` mode with an architectural drafting grid, outer frame & edge ruler ticks, live directional N/E/S/W compass rose, `0–500 ft` calibration bar, and live dynamic position/speed telemetry.
+*   **Temple Courtyard 4-Goat Parade (`CourtyardCopyleftScene.renderCourtyardGoatParade3D`)**: On pirated Switch cartridges (`isPiratedSwitchCartridge()`), 4 authentic goats (`alpine`, `aurum`, `bella`, `snowy`) march in parade formation carrying a green banner with crisp black text sharing the official open-source, privacy/zero-data-harvesting, and free premium content message from Fairies Dreams & Fantasy Staff.
+*   **South Tea Area Dynamic Picture Frame (`CourtyardCopyleftScene.renderTeaAreaDynamicPictureFrame3D`)**: Animated picture frame in the South Tea Area depicting riders riding opossums on the left panel and an employed person (wearing a visible work ID badge/lanyard) on a laptop running a legitimate open-source copy alongside warm steaming tea and pastries on the right panel.
+*   **ANY-Key (Priority `"A"` Key) Screenshot Unlock (`Play_Area/index.tsx` & `Menu_Bar/Crafted/index.tsx`)**: On pirated cartridges, screenshots start locked (`allowScreenshotsAfterAnyKey: true`, `priorityUnlockKey: "A"` in `Copyleft_Enforcement/General/index.tsx`), and pressing ANY key via capture-phase `keydown` listener (with priority recognition for `"A"`/`"a"` before multi-tap or menu focus interception) immediately unlocks `"Take Screenshot"` in `Toolbox` for community sharing.
+
+---
+
+### 24. Crafted Building Block Signs Subsystem & Grand Tea Room Wall Sign (`System/Building_Blocks/Signs/`, `v0.1.0.8`)
+*   **Architectural Signs Hierarchy (`src/System/Building_Blocks/Signs/`)**:
+    *   Created `Signs/`, `Signs/Crafted/`, and `Signs/Crafted/Grand_Tea_Room_Sign/`, each fortified with local `AGENTS.md` protection rules and re-exported from `System/Building_Blocks/index.tsx` and `Graphical_Renderer/index.tsx`.
+    *   Registered `GrandTeaRoomSign` and `drawGrandTeaRoomSign` in `System/Security/Sentinel/Integrity_Web.ts` (`criticalSystems` and `callableChecks`).
+*   **Grand Tea Room Wall Sign (`GRAND_TEA_ROOM_SIGN_SPEC` & `drawGrandTeaRoomSign`)**:
+    *   Exact dimensions: **`48 inches × 48 inches`** (`4 ft × 4 ft`) with **`1 cm` gold border** (`#D4AF37`), black background (`#000000`), rainbow-spectrum teacup inside a saucer artwork with steam, and `"Grand Tea Room"` inscription.
+    *   Mounted on the **Floor Foyer West Wall (`X = 0`)** at **`984 ft` to `988 ft`** from the south wall (leaving `24 inches` to the left of the `990–1,010 ft` Grand Red Frame Doorway) and elevated **`12 ft` from the floor** (`12–16 ft`).
+*   **Diegetic Screenshot Support (`CanvasTextPurityPolicy` `"physical_world_sign"`)**: Physical wall/post sign objects render cleanly in **3-D normal visuals**, **Chalkboard Only**, **2-D Blueprint**, and **Pirated Cartridge** modes so in-world architectural signs appear naturally inside screenshots while screen-space debug clutter stays disabled.
+
+

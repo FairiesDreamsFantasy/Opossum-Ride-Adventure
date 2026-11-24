@@ -494,3 +494,39 @@ All 19 crafted opossums are fully synchronized across 38 design property lookup 
 - **Pause/Resume Input Isolation (`Play_Area/index.tsx`)**: Unified `handleTogglePlayPause` clears held movement flags, resets `lastTime` on resume, and gates touch (`onMoveLeft`, `onMoveRight`, `onJump`) and controller steering (`controllerLeft`, `controllerRight`) whenever `!stateRef.current.isPlaying || stateRef.current.isGameOver`.
 - **Ambience-First Audio & Pause Separation (`Sound/index.tsx`, `Menu_Bar/Crafted/index.tsx`)**: Default audio remains `"Ambience Only"` (`musicEnabled = false`) until manually activated from Music Options (including `"Play Each Track Via Arena"`). Pausing stops only BGM music tracks via `stopOnlyBGMTracks()` while keeping arena ambience playing, and resuming restores only BGM music tracks via `playOnlyBGMTracks()` when music is enabled.
 - **Wii Remote Plus WebHID Driver (`Controller/Wii/index.tsx`)**: Fixed `connectWiiRemote()` second device filter to use `WiiGeneralConfig.bluetooth.VENDOR_ID` (`0x057e`) alongside `PRODUCT_ID_PLUS` (`0x0330`).
+
+---
+
+## 24. Canvas Text Purity & `Graphical_Renderer` Flat Stabilization Modules (`v0.1.0.8`)
+- **Canvas Text Purity Policy (`CanvasTextPurityPolicy.ts`)**: Deterministic gatekeeper distinguishing valid canvas text (`arcade_score_popup`, `doorway_signage`, `pirated_cart_notice`, `chalkboard_dynamic`, `blueprint_2d`, `opponent_indicator_tag`) from disallowed 3D clutter (`static_wall_marker`, `unconditional_zone_hud`).
+- **3D POV & Rider Canvas Cleanup**:
+  - Removed hardcoded wall markers (`SOUTH/NORTH/WEST/EAST WALL Marker`) in `renderFoyer3D` (`Graphical_Renderer/index.tsx`) and the unconditional `zoneTitle` HUD overlay label in `renderWorld2Courtyard3D` (`World_2/Temple_Courtyard/index.tsx`).
+  - Gated `"CHARGED!"` text and `drawGoatCameo3D` nameplates behind `showOpponentIndicators` (`Visual HUD Tags`).
+  - Preserved `floatingTextPool` dynamic scoring popups, doorway/gate signage, `isPiratedSwitchCartridge()` enforcement text, and added live dynamic Chalkboard telemetry (`CanvasTextPurityPolicy.formatChalkboardDynamicLine`) in `Play_Area/index.tsx`.
+- **Flat Modules Installed in Existing `Graphical_Renderer/` Folders (Wired & Checked in `Integrity_Web.ts`)**:
+  - `Graphical_Renderer/`: `CanvasTextPurityPolicy.ts`, `DepthSortViewportKernel.ts`
+  - `Graphical_Renderer/General/`: `ViewportTransformStabilizer.ts`
+  - `Graphical_Renderer/Configurater/` & `Configurater/General/`: `RenderPipelineValidator.ts`, `VisualPresetMatrix.ts`
+  - `Graphical_Renderer/Items/`, `Items/General/`, `Items/Objects/`: `EdibleItemTelemetryKernel.ts`, `ItemColorContrastSolver.ts`, `ObjectGeometryTessellator.ts`
+  - `Graphical_Renderer/World_2/Temple_Courtyard/`: `CourtyardPerspectiveKernel.ts`
+
+---
+
+## 25. Temple Courtyard Copyleft Scene, Blueprint Chalkboard & ANY-Key Screenshot Unlock (`v0.1.0.8`)
+- **Doorway & Signage Policy (`CanvasTextPurityPolicy.ts`)**: `doorway_signage` always renders when `isChalkboard || isPiratedCart || !is3D` so blueprint/chalkboard drafting and copyleft enforcement retain explicit spatial labels while normal 3D views stay uncluttered.
+- **`CourtyardCopyleftScene` (`World_2/Temple_Courtyard/CourtyardCopyleftScene.ts`, registered in `Integrity_Web.ts`)**:
+  - `renderCourtyardGoatParade3D`: Renders 4 animated goats (`alpine`, `aurum`, `bella`, `snowy`) via `drawGoatCameo3D` carrying a green banner with crisp black text displaying the exact open-source, zero-data-harvesting privacy, free premium content, and ANY-key screenshot awareness message on pirated cartridges.
+  - `renderTeaAreaDynamicPictureFrame3D`: Renders an animated picture frame in the South Tea Area depicting riders on opossums alongside an employed person (visible work ID badge/lanyard) using a laptop running a legitimate copy while enjoying warm steaming tea and flaky pastries.
+  - `renderChalkboardBlueprintOverlay`: Renders architectural CAD blueprint gridlines, edge ruler ticks, live compass needle rose (N/E/S/W), and `0–500 ft` calibration bar in `Chalkboard Only` mode alongside live dynamic telemetry.
+- **ANY-Key (Priority `"A"` Key) Screenshot Unlock (`Play_Area/index.tsx` & `Menu_Bar/Crafted/index.tsx`)**: Capture-phase `keydown` listener unlocks `piratedScreenshotUnlocked` immediately when `"A"`/`"a"` or any non-modifier key is pressed on a pirated cartridge (bypassing Cedella multi-tap interception and menu focus blocks), enabling `"Take Screenshot"` in `Toolbox`.
+
+---
+
+## 26. Crafted Building Block Signs Subsystem & Grand Tea Room Wall Sign (`v0.1.0.8`)
+- **Module Location**: `src/System/Building_Blocks/Signs/Crafted/Grand_Tea_Room_Sign/index.tsx` (with `AGENTS.md` shields across `Signs/`, `Signs/Crafted/`, and `Signs/Crafted/Grand_Tea_Room_Sign/`), exported via `System/Building_Blocks/index.tsx` and `Graphical_Renderer/index.tsx`, and checked in `Integrity_Web.ts`.
+- **Specifications (`GRAND_TEA_ROOM_SIGN_SPEC`)**:
+  - Size: `48 inches × 48 inches` (`4 ft × 4 ft`); Border: `1 cm` gold (`#D4AF37`); Background: Black (`#000000`); Artwork: Rainbow teacup inside a saucer; Text: `"Grand Tea Room"`.
+  - Placement: Floor Foyer West Wall (`X = 0`), spanning `984 ft` to `988 ft` from the south wall (leaving `24 in` to the left of the `990–1,010 ft` Grand Red Frame Doorway), placed `12 ft` from the floor (`12–16 ft` vertical span).
+- **3-D & 2-D Rendering (`Graphical_Renderer/index.tsx` & `CanvasTextPurityPolicy.ts`)**: Added `physical_world_sign` policy category (always `true` for screenshots in normal 3-D, 2-D, Chalkboard, and Pirated Cartridge modes) and direction-aware West/South/East wall projection in `renderFoyer3D` (`foyerDirection`) displaying the Grand Red Frame Doorway + `"Grand Tea Room"` plaque alongside 2-D blueprint placement.
+
+

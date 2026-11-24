@@ -109,7 +109,8 @@ export function drawGoatCameo3D(
   projX: number,
   projY: number,
   projScale: number,
-  animal: AnimalItem
+  animal: AnimalItem,
+  showIndicatorLabels: boolean = false
 ): void {
   const cameo = getGoatCameoById(animal.goatId);
   const pal = cameo.palette;
@@ -302,9 +303,9 @@ export function drawGoatCameo3D(
   ctx.fillStyle = "#0F172A";
   ctx.fillRect(headCenterX + 1.3 * sc, headCenterY - 1.5 * sc, 1.8 * sc, 0.7 * sc);
 
-  // Subtle name label when close to camera
+  // Subtle name label only when indicator tags are explicitly enabled
   const relDist = Math.abs(animal.z);
-  if (projScale > 1.8 && sc > 0.32 && relDist > 0) {
+  if (showIndicatorLabels && projScale > 1.8 && sc > 0.32 && relDist > 0) {
     ctx.scale(facingDir, 1); // unflip text
     ctx.fillStyle = "rgba(15, 23, 42, 0.68)";
     ctx.font = `600 ${Math.max(9, Math.round(10 * Math.min(1.4, sc)))}px sans-serif`;

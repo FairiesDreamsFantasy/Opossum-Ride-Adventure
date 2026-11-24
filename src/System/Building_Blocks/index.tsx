@@ -16,6 +16,7 @@ export * from "./Paths";
 export * from "./Railway";
 export * from "./Random_Materials";
 export * from "./Road";
+export * from "./Signs";
 export * from "./Triangular_Stone_Fence";
 export * from "./Triangular_Stone_Path";
 export * from "./Tunnels";

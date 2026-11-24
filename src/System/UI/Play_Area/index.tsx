@@ -28,7 +28,9 @@ import {
   renderFoyer3D,
   renderWorld2Courtyard3D,
   renderStandardLevel,
-  render2DView
+  render2DView,
+  CanvasTextPurityPolicy,
+  CourtyardCopyleftScene
 } from "../../Engine/Science/Graphical_Renderer";
 import { updateFoyerPhysics, updateWorld2CourtyardPhysics, updateStandardPhysics, applyScientificReaction } from "../../Engine/Science/Physics";
 import { Spawner } from "../../Engine/Spawner";
@@ -220,6 +222,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
   const [genericCrashSound, setGenericCrashSound] = useState<boolean>(false);
   const [currentTheme, setCurrentTheme] = useState<ThemeType>("dark");
   const [showThemeModal, setShowThemeModal] = useState<boolean>(false);
+  const [piratedScreenshotUnlocked, setPiratedScreenshotUnlocked] = useState<boolean>(() => !isPiratedSwitchCartridge());
+  const piratedScreenshotUnlockedRef = useRef<boolean>(!isPiratedSwitchCartridge());
 
   // Modern Level 0 Manor Foyer Positioning states
   const [foyerX, setFoyerX] = useState<number>(1000);
@@ -847,6 +851,27 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     }
   }, []);
 
+  // Capture-phase ANY-key (with explicit priority for 'a'/'A') screenshot unlock on pirated cartridges
+  useEffect(() => {
+    if (!isPiratedSwitchCartridge()) return;
+    const handleAnyKeyScreenshotUnlock = (e: KeyboardEvent) => {
+      if (piratedScreenshotUnlockedRef.current) return;
+      const isModifierOnly = ["Shift", "Control", "Alt", "Meta", "CapsLock", "NumLock", "ScrollLock"].includes(e.key);
+      if (isModifierOnly) return;
+      // Ensure 'A' / 'a' or any pressed key unlocks screenshots immediately before Cedella multi-tap or menu focus stops propagation
+      const isPriorityAKey = e.key === "a" || e.key === "A" || e.code === "KeyA";
+      if (isPriorityAKey || e.key.length > 0) {
+        piratedScreenshotUnlockedRef.current = true;
+        setPiratedScreenshotUnlocked(true);
+        const unlockNotice = "Screenshots unlocked! Open Toolbox -> Take Screenshot to capture and share with the community.";
+        setStatusMessage(unlockNotice);
+        speakWords(unlockNotice);
+      }
+    };
+    window.addEventListener("keydown", handleAnyKeyScreenshotUnlock, { capture: true });
+    return () => window.removeEventListener("keydown", handleAnyKeyScreenshotUnlock, { capture: true });
+  }, []);
+
   // Keyboard Event Handlers based on Cedella / Arden Denis mappings
   const keyHistoryRef = useRef<{ key: string; timestamp: number }[]>([]);
   const doubleTapTimerRef = useRef<any>(null);
@@ -1459,6 +1484,39 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
             defaultRider,
             true // force wireframe outlines
           );
+
+          CourtyardCopyleftScene.renderChalkboardBlueprintOverlay(
+            ctx,
+            width,
+            height,
+            chalkboardConfig.lineHex,
+            stateRef.current.foyerDirection
+          );
+
+          if (CanvasTextPurityPolicy.shouldRenderTextCategory("chalkboard_dynamic", {
+            is3D: false,
+            isChalkboard: true,
+            isPiratedCart: false,
+            showOpponentIndicators,
+            viewMode: String(viewMode)
+          })) {
+            const dynamicLine = CanvasTextPurityPolicy.formatChalkboardDynamicLine({
+              levelId: currentLevel.id,
+              playerZ: stateRef.current.playerZ,
+              targetDistance: currentLevel.targetDistance,
+              speed: stateRef.current.speed,
+              foyerX: stateRef.current.foyerX,
+              foyerY: stateRef.current.foyerY,
+              foyerDirection: stateRef.current.foyerDirection,
+              activeEntities: localOpponents.length + localAnimals.length
+            });
+            ctx.save();
+            ctx.fillStyle = chalkboardConfig.lineHex;
+            ctx.font = "bold 11px monospace";
+            ctx.textAlign = "left";
+            ctx.fillText(dynamicLine, 14, 22);
+            ctx.restore();
+          }
         } else if (is3D) {
           const horizonY = height * VISUAL_CONSTANTS.CAMERA.DEFAULT_HORIZON_RATIO;
           const focalLength = VISUAL_CONSTANTS.CAMERA.DEFAULT_FOCAL_LENGTH;
@@ -1493,7 +1551,8 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
               wireframe,
               viewMode,
               selectedOpossum,
-              defaultRider
+              defaultRider,
+              stateRef.current.foyerDirection
             );
           } else {
             renderStandardLevel(
@@ -1618,6 +1677,7 @@ export const PlayArea: React.FC<PlayAreaProps> = ({
     setLargeText,
     chalkboardConfig,
     setChalkboardConfig,
+    piratedScreenshotUnlocked,
     onOpenThemeModal: () => setShowThemeModal(true),
     customTrackId,
     onSetCustomTrack: (trackId: string | null, enableMusic?: boolean) => {

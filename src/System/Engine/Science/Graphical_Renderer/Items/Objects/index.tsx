@@ -4,6 +4,7 @@
  */
 
 import { drawObjectGeneral, getObjectGeneralName } from "./General";
+export * from "./ObjectGeometryTessellator";
 
 export function drawObjectItem(ctx: CanvasRenderingContext2D, x: number, y: number, type: string, size: number, wireframe: boolean): void {
   drawObjectGeneral(ctx, x, y, type, size, wireframe);
